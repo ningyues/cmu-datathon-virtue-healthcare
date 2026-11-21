@@ -1,0 +1,20 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="708" height="598" viewBox="0 0 708 598" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Frame" clip-path="url(#clip0_0_43)">
+<path id="Vector" d="M708 0H0V598H708V0Z" fill="#EEF1FA"/>
+<path id="Vector_2" d="M-50 120C180 20 320 280 760 140" stroke-width="75" stroke="#C8D9F2"/>
+<g id="Group">
+<path id="Vector_3" d="M70 0L200 600M350 0L280 600M590 0L480 600M0 310L710 370M0 490L710 430" stroke-width="12" stroke="white"/>
+</g>
+<g id="Group_2">
+<path id="Vector_4" d="M148 370H72C65.3726 370 60 375.373 60 382V428C60 434.627 65.3726 440 72 440H148C154.627 440 160 434.627 160 428V382C160 375.373 154.627 370 148 370Z" fill="#DCDFF1"/>
+<path id="Vector_5" d="M448 390H372C365.373 390 360 395.373 360 402V448C360 454.627 365.373 460 372 460H448C454.627 460 460 454.627 460 448V402C460 395.373 454.627 390 448 390Z" fill="#DCDFF1"/>
+<path id="Vector_6" d="M528 230H442C435.373 230 430 235.373 430 242V288C430 294.627 435.373 300 442 300H528C534.627 300 540 294.627 540 288V242C540 235.373 534.627 230 528 230Z" fill="#DCDFF1"/>
+<path id="Vector_7" d="M258 200H202C195.373 200 190 205.373 190 212V268C190 274.627 195.373 280 202 280H258C264.627 280 270 274.627 270 268V212C270 205.373 264.627 200 258 200Z" fill="#DCDFF1"/>
+</g>
+</g>
+<defs>
+<clipPath id="clip0_0_43">
+<rect width="708" height="598" fill="white"/>
+</clipPath>
+</defs>
+</svg>
