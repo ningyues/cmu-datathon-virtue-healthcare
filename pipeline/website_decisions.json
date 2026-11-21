@@ -1,0 +1,174 @@
+[
+  {
+    "id": "ac4c39ce-8c64-4bab-a4db-1b3dca1ea817",
+    "facility": "Jyoti Hospital",
+    "field": "websites",
+    "original_value": "netrameeye hospital.com",
+    "retained_value": "https://jyotieyehospital.org/",
+    "source_url": "https://jyotieyehospital.org/",
+    "note": "Retain the Jyoti Eye Hospital site for Visnagar. The similarly named Netram domain is associated with a different provider.",
+    "corroborating_url": "https://happyinsurance.in/health-insurance/visnagar-gujarat/"
+  },
+  {
+    "id": "71c0cdb6-b7a5-4c05-b8ac-b0beae74d0d9",
+    "facility": "Jain ENT Hospital",
+    "field": "websites",
+    "original_value": "ja jaipur? ja jaipur ent hospital official site?",
+    "retained_value": "https://jainenthospital.org/",
+    "source_url": "https://jainenthospital.org/contact-us/",
+    "note": "The contact page identifies Jain ENT Hospital in Jaipur."
+  },
+  {
+    "id": "71c0cdb6-b7a5-4c05-b8ac-b0beae74d0d9",
+    "facility": "Jain ENT Hospital",
+    "field": "websites",
+    "original_value": "ja jaipur?",
+    "retained_value": "https://jainenthospital.org/",
+    "source_url": "https://jainenthospital.org/contact-us/",
+    "note": "The contact page identifies Jain ENT Hospital in Jaipur."
+  },
+  {
+    "id": "dc97c031-cec5-48eb-a1c1-d4de6520eb63",
+    "facility": "Capitol Hospital",
+    "field": "websites",
+    "original_value": "capitolhospital",
+    "retained_value": "https://www.capitolhospital.com/",
+    "source_url": "https://www.capitolhospital.com/page/contact-us",
+    "note": "The hospital contact page identifies the matching site in Jalandhar."
+  },
+  {
+    "id": "f947f247-8b7a-4ea0-a6b6-92a18e13e025",
+    "facility": "Kansal Dental Clinic and Orthodontic Centre",
+    "field": "websites",
+    "original_value": "kansaldentalclinic",
+    "retained_value": "https://kansalorthodonticcentre.in/",
+    "source_url": "https://kansalorthodonticcentre.in/contact/",
+    "note": "The clinic contact page identifies the matching practice in Meerut."
+  },
+  {
+    "id": "d0f3824e-0da4-431c-88d1-cdffb4d9e383",
+    "facility": "Satyam Clinical Laboratory",
+    "field": "websites",
+    "original_value": "sat yam lab?/.",
+    "retained_value": "https://www.satyamlab.com/",
+    "source_url": "https://www.satyamlab.com/",
+    "note": "The laboratory site identifies Satyam Clinical Laboratory in Chandigarh."
+  },
+  {
+    "id": "fccc2b9a-9df1-4883-a05e-d35a6de669f7",
+    "facility": "Green City Hospital",
+    "field": "websites",
+    "original_value": "greencityhospitalbhopal.com? to be replaced",
+    "retained_value": "https://www.greencityhospitalbhopal.com/",
+    "source_url": "https://www.greencityhospitalbhopal.com/contact-us/",
+    "note": "The contact page identifies the matching Green City Hospital in Bhopal."
+  },
+  {
+    "id": "56c32a1e-9110-4cc9-8061-17b807194366",
+    "facility": "Anu Specialty Hospital",
+    "field": "websites",
+    "original_value": "anu_multispeciality_hospital",
+    "retained_value": "https://www.anuhospital.in/",
+    "source_url": "https://www.anuhospital.in/",
+    "note": "The hospital site identifies the matching Anu hospital in Thanjavur."
+  },
+  {
+    "id": "d25b05cb-f9f6-43d4-8506-3e872605fc2c",
+    "facility": "Sarojini Dental Hospital",
+    "field": "websites",
+    "original_value": "sarojinidental hospital.com",
+    "retained_value": "https://www.sarojinidental.com/",
+    "source_url": "https://www.sarojinidental.com/contact",
+    "note": "The contact evidence matches the Sarojini Dental site in Secunderabad."
+  },
+  {
+    "id": "f5787e6a-9015-419a-b6df-65d5d0c7dcb1",
+    "facility": "Dr. Varshali's Gynecology Clinic",
+    "field": "websites",
+    "original_value": "https://www.drvarshaliclinic.com/about-dr-varshali-mali-gynecologist-a\u001e\u0016",
+    "retained_value": "https://www.drvarshaliclinic.com/about-dr-varshali-mali-gynecologist-and-pregnancy-doctor",
+    "source_url": "https://www.drvarshaliclinic.com/about-dr-varshali-mali-gynecologist-and-pregnancy-doctor",
+    "note": "The full provider profile identifies Dr. Varshali Mali. The malformed value ends with two control characters."
+  },
+  {
+    "id": "287913e3-162c-45d5-873a-eada15f8591b",
+    "facility": "Dr. Manjari Ultrasound",
+    "field": "websites",
+    "original_value": "dr.manjari_ultrasound.center",
+    "retained_value": "https://drmanjariultrasound.com/",
+    "source_url": "https://drmanjariultrasound.com/contact-us.php",
+    "note": "The contact page identifies the matching ultrasound centre in Noida."
+  },
+  {
+    "id": "8735c338-9b18-43d1-a4da-1e835fd1559a",
+    "facility": "Comfort Multi Speciality Hospital",
+    "field": "officialWebsite",
+    "original_value": "com forthospitals.com",
+    "source_url": "https://kwa.kerala.gov.in/wp-content/uploads/2024/07/PEN-LIST-OF-NETWORK-HOSPITALS_PAN-_INDIA_Ms-ORIENTAL-INSURANCE-COMPANY-LTD.pdf",
+    "note": "The directory supports the Bangalore facility identity. Ownership of the candidate domain could not be verified."
+  },
+  {
+    "id": "76a3a7f6-d5f5-4dd8-a6c9-1fa614928e79",
+    "facility": "ESI Hospital",
+    "field": "officialWebsite",
+    "original_value": "[\"esic.nic.in\"]",
+    "source_url": "https://ims.kerala.gov.in/en/node/28",
+    "note": "The government page identifies a site in Olarikkara, Thrissur. The input mixes Perumbavoor with PIN 691536. A branch website could not be assigned."
+  },
+  {
+    "id": "7b2e1044-8170-42b1-ad7f-f6501255ba7e",
+    "facility": "Lifeline Clinic & Diagnostics",
+    "field": "officialWebsite",
+    "original_value": "lifelineclinicnd diagnostics.com",
+    "source_url": "https://lifelineclinicandiagnostics.com/",
+    "note": "The old candidate could not be reached. The candidate active site lists Govind Nagar, while the input lists Pathardi Phata."
+  },
+  {
+    "id": "39c6f2b8-806a-499c-9fac-a918e52cd191",
+    "facility": "Kasturba Hospital",
+    "field": "websites",
+    "original_value": "kasturbamultispeciality",
+    "source_url": "https://www.signalhire.com/companies/kasturba-hospital-tumkur",
+    "note": "The record mixes Tumkur and Manipal sources. The candidate domain could not be tied to the recorded branch."
+  },
+  {
+    "id": "2d65a95f-4842-4d1d-9ddd-fc94ddb153c3",
+    "facility": "Jivandeep Hospital",
+    "field": "websites",
+    "original_value": "jivandeep hospital.com",
+    "source_url": "https://in.linkedin.com/company/jivandeephospital",
+    "note": "The candidate site is associated with Dholka, while the input identifies Santrampur."
+  },
+  {
+    "id": "50fd571f-6d38-43a7-a8a0-b9a651b25f37",
+    "facility": "Smile N Shine",
+    "field": "websites",
+    "original_value": "http://smile-n-shine.in/dental clinic",
+    "source_url": "https://chotu.com/local/dental-clinics-in-khardaha-kolkata-west-bengal-india/ct-18418140/",
+    "note": "The directory supports the Barrackpore clinic identity. A replacement website could not be verified."
+  },
+  {
+    "id": "67dc110e-5e33-472b-89ad-984064802d21",
+    "facility": "Ethos Body and Mind Clinic",
+    "field": "websites",
+    "original_value": "ethos hypnotherapyclinic?",
+    "source_url": "https://www.ethoshypnotherapyclinic.com/feedback/index.html",
+    "note": "The indexed page matched the contact details, but the live candidate returned HTTP 502 during review."
+  },
+  {
+    "id": "6d50cfb6-89dc-438c-801f-c590c0c81335",
+    "facility": "Vighneshwar Ayurved Hospitals",
+    "field": "websites",
+    "original_value": "vighneshwarayurvedhospitals",
+    "source_url": "https://www.practo.com/sangli/clinic/vighneshwar-ayurved-hospitals-sangli-city",
+    "note": "The directory identifies the Sangli clinic. An official replacement site could not be verified."
+  },
+  {
+    "id": "836a84fc-cdf2-4496-91e1-0accd20ab2d1",
+    "facility": "Promise Healthcare Hospital",
+    "field": "websites",
+    "original_value": "promisehealthcareranchi",
+    "source_url": "https://yappe.in/jharkhand/ranchi/dr-deepak-verma/607516",
+    "note": "A third-party listing links the candidate to the Ranchi facility. The candidate was unavailable during review."
+  }
+]
