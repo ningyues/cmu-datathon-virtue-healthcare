@@ -7,7 +7,8 @@ import json
 import lzma
 from pathlib import Path
 
-from app.location_matching import LocationMatcher, PIN_PATTERN, rank_by_distance
+from app.location_matching import LocationMatcher, PIN_PATTERN
+from app.search_output import print_nearby_results
 from app.service_search import match_service, parse_query, parse_query_with_agent
 
 
@@ -20,7 +21,10 @@ def main() -> int:
     mode.add_argument("--specialty", help="Dataset specialty, e.g. nephrology")
     mode.add_argument("--query", help='Service and location, e.g. "dialysis near Hyderabad 500003"')
     parser.add_argument("--agent", action="store_true", help="Use the OpenAI API to parse --query")
-    parser.add_argument("--sort", choices=("evidence", "distance"), help="Sort service searches by evidence or distance")
+    parser.add_argument(
+        "--sort", choices=("fit", "evidence", "distance"), default="fit",
+        help="Rank by Fit Score (default), dataset service evidence, or distance",
+    )
     parser.add_argument("--city", help='City or district, optionally with state, e.g. "Hyderabad, Telangana"')
     parser.add_argument("--pincode", help="Six-digit India PIN code")
     args = parser.parse_args()
@@ -70,9 +74,7 @@ def main() -> int:
             f"could not resolve location ({status}). Try a valid PIN or add the state."
         )
 
-    nearby = rank_by_distance(result["candidates"])
-    if service_id is not None and args.sort != "distance":
-        nearby.sort(key=lambda row: row["service_match"] != "listed_in_dataset")
+    nearby = result["candidates"]
     print(f"Origin: {location['label']} ({location['source']}, approximate)")
     if service_id is not None:
         listed = sum(row["service_match"] == "listed_in_dataset" for row in candidates)
@@ -87,15 +89,7 @@ def main() -> int:
         print(f"Nearby: {nearby_listed} with dataset claims, {len(nearby) - nearby_listed} specialty only")
     print(f"Distance unavailable: {len(result['unlocated_candidates'])}")
     print("Service availability is unverified.")
-    for row in nearby[:10]:
-        name = row["name_standardized"] or row["name"]
-        print(f"{row['distance_km']:6.1f} km  {name} ({row['address_city']})")
-        if service_id is not None:
-            evidence = row["service_evidence"]
-            if evidence:
-                print(f"           Dataset claim ({evidence['field']}): {evidence['text']}")
-            else:
-                print("           Related specialty only. Service not verified.")
+    print_nearby_results(nearby, sort_by=args.sort, service_search=service_id is not None)
     return 0
 
 
