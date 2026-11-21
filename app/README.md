@@ -23,7 +23,9 @@ python3 -m app.demo_location_search --query "Find dialysis near Hyderabad 500003
 
 The local parser recognizes common service-first queries. The catalog covers dialysis, hemodialysis, peritoneal dialysis, cataract surgery, and MRI. For more flexible phrasing, set `OPENAI_API_KEY` in your shell and add `--agent`. That option sends the query text to the OpenAI API and extracts a catalog service ID, city, and PIN.
 
-The matcher reads `procedure` and `capability` for claims about the requested service. Results include the source field and original claim text when present. Facilities matched through `specialties` alone are labeled as related specialty matches. Service searches show nearby records with dataset claims first, then sort by straight-line distance within each group. Use `--sort distance` for distance-only ordering.
+The matcher reads `procedure` and `capability` for claims about the requested service. Results include the source field and original claim text when present. Facilities matched through `specialties` alone are labeled as related specialty matches.
+
+Results show Fit Score and straight-line distance. The default orders supplied `fit_score` values from highest to lowest, using distance to break ties. Missing scores display as `Pending`. When every score is pending, service searches put dataset claims first and sort by distance within each group, and specialty searches sort by distance. Use `--sort evidence` to select the service evidence ordering or `--sort distance` to order results nearest first.
 
 To run the specialty-only baseline:
 
