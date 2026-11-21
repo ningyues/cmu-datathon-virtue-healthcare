@@ -6,11 +6,29 @@ From the repository root, this Python example reads the facility snapshot:
 
 ```python
 import csv
-import gzip
+import lzma
 
-with gzip.open("data/processed/facilities_clean.csv.gz", "rt",
+with lzma.open("data/processed/facilities_clean.csv.xz", "rt",
                encoding="utf-8-sig", newline="") as file:
-    facilities = list(csv.DictReader(file))
+    facilities = list(csv.DictReader(line.replace("\0", "") for line in file))
+```
+
+## Run the search demo
+
+From the repository root, run:
+
+```bash
+python3 -m app.demo_location_search --query "Find dialysis near Hyderabad 500003"
+```
+
+The local parser recognizes common service-first queries. The catalog covers dialysis, hemodialysis, peritoneal dialysis, cataract surgery, and MRI. For more flexible phrasing, set `OPENAI_API_KEY` in your shell and add `--agent`. That option sends the query text to the OpenAI API and extracts a catalog service ID, city, and PIN.
+
+The matcher reads `procedure` and `capability` for claims about the requested service. Results include the source field and original claim text when present. Facilities matched through `specialties` alone are labeled as related specialty matches. Service searches show nearby records with dataset claims first, then sort by straight-line distance within each group. Use `--sort distance` for distance-only ordering.
+
+To run the specialty-only baseline:
+
+```bash
+python3 -m app.demo_location_search --specialty nephrology --city Hyderabad --pincode 500003
 ```
 
 | Field | How to use it |

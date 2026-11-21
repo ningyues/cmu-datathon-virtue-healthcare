@@ -25,22 +25,23 @@
     "masked_email": 355,
     "empty_array_items_removed": 19877,
     "source_conflict": 1,
-    "source_backfill": 35,
+    "source_backfill": 109,
     "scope_conflict": 1,
     "coordinate_location_conflict": 9,
     "coordinate_locations_withdrawn": 3,
     "specialty_case_duplicates_removed": 153,
     "specialty_records_deduplicated": 81,
-    "invalid_pin_format": 76,
-    "coordinate_pair_unusable": 18,
+    "invalid_pin_format": 62,
+    "source_backfill_unlisted_pin": 2,
+    "coordinate_pair_unusable": 15,
     "invalid_establishment_year": 3
   },
   "pin_checks_after_cleaning": {
-    "missing_or_removed": 82,
-    "state_consistent": 9342,
-    "not_in_snapshot": 205,
-    "state_conflict": 31,
-    "state_unresolved": 314,
+    "missing_or_removed": 68,
+    "state_consistent": 9409,
+    "not_in_snapshot": 200,
+    "state_conflict": 28,
+    "state_unresolved": 269,
     "ambiguous_state": 15
   },
   "claims": {
@@ -53,7 +54,7 @@
     "official_page_supports": 1
   },
   "verified_service_claim_rows": 6,
-  "review_queue_rows": 1558,
+  "review_queue_rows": 1552,
   "dataset_sha256": {
     "datathon_zip": "6d580523b834b3df8cde3be30ba35b03543b53cdaf429639de2c890223707585",
     "postal_csv": "701ee84ba125a914e7ffc979c0308b3a041b8adffa85ec9d5f4e0579ecf062e5"

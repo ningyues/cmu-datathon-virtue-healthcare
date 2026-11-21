@@ -185,7 +185,18 @@ def build(zip_path, csv_path, dest):
             if any(edited_location.values()):
                 pin = resulting_location["address_zipOrPostcode"]
                 st = state(resulting_location["address_stateOrRegion"])
-                if pin not in reference or st not in reference[pin]["states"]:
+                # Two sources can establish a branch PIN missing from this snapshot.
+                # Leave its postal distance and consistency status unresolved.
+                if pin not in reference:
+                    if not (PIN.fullmatch(pin) and st in known_states and any(
+                        edit["field"] == "address_zipOrPostcode"
+                        and edit["status"] == "source_backfill_unlisted_pin"
+                        and edit["source_url"] and edit["corroborating_url"]
+                        and edit["source_url"] != edit["corroborating_url"]
+                        for edit in edits
+                    )):
+                        raise ValueError(f"Unverified PIN outside postal snapshot for {uid}: {st} / {pin}")
+                elif st not in reference[pin]["states"]:
                     raise ValueError(f"Source-backed state and PIN conflict for {uid}: {st} / {pin}")
             coordinate_conflict = any(d["status"] == "coordinate_location_conflict" for d in edits)
             for d in edits:
