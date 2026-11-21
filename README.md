@@ -2,6 +2,12 @@
 
 Datathon project for cleaning India healthcare facility and postal data, tracking source-backed corrections, and building a facility search application.
 
+## PostgreSQL backend
+
+See [database setup and scoring](virtue-healthcare/db/README.md) for the PostgreSQL schema, persistent
+synthetic authority flags, SQL search function, and Python import/query commands.
+The backend preserves the existing cleaning pipeline and source snapshots.
+
 ## Repository layout
 
 | Path | Contents |
