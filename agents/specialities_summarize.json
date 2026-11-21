@@ -1,0 +1,1886 @@
+[
+  {
+    "speciality_id": "SP_ADDICTION",
+    "speciality_name": "Addiction Medicine",
+    "speciality_name_zh": "成瘾医学",
+    "scope": "Substance use, deaddiction, tobacco cessation and addiction medicine",
+    "source_entry_count": 11,
+    "needs_review_count": 0,
+    "examples": [
+      "smokingMedicinePMR",
+      "addictionMedicinePM",
+      "addictionPsychiatry",
+      "addictionMedicinePMR"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_ALLERGY_IMMUNOLOGY",
+    "speciality_name": "Allergy and Clinical Immunology",
+    "speciality_name_zh": "过敏与临床免疫",
+    "scope": "Allergy, asthma allergy clinics and clinical immunology; exclude laboratory-only immunology",
+    "source_entry_count": 21,
+    "needs_review_count": 0,
+    "examples": [
+      "allergist",
+      "immunology",
+      "immunologist",
+      "allergyClinic"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_ANDROLOGY",
+    "speciality_name": "Andrology and Male Fertility",
+    "speciality_name_zh": "男科学与男性生育",
+    "scope": "Male infertility, andrology, erectile dysfunction and sperm retrieval",
+    "source_entry_count": 22,
+    "needs_review_count": 0,
+    "examples": [
+      "TESA",
+      "andrology",
+      "andrologist",
+      "maleFertility"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_ANESTHESIOLOGY",
+    "speciality_name": "Anesthesiology",
+    "speciality_name_zh": "麻醉学",
+    "scope": "General and subspecialty anesthesia and perioperative care",
+    "source_entry_count": 36,
+    "needs_review_count": 0,
+    "examples": [
+      "anesthesia",
+      "anaesthesia",
+      "anesthesiology",
+      "anaesthesiology"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_ARTHROSCOPY",
+    "speciality_name": "Arthroscopy and Sports Orthopedics",
+    "speciality_name_zh": "关节镜与运动骨科",
+    "scope": "Arthroscopy, sports orthopedic surgery and ligament reconstruction",
+    "source_entry_count": 17,
+    "needs_review_count": 0,
+    "examples": [
+      "arthroscopy",
+      "arthroscopyHip",
+      "arthroscopyKnee",
+      "kneeArthroscopy"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_AUDIOLOGY",
+    "speciality_name": "Audiology and Hearing Rehabilitation",
+    "speciality_name_zh": "听力学与听觉康复",
+    "scope": "Hearing tests, audiometry and cochlear implant rehabilitation",
+    "source_entry_count": 10,
+    "needs_review_count": 0,
+    "examples": [
+      "audiology",
+      "audiometry",
+      "Audiologist",
+      "Audiologists"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_AYURVEDA",
+    "speciality_name": "Ayurveda",
+    "speciality_name_zh": "阿育吠陀",
+    "scope": "Ayurvedic systems and named Ayurvedic clinical disciplines",
+    "source_entry_count": 26,
+    "needs_review_count": 0,
+    "examples": [
+      "ayurveda",
+      "ayurvedic",
+      "Panchkarma",
+      "kriyaSarira"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_BARIATRIC_SURGERY",
+    "speciality_name": "Bariatric and Metabolic Surgery",
+    "speciality_name_zh": "减重与代谢外科",
+    "scope": "Bariatric surgery and obesity surgery",
+    "source_entry_count": 10,
+    "needs_review_count": 0,
+    "examples": [
+      "bariatrics",
+      "bariatricSurgery",
+      "metabolicSurgery",
+      "Bariatric Surgery"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_BIOCHEMISTRY",
+    "speciality_name": "Clinical Biochemistry",
+    "speciality_name_zh": "临床生物化学",
+    "scope": "Clinical chemistry, hormone assays and biochemical testing",
+    "source_entry_count": 13,
+    "needs_review_count": 0,
+    "examples": [
+      "hormones",
+      "RFT Test",
+      "immunoassay",
+      "biochemistry"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_BREAST_CARE",
+    "speciality_name": "Breast Care and Breast Surgery",
+    "speciality_name_zh": "乳腺诊疗与乳腺外科",
+    "scope": "Breast clinics and nononcology breast surgery; oncology retains separate category",
+    "source_entry_count": 9,
+    "needs_review_count": 0,
+    "examples": [
+      "breastCentre",
+      "breastSurgery",
+      "Breast Surgeries",
+      "breastCareClinic"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_BURNS",
+    "speciality_name": "Burns Care",
+    "speciality_name_zh": "烧伤诊疗",
+    "scope": "Burn treatment, burn units and burn surgery",
+    "source_entry_count": 14,
+    "needs_review_count": 0,
+    "examples": [
+      "burns",
+      "burnUnit",
+      "burnsCenter",
+      "burnsSurgery"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_CARDIAC_ELECTROPHYSIOLOGY",
+    "speciality_name": "Cardiac Electrophysiology",
+    "speciality_name_zh": "心脏电生理",
+    "scope": "Cardiac rhythm disorders, electrophysiology and pacemakers",
+    "source_entry_count": 8,
+    "needs_review_count": 0,
+    "examples": [
+      "arrhythmias",
+      "pacemakerClinic",
+      "pacemakerImplantation",
+      "cardiacElectrophysiology"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_CARDIAC_SURGERY",
+    "speciality_name": "Cardiac and Cardiothoracic Surgery",
+    "speciality_name_zh": "心脏与心胸外科",
+    "scope": "Cardiac, cardiovascular and cardiothoracic surgery; exclude general thoracic surgery",
+    "source_entry_count": 27,
+    "needs_review_count": 0,
+    "examples": [
+      "CTVS",
+      "CVTS",
+      "cardiacSurgeon",
+      "cardiacSurgery"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_CARDIOLOGY",
+    "speciality_name": "Cardiology",
+    "speciality_name_zh": "心脏内科",
+    "scope": "General cardiac medicine, diagnostics and nonsurgical cardiac care",
+    "source_entry_count": 50,
+    "needs_review_count": 0,
+    "examples": [
+      "cardiac",
+      "cardiology",
+      "cardiacCare",
+      "cardiologist"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_CATARACT",
+    "speciality_name": "Cataract and Lens Surgery",
+    "speciality_name_zh": "白内障与晶状体手术",
+    "scope": "Cataract, phacoemulsification and lens implantation",
+    "source_entry_count": 9,
+    "needs_review_count": 0,
+    "examples": [
+      "cataract",
+      "phacoSurgery",
+      "cataractSurgeon",
+      "cataractSurgery"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_COLORECTAL",
+    "speciality_name": "Colorectal Surgery and Proctology",
+    "speciality_name_zh": "结直肠与肛肠诊疗",
+    "scope": "Anorectal disorders, hemorrhoids, fissures, fistulas and colorectal surgery",
+    "source_entry_count": 24,
+    "needs_review_count": 0,
+    "examples": [
+      "Piles",
+      "Anal Polyp",
+      "Anal Warts",
+      "proctology"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_CORNEA",
+    "speciality_name": "Cornea, Ocular Surface and Uveitis",
+    "speciality_name_zh": "角膜眼表与葡萄膜炎",
+    "scope": "Corneal disease and transplantation, keratoplasty, dry eye, uveitis and ocular inflammation",
+    "source_entry_count": 29,
+    "needs_review_count": 0,
+    "examples": [
+      "dryEye",
+      "dryEyes",
+      "Dry Eyes",
+      "Pterygium"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_COSMETIC_DENTISTRY",
+    "speciality_name": "Cosmetic and Aesthetic Dentistry",
+    "speciality_name_zh": "牙齿美容",
+    "scope": "Dental veneers, whitening, bonding, cosmetic dentistry and smile design",
+    "source_entry_count": 27,
+    "needs_review_count": 0,
+    "examples": [
+      "smileDesign",
+      "Smile Design",
+      "Dental Veneers",
+      "smileDesigning"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_CRITICAL_CARE",
+    "speciality_name": "Critical Care and Intensive Care",
+    "speciality_name_zh": "重症医学",
+    "scope": "Adult or unspecified intensive care, ICU and critical care",
+    "source_entry_count": 46,
+    "needs_review_count": 0,
+    "examples": [
+      "I.C.U.",
+      "intensivist",
+      "criticalCare",
+      "isolationICU"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_DENTAL_IMPLANTS",
+    "speciality_name": "Dental Implantology",
+    "speciality_name_zh": "口腔种植",
+    "scope": "Dental implants, implant dentistry and oral implantology; unqualified implants require review",
+    "source_entry_count": 26,
+    "needs_review_count": 0,
+    "examples": [
+      "implantalogy",
+      "implantology",
+      "miniImplants",
+      "dentalImplant"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_DENTAL_SEDATION",
+    "speciality_name": "Dental Anesthesia and Sedation",
+    "speciality_name_zh": "牙科麻醉与镇静",
+    "scope": "Dental anesthesia, sedation dentistry and anxious patient sedation",
+    "source_entry_count": 8,
+    "needs_review_count": 0,
+    "examples": [
+      "hypnodontics",
+      "dentalSedation",
+      "sleepDentistry",
+      "dentalAnesthesia"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_DENTISTRY",
+    "speciality_name": "General Dentistry",
+    "speciality_name_zh": "综合牙科",
+    "scope": "General dental consultation and unspecified dental services",
+    "source_entry_count": 50,
+    "needs_review_count": 1,
+    "examples": [
+      "dental",
+      "dentist",
+      "dentistry",
+      "dentalCare"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_DERMATOLOGY",
+    "speciality_name": "Dermatology and Cosmetic Dermatology",
+    "speciality_name_zh": "皮肤科与皮肤美容",
+    "scope": "Skin, hair and nail disease, dermatologic surgery and aesthetic skin treatments",
+    "source_entry_count": 58,
+    "needs_review_count": 0,
+    "examples": [
+      "SKIN",
+      "cosmetics",
+      "skinAndVD",
+      "trichology"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_DEVELOPMENTAL_PEDIATRICS",
+    "speciality_name": "Developmental Pediatrics and Child Development",
+    "speciality_name_zh": "发育行为儿科",
+    "scope": "Child development, developmental disability, autism and special education",
+    "source_entry_count": 13,
+    "needs_review_count": 0,
+    "examples": [
+      "autismTherapy",
+      "specialEducation",
+      "developmentalTherapy",
+      "learningDisabilityTest"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_DIABETOLOGY",
+    "speciality_name": "Diabetes Care",
+    "speciality_name_zh": "糖尿病诊疗",
+    "scope": "Diabetes and diabetology; exclude isolated eye and foot procedures",
+    "source_entry_count": 15,
+    "needs_review_count": 0,
+    "examples": [
+      "diabetes",
+      "diabetology",
+      "diabetologist",
+      "diabetesCentre"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_DIALYSIS",
+    "speciality_name": "Dialysis",
+    "speciality_name_zh": "透析",
+    "scope": "Hemodialysis, dialysis services and dialysis access creation",
+    "source_entry_count": 11,
+    "needs_review_count": 0,
+    "examples": [
+      "dialysis",
+      "haemodialysis",
+      "pediatricDialysis",
+      "nephrologyDialysis"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_EMERGENCY",
+    "speciality_name": "Emergency Medicine and Trauma Care",
+    "speciality_name_zh": "急诊与创伤救治",
+    "scope": "Emergency medicine, accident care, polytrauma and ambulance services",
+    "source_entry_count": 49,
+    "needs_review_count": 0,
+    "examples": [
+      "polytrauma",
+      "traumaCare",
+      "TRAUMA CARE",
+      "traumaCentre"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_ENDOCRINE_SURGERY",
+    "speciality_name": "Endocrine Surgery",
+    "speciality_name_zh": "内分泌外科",
+    "scope": "Thyroid, parathyroid and other endocrine surgery",
+    "source_entry_count": 4,
+    "needs_review_count": 0,
+    "examples": [
+      "thyroidSurgery",
+      "endocrineSurgery",
+      "Endocrine Surgery",
+      "endocrinologyAndEndocrineSurgery"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_ENDOCRINOLOGY",
+    "speciality_name": "Endocrinology and Metabolic Medicine",
+    "speciality_name_zh": "内分泌与代谢",
+    "scope": "Hormonal, thyroid, pituitary, growth and nonsurgical metabolic disorders",
+    "source_entry_count": 24,
+    "needs_review_count": 0,
+    "examples": [
+      "puberty",
+      "endocrinology",
+      "thyroidHealth",
+      "endocrinologist"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_ENDODONTICS",
+    "speciality_name": "Endodontics and Conservative Dentistry",
+    "speciality_name_zh": "牙髓病与牙体修复",
+    "scope": "Root canals, endodontics, conservative dentistry, caries and fillings",
+    "source_entry_count": 22,
+    "needs_review_count": 0,
+    "examples": [
+      "Fillings",
+      "endodontia",
+      "Root Canal",
+      "endodontics"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_ENT",
+    "speciality_name": "Otolaryngology (ENT)",
+    "speciality_name_zh": "耳鼻喉科",
+    "scope": "Ear, nose, throat, head and neck surgery, otology and rhinology",
+    "source_entry_count": 42,
+    "needs_review_count": 0,
+    "examples": [
+      "ent",
+      "otology",
+      "rhinology",
+      "entSurgeon"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_EYE_BANK",
+    "speciality_name": "Eye Banking",
+    "speciality_name_zh": "眼库",
+    "scope": "Eye bank and eye tissue services",
+    "source_entry_count": 2,
+    "needs_review_count": 0,
+    "examples": [
+      "eyeBank",
+      "eyeBankServices"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_FAMILY_MEDICINE",
+    "speciality_name": "Family Medicine and Primary Care",
+    "speciality_name_zh": "全科与初级保健",
+    "scope": "Family medicine, general practice and health checks",
+    "source_entry_count": 9,
+    "needs_review_count": 0,
+    "examples": [
+      "Home Visits",
+      "healthCheckup",
+      "familyMedicine",
+      "Family Medicine"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_FETAL_MEDICINE",
+    "speciality_name": "Maternal and Fetal Medicine",
+    "speciality_name_zh": "母胎医学",
+    "scope": "Fetal, maternal fetal, foetal and perinatal obstetric medicine",
+    "source_entry_count": 6,
+    "needs_review_count": 0,
+    "examples": [
+      "foetalMedicine",
+      "fetomaternalMedicine",
+      "fetalAndMaternalMedicine",
+      "fetalMedicineAndRadiology"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_GASTROENTEROLOGY",
+    "speciality_name": "Gastroenterology and Digestive Endoscopy",
+    "speciality_name_zh": "消化内科与消化内镜",
+    "scope": "Medical digestive care, GI endoscopy, IBS and acid symptoms",
+    "source_entry_count": 31,
+    "needs_review_count": 0,
+    "examples": [
+      "IBS",
+      "endoscopy",
+      "gastrology",
+      "Constipation"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_GENERAL_SURGERY",
+    "speciality_name": "General Surgery",
+    "speciality_name_zh": "普通外科",
+    "scope": "General surgery, appendicitis, hernias and unspecified surgery",
+    "source_entry_count": 15,
+    "needs_review_count": 0,
+    "examples": [
+      "hernia",
+      "surgery",
+      "appendicitis",
+      "postSurgical"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_GENETICS",
+    "speciality_name": "Genetics, Genomics and Molecular Diagnostics",
+    "speciality_name_zh": "遗传基因组与分子诊断",
+    "scope": "Genetics, genetic counseling, cytogenetics, karyotyping and molecular testing",
+    "source_entry_count": 43,
+    "needs_review_count": 0,
+    "examples": [
+      "genetics",
+      "Genomics",
+      "dnaSexing",
+      "DNA Sexing"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_GERIATRICS",
+    "speciality_name": "Geriatric Medicine",
+    "speciality_name_zh": "老年医学",
+    "scope": "General geriatric medicine and older adult care",
+    "source_entry_count": 9,
+    "needs_review_count": 0,
+    "examples": [
+      "geriatrics",
+      "oldAgeCare",
+      "geriatrician",
+      "Geriatric Care"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_GI_SURGERY",
+    "speciality_name": "Gastrointestinal and Hepatopancreatobiliary Surgery",
+    "speciality_name_zh": "胃肠与肝胆胰外科",
+    "scope": "GI, foregut, gallbladder, liver, pancreas and HPB surgery",
+    "source_entry_count": 39,
+    "needs_review_count": 0,
+    "examples": [
+      "GI Surgery",
+      "gastroSurgery",
+      "gastricSurgery",
+      "surgicalGastro"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_GLAUCOMA",
+    "speciality_name": "Glaucoma",
+    "speciality_name_zh": "青光眼",
+    "scope": "Glaucoma assessment and treatment",
+    "source_entry_count": 7,
+    "needs_review_count": 0,
+    "examples": [
+      "glaucoma",
+      "glaucomaService",
+      "glaucomaSurgeon",
+      "GlaucomaServices"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_HAND_SURGERY",
+    "speciality_name": "Hand and Upper Limb Surgery",
+    "speciality_name_zh": "手与上肢外科",
+    "scope": "Hand, wrist, upper limb, brachial plexus and replantation surgery",
+    "source_entry_count": 16,
+    "needs_review_count": 0,
+    "examples": [
+      "handSurgery",
+      "Pollicization",
+      "Thumb Recreation",
+      "handTraumaSurgery"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_HEMATOLOGY",
+    "speciality_name": "Hematology and Hemato Oncology",
+    "speciality_name_zh": "血液科与血液肿瘤",
+    "scope": "Clinical blood disorders, hematology and hematologic oncology; exclude isolated blood banking",
+    "source_entry_count": 28,
+    "needs_review_count": 0,
+    "examples": [
+      "hematology",
+      "haematology",
+      "haematologist",
+      "hematoOncology"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_HEPATOLOGY",
+    "speciality_name": "Hepatology",
+    "speciality_name_zh": "肝病学",
+    "scope": "Medical liver disease and liver assessment",
+    "source_entry_count": 15,
+    "needs_review_count": 0,
+    "examples": [
+      "fibroscan",
+      "liverCare",
+      "hepatology",
+      "hepatologist"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_HOMEOPATHY",
+    "speciality_name": "Homeopathy",
+    "speciality_name_zh": "顺势疗法",
+    "scope": "Homeopathic and homoeopathic services",
+    "source_entry_count": 6,
+    "needs_review_count": 0,
+    "examples": [
+      "homeopath",
+      "homeopathy",
+      "homoeopath",
+      "Homeopathic"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_IMMUNOLOGY_LAB",
+    "speciality_name": "Immunology Laboratory",
+    "speciality_name_zh": "免疫学检验",
+    "scope": "Laboratory immunology, autoimmunity testing and immunopathology",
+    "source_entry_count": 4,
+    "needs_review_count": 0,
+    "examples": [
+      "immunologyLab",
+      "Immunopathology",
+      "immunologyLaboratory",
+      "immunologyAndAutoimmunityLab"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_INFECTIOUS_DISEASES",
+    "speciality_name": "Infectious Diseases and Infection Control",
+    "speciality_name_zh": "感染性疾病与感染控制",
+    "scope": "Clinical infections, infectious diseases, infection control and vaccination",
+    "source_entry_count": 12,
+    "needs_review_count": 0,
+    "examples": [
+      "vaccinology",
+      "epidemicDisease",
+      "infectionControl",
+      "severeInfections"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_INTEGRATIVE_MEDICINE",
+    "speciality_name": "Integrative, Complementary and Alternative Medicine",
+    "speciality_name_zh": "整合与补充替代医学",
+    "scope": "Alternative, holistic and integrated medicine; yoga and naturopathy",
+    "source_entry_count": 20,
+    "needs_review_count": 0,
+    "examples": [
+      "Acupressure",
+      "naturopathy",
+      "ozoneTherapy",
+      "Magnet Therapy"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_INTERNAL_MEDICINE",
+    "speciality_name": "General and Internal Medicine",
+    "speciality_name_zh": "普通内科与综合内科",
+    "scope": "General physicians, hospital medicine and adult internal medicine",
+    "source_entry_count": 25,
+    "needs_review_count": 0,
+    "examples": [
+      "medicine",
+      "PHYSICIAN",
+      "generalMedicine",
+      "General Medicine"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_INTERVENTIONAL_CARDIOLOGY",
+    "speciality_name": "Interventional Cardiology",
+    "speciality_name_zh": "介入心脏病学",
+    "scope": "Coronary angiography, angioplasty, structural interventions and TAVR",
+    "source_entry_count": 16,
+    "needs_review_count": 0,
+    "examples": [
+      "tavr-tavi-centre",
+      "balloonAngioplasty",
+      "asdVsdDeviceClosure",
+      "coronaryAngiography"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_INTERVENTIONAL_RADIOLOGY",
+    "speciality_name": "Interventional Radiology",
+    "speciality_name_zh": "介入放射学",
+    "scope": "Image guided interventions and interventional radiology",
+    "source_entry_count": 11,
+    "needs_review_count": 0,
+    "examples": [
+      "interventionalOncology",
+      "interventionalRadiology",
+      "imageGuidedInterventions",
+      "Interventional Radiology"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_JOINT_REPLACEMENT",
+    "speciality_name": "Joint Replacement and Arthroplasty",
+    "speciality_name_zh": "关节置换",
+    "scope": "Hip, knee, shoulder and other joint reconstruction or replacement",
+    "source_entry_count": 40,
+    "needs_review_count": 0,
+    "examples": [
+      "arthroplasty",
+      "replacements",
+      "hipReplacement",
+      "kneeReplacement"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_MEDICAL_ONCOLOGY",
+    "speciality_name": "Medical Oncology and Systemic Therapy",
+    "speciality_name_zh": "肿瘤内科与全身治疗",
+    "scope": "Medical oncology, chemotherapy, targeted therapy, CAR T and immunotherapy",
+    "source_entry_count": 10,
+    "needs_review_count": 0,
+    "examples": [
+      "carTCell",
+      "chemotherapy",
+      "immunotherapy",
+      "carTCellTherapy"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_MICROBIOLOGY",
+    "speciality_name": "Microbiology and Infectious Disease Laboratory",
+    "speciality_name_zh": "微生物检验",
+    "scope": "Microbiology, bacteriology, mycology, virology, parasitology and serology",
+    "source_entry_count": 28,
+    "needs_review_count": 0,
+    "examples": [
+      "mycology",
+      "serology",
+      "virology",
+      "serologyLab"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_MINIMALLY_INVASIVE_SURGERY",
+    "speciality_name": "Laparoscopic and Robotic Surgery",
+    "speciality_name_zh": "腹腔镜与机器人手术",
+    "scope": "Unspecified minimally invasive, endoscopic, laparoscopic or robotic surgery; a technique category",
+    "source_entry_count": 27,
+    "needs_review_count": 0,
+    "examples": [
+      "laprascopy",
+      "Laparoscopy",
+      "roboticSurgery",
+      "Robotic Surgery"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_NEONATOLOGY",
+    "speciality_name": "Neonatology",
+    "speciality_name_zh": "新生儿科",
+    "scope": "Newborn care, neonatal medicine and NICU",
+    "source_entry_count": 25,
+    "needs_review_count": 0,
+    "examples": [
+      "neonatology",
+      "neonatalCare",
+      "neonatalPerinatal",
+      "Neonatal-Perinatal"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_NEPHROLOGY",
+    "speciality_name": "Nephrology",
+    "speciality_name_zh": "肾脏内科",
+    "scope": "Kidney disease, renal failure and nephrology",
+    "source_entry_count": 26,
+    "needs_review_count": 0,
+    "examples": [
+      "renalCare",
+      "nephrology",
+      "renalSciences",
+      "kidneySciences"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_NEUROLOGY",
+    "speciality_name": "Neurology",
+    "speciality_name_zh": "神经内科",
+    "scope": "Medical neurological disease, stroke, epilepsy, movement disorders and neurophysiology",
+    "source_entry_count": 46,
+    "needs_review_count": 0,
+    "examples": [
+      "neurology",
+      "neuroscience",
+      "strokeCentre",
+      "neuroMedicine"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_NEUROSURGERY",
+    "speciality_name": "Neurosurgery",
+    "speciality_name_zh": "神经外科",
+    "scope": "Brain, nerve and cranial neurosurgery",
+    "source_entry_count": 45,
+    "needs_review_count": 0,
+    "examples": [
+      "neuroTrauma",
+      "neurosurgeon",
+      "neurosurgery",
+      "neuroEndoscopy"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_NUCLEAR_MEDICINE",
+    "speciality_name": "Nuclear Medicine",
+    "speciality_name_zh": "核医学",
+    "scope": "Nuclear imaging, nuclear therapy and theranostics",
+    "source_entry_count": 7,
+    "needs_review_count": 0,
+    "examples": [
+      "nuclearTherapy",
+      "nuclearMedicine",
+      "Nuclear Medicine",
+      "LU-177 PSMA Therapy"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_NUTRITION",
+    "speciality_name": "Nutrition and Dietetics",
+    "speciality_name_zh": "营养与膳食",
+    "scope": "Dietitians, clinical nutrition, nutritional counseling and nonsurgical weight management",
+    "source_entry_count": 41,
+    "needs_review_count": 0,
+    "examples": [
+      "Dietics",
+      "obesity",
+      "dietetics",
+      "Dietician"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_OBGYN",
+    "speciality_name": "Obstetrics and Gynecology",
+    "speciality_name_zh": "妇产科",
+    "scope": "General obstetrics, gynecology, pregnancy, contraception and menopause care",
+    "source_entry_count": 75,
+    "needs_review_count": 0,
+    "examples": [
+      "OBG",
+      "PCOS",
+      "ob-gy",
+      "menopause"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_OCCUPATIONAL_THERAPY",
+    "speciality_name": "Occupational Therapy",
+    "speciality_name_zh": "作业治疗",
+    "scope": "Occupational therapy, vocational rehabilitation and functional adaptation",
+    "source_entry_count": 4,
+    "needs_review_count": 0,
+    "examples": [
+      "occupationalTherapy",
+      "Occupational Therapy",
+      "occupationalTherapist",
+      "occupationalAndVocationalRehabilitation"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_OCULOPLASTICS",
+    "speciality_name": "Oculoplastics, Orbit and Ocular Prosthetics",
+    "speciality_name_zh": "眼整形眼眶与义眼",
+    "scope": "Eyelid, orbit, lacrimal and ocular prosthetic care",
+    "source_entry_count": 25,
+    "needs_review_count": 0,
+    "examples": [
+      "chalazion",
+      "oculoplasty",
+      "occuloplasty",
+      "eyeProsthesis"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_ONCOLOGY",
+    "speciality_name": "General Oncology and Cancer Care",
+    "speciality_name_zh": "综合肿瘤诊疗",
+    "scope": "Unspecified oncology, cancer diagnosis, screening, staging and cancer services",
+    "source_entry_count": 109,
+    "needs_review_count": 0,
+    "examples": [
+      "oncology",
+      "GI Cancer",
+      "Onco Care",
+      "Ca Maxilla"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_OPHTHALMOLOGY",
+    "speciality_name": "General Ophthalmology",
+    "speciality_name_zh": "综合眼科",
+    "scope": "General eye examinations, eye care and ophthalmology",
+    "source_entry_count": 32,
+    "needs_review_count": 0,
+    "examples": [
+      "eyeCare",
+      "eyeCheckup",
+      "eyeSurgeon",
+      "eyeHospital"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_OPTOMETRY_LOW_VISION",
+    "speciality_name": "Optometry, Contact Lenses and Vision Rehabilitation",
+    "speciality_name_zh": "视光隐形眼镜与低视力康复",
+    "scope": "Refraction, myopia, contact lenses, vision testing and low vision care",
+    "source_entry_count": 35,
+    "needs_review_count": 0,
+    "examples": [
+      "myopia",
+      "lowVision",
+      "optometry",
+      "contactLens"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_ORAL_MAXILLOFACIAL_SURGERY",
+    "speciality_name": "Oral and Maxillofacial Surgery",
+    "speciality_name_zh": "口腔颌面外科",
+    "scope": "Oral surgery, tooth extraction, jaw surgery and maxillofacial trauma",
+    "source_entry_count": 54,
+    "needs_review_count": 0,
+    "examples": [
+      "dentalOmfs",
+      "oralSurgery",
+      "facialTrauma",
+      "Oral Surgery"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_ORAL_MEDICINE",
+    "speciality_name": "Oral Medicine and Orofacial Pain",
+    "speciality_name_zh": "口腔内科与口面疼痛",
+    "scope": "Oral mucosal disease, oral medicine and temporomandibular disorders",
+    "source_entry_count": 16,
+    "needs_review_count": 0,
+    "examples": [
+      "tmj",
+      "TMJSurgery",
+      "oralMedicine",
+      "TMJ disorder"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_ORAL_PATHOLOGY",
+    "speciality_name": "Oral and Maxillofacial Pathology",
+    "speciality_name_zh": "口腔颌面病理",
+    "scope": "Oral pathology, oral histology, oral biopsy and forensic odontology",
+    "source_entry_count": 11,
+    "needs_review_count": 0,
+    "examples": [
+      "oralHistology",
+      "oralPathology",
+      "Oral Pathology",
+      "oralBiopsyProcedures"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_ORAL_RADIOLOGY",
+    "speciality_name": "Dental and Maxillofacial Radiology",
+    "speciality_name_zh": "口腔颌面影像",
+    "scope": "Dental imaging, CBCT and oral/maxillofacial radiology",
+    "source_entry_count": 18,
+    "needs_review_count": 0,
+    "examples": [
+      "CBCT",
+      "dentalX-ray",
+      "dentalXrays",
+      "dentalImaging"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_ORGAN_TRANSPLANT",
+    "speciality_name": "Solid Organ Transplantation",
+    "speciality_name_zh": "实体器官移植",
+    "scope": "Kidney, liver, heart, lung, pancreas and multi organ transplantation",
+    "source_entry_count": 39,
+    "needs_review_count": 0,
+    "examples": [
+      "lungTransplant",
+      "heartTransplant",
+      "liverTransplant",
+      "organTransplant"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_ORTHODONTICS",
+    "speciality_name": "Orthodontics and Dentofacial Orthopedics",
+    "speciality_name_zh": "正畸与牙颌矫形",
+    "scope": "Braces, aligners, Invisalign and dentofacial orthodontics",
+    "source_entry_count": 32,
+    "needs_review_count": 0,
+    "examples": [
+      "Braces",
+      "aligners",
+      "Invisalign",
+      "orthodontics"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_ORTHOPEDICS",
+    "speciality_name": "Orthopedics and Musculoskeletal Care",
+    "speciality_name_zh": "骨科与肌肉骨骼诊疗",
+    "scope": "Orthopedic medicine and surgery, fractures and structural bone disorders",
+    "source_entry_count": 88,
+    "needs_review_count": 0,
+    "examples": [
+      "bone",
+      "kneeSurgery",
+      "orthopedics",
+      "orthopedist"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_PAIN_MEDICINE",
+    "speciality_name": "Pain Medicine",
+    "speciality_name_zh": "疼痛医学",
+    "scope": "Pain clinics, nerve blocks, spinal stimulation and pain interventions",
+    "source_entry_count": 34,
+    "needs_review_count": 0,
+    "examples": [
+      "painClinic",
+      "painRelief",
+      "chronicPain",
+      "painMedicine"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_PALLIATIVE_CARE",
+    "speciality_name": "Palliative and Hospice Care",
+    "speciality_name_zh": "姑息与临终关怀",
+    "scope": "Palliative medicine, hospice and supportive care",
+    "source_entry_count": 17,
+    "needs_review_count": 0,
+    "examples": [
+      "painPalliative",
+      "palliativeCare",
+      "Palliative care",
+      "painPalliativeCare"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_PATHOLOGY",
+    "speciality_name": "Pathology and Laboratory Medicine",
+    "speciality_name_zh": "病理与检验医学",
+    "scope": "Pathology, clinical laboratory services, biopsies and unspecified laboratory diagnostics",
+    "source_entry_count": 45,
+    "needs_review_count": 0,
+    "examples": [
+      "cytology",
+      "pathology",
+      "laboratory",
+      "coagulation"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_PEDIATRICS",
+    "speciality_name": "Pediatrics and Adolescent Medicine",
+    "speciality_name_zh": "儿科与青少年医学",
+    "scope": "General child health, pediatrics and adolescent medicine",
+    "source_entry_count": 14,
+    "needs_review_count": 0,
+    "examples": [
+      "growth",
+      "paediatric",
+      "pediatrics",
+      "adolescence"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_PEDIATRIC_CRITICAL_CARE",
+    "speciality_name": "Pediatric Critical Care",
+    "speciality_name_zh": "儿科重症医学",
+    "scope": "Pediatric critical care, PICU and pediatric intensive care",
+    "source_entry_count": 7,
+    "needs_review_count": 0,
+    "examples": [
+      "pediatricIntensivist",
+      "pediatricIntensiveCare",
+      "NICU/ PICU/ Neonatology",
+      "pediatricIntensiveCareUnit"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_PEDIATRIC_DENTISTRY",
+    "speciality_name": "Pediatric Dentistry",
+    "speciality_name_zh": "儿童牙科",
+    "scope": "Pediatric dentistry, pedodontics and child dental care",
+    "source_entry_count": 24,
+    "needs_review_count": 0,
+    "examples": [
+      "pedodontia",
+      "pedodontics",
+      "Pedodontist",
+      "paedodontics"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_PEDIATRIC_SURGERY",
+    "speciality_name": "Pediatric and Neonatal Surgery",
+    "speciality_name_zh": "小儿与新生儿外科",
+    "scope": "General pediatric and neonatal surgery; organ specific procedures retain their other category",
+    "source_entry_count": 15,
+    "needs_review_count": 0,
+    "examples": [
+      "neonatalSurgery",
+      "pediatricSurgery",
+      "paediatricSurgery",
+      "peadiatricSurgery"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_PERIODONTICS",
+    "speciality_name": "Periodontics and Dental Prevention",
+    "speciality_name_zh": "牙周与牙科预防",
+    "scope": "Gum disease, scaling, polishing, periodontal surgery, prophylaxis and sealants",
+    "source_entry_count": 55,
+    "needs_review_count": 0,
+    "examples": [
+      "gumSurgery",
+      "peridontics",
+      "periodontal",
+      "periodontia"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_PHARMACY",
+    "speciality_name": "Pharmacy and Clinical Pharmacology",
+    "speciality_name_zh": "药学与临床药理",
+    "scope": "Pharmacy, pharmacology and drug monitoring",
+    "source_entry_count": 4,
+    "needs_review_count": 0,
+    "examples": [
+      "pharmacy",
+      "pharmacology",
+      "clinicalPharmacology",
+      "clinicalBiochemistryAndTherapeuticDrugMonitoring"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_PHYSIOTHERAPY",
+    "speciality_name": "Physiotherapy",
+    "speciality_name_zh": "物理治疗",
+    "scope": "Physical therapy and physiotherapy services",
+    "source_entry_count": 10,
+    "needs_review_count": 0,
+    "examples": [
+      "Physiothearpy",
+      "physiotherapy",
+      "physiotheraphy",
+      "physiotherapist"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_PLASTIC_SURGERY",
+    "speciality_name": "Plastic, Reconstructive and Aesthetic Surgery",
+    "speciality_name_zh": "整形修复与美容外科",
+    "scope": "Plastic reconstruction, aesthetic surgery, microsurgery and craniofacial repair",
+    "source_entry_count": 73,
+    "needs_review_count": 0,
+    "examples": [
+      "liposuction",
+      "Rhinoplasty",
+      "gynecomastia",
+      "microSurgery"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_PROSTHETICS_ORTHOTICS",
+    "speciality_name": "Prosthetics and Orthotics",
+    "speciality_name_zh": "假肢与矫形器",
+    "scope": "Limb prostheses, orthotics and rehabilitation appliances; exclude dental and ocular prostheses",
+    "source_entry_count": 9,
+    "needs_review_count": 0,
+    "examples": [
+      "prosthetics",
+      "anaplastology",
+      "prostheticOrthotic",
+      "prostheticsOrthotics"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_PROSTHODONTICS",
+    "speciality_name": "Prosthodontics and Dental Prostheses",
+    "speciality_name_zh": "口腔修复与义齿",
+    "scope": "Dentures, dental crowns, bridges, prosthetic dentistry and full mouth rehabilitation",
+    "source_entry_count": 50,
+    "needs_review_count": 0,
+    "examples": [
+      "Crowns",
+      "Bridges",
+      "denture",
+      "dentures"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_PSYCHIATRY",
+    "speciality_name": "Psychiatry",
+    "speciality_name_zh": "精神科",
+    "scope": "Mental disorders, psychiatric medicine and psychiatric treatments",
+    "source_entry_count": 34,
+    "needs_review_count": 0,
+    "examples": [
+      "Anxiety",
+      "Depression",
+      "psychiatry",
+      "psychiatrist"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_PSYCHOLOGY",
+    "speciality_name": "Psychology, Counseling and Psychotherapy",
+    "speciality_name_zh": "心理学与心理咨询",
+    "scope": "Psychology, counseling, psychotherapy and behavioral therapies",
+    "source_entry_count": 26,
+    "needs_review_count": 0,
+    "examples": [
+      "artTherapy",
+      "counseling",
+      "psychology",
+      "biofeedback"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_PUBLIC_OCCUPATIONAL_HEALTH",
+    "speciality_name": "Public, Preventive and Occupational Health",
+    "speciality_name_zh": "公共预防与职业卫生",
+    "scope": "Public health, epidemiology, occupational medicine and health prevention",
+    "source_entry_count": 19,
+    "needs_review_count": 0,
+    "examples": [
+      "epidemiology",
+      "publicHealth",
+      "communityHealth",
+      "communityMedicine"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_PULMONOLOGY",
+    "speciality_name": "Pulmonology and Respiratory Medicine",
+    "speciality_name_zh": "呼吸内科",
+    "scope": "Lung disease, chest medicine, respiratory failure and pulmonary interventions",
+    "source_entry_count": 41,
+    "needs_review_count": 0,
+    "examples": [
+      "pulmonary",
+      "pulmanology",
+      "pulmonology",
+      "respiratory"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_RADIATION_ONCOLOGY",
+    "speciality_name": "Radiation Oncology and Radiotherapy",
+    "speciality_name_zh": "放射肿瘤学与放疗",
+    "scope": "Radiation oncology, radiotherapy and radiosurgery",
+    "source_entry_count": 7,
+    "needs_review_count": 0,
+    "examples": [
+      "radiotherapy",
+      "radiationSurgery",
+      "radiationTherapy",
+      "radiationOncology"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_RADIOLOGY",
+    "speciality_name": "Radiology and Diagnostic Imaging",
+    "speciality_name_zh": "放射与诊断影像",
+    "scope": "Diagnostic radiology, X ray, ultrasound, CT and noninterventional imaging",
+    "source_entry_count": 31,
+    "needs_review_count": 0,
+    "examples": [
+      "HSG",
+      "DEXA",
+      "sonology",
+      "radiology"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_REFRACTIVE_SURGERY",
+    "speciality_name": "Refractive Surgery",
+    "speciality_name_zh": "屈光手术",
+    "scope": "LASIK, PRK, ICL and refractive laser surgery; exclude nonsurgical refractive errors",
+    "source_entry_count": 31,
+    "needs_review_count": 0,
+    "examples": [
+      "ICL",
+      "LASIK",
+      "smilePro",
+      "iclSurgery"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_REHABILITATION",
+    "speciality_name": "Physical Medicine and Rehabilitation",
+    "speciality_name_zh": "康复医学",
+    "scope": "Physiatry, neurological rehabilitation and general rehabilitation; exclude dental and vision rehabilitation",
+    "source_entry_count": 26,
+    "needs_review_count": 0,
+    "examples": [
+      "divyaang",
+      "rehabilitation",
+      "spinalCordInjury",
+      "sportMedicinePMR"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_REPRODUCTIVE_MEDICINE",
+    "speciality_name": "Reproductive Medicine and Assisted Reproduction",
+    "speciality_name_zh": "生殖医学与辅助生殖",
+    "scope": "Infertility, IVF, IUI, ICSI, embryo procedures and fertility preservation",
+    "source_entry_count": 54,
+    "needs_review_count": 0,
+    "examples": [
+      "IUI",
+      "IVF",
+      "ICSI",
+      "pgt-a"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_RESEARCH_SCIENCES",
+    "speciality_name": "Medical Research and Basic Sciences",
+    "speciality_name_zh": "医学研究与基础学科",
+    "scope": "Anatomy, physiology, research, informatics, medical physics and biostatistics",
+    "source_entry_count": 13,
+    "needs_review_count": 0,
+    "examples": [
+      "anatomy",
+      "physiology",
+      "biostatistics",
+      "generalAnatomy"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_RETINA",
+    "speciality_name": "Retina and Vitreoretinal Care",
+    "speciality_name_zh": "视网膜与玻璃体视网膜诊疗",
+    "scope": "Retinal disease, diabetic retinopathy, macula, ROP and vitreoretinal surgery",
+    "source_entry_count": 31,
+    "needs_review_count": 0,
+    "examples": [
+      "ROP",
+      "Retinology",
+      "Vitrectomy",
+      "diabeticEye"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_RHEUMATOLOGY",
+    "speciality_name": "Rheumatology",
+    "speciality_name_zh": "风湿免疫科",
+    "scope": "Arthritis and autoimmune rheumatologic disease",
+    "source_entry_count": 17,
+    "needs_review_count": 0,
+    "examples": [
+      "Arthritis",
+      "rheumatology",
+      "arthritisTreatment",
+      "Arthritis Management"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_SEXUAL_MEDICINE",
+    "speciality_name": "Sexual Medicine and Sexology",
+    "speciality_name_zh": "性医学",
+    "scope": "Sexology and sexual dysfunction care",
+    "source_entry_count": 12,
+    "needs_review_count": 0,
+    "examples": [
+      "sexology",
+      "sexClinic",
+      "sexologist",
+      "sexMedicine"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_SLEEP_MEDICINE",
+    "speciality_name": "Sleep Medicine",
+    "speciality_name_zh": "睡眠医学",
+    "scope": "Sleep disorders, sleep apnea and sleep related airway care",
+    "source_entry_count": 10,
+    "needs_review_count": 0,
+    "examples": [
+      "sleepMedicine",
+      "sleepDisorders",
+      "sleepAirwayDentistry",
+      "pediatricSleepMedicine"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_SPECIAL_MEDICINE",
+    "speciality_name": "Aerospace, Hyperbaric and Special Environment Medicine",
+    "speciality_name_zh": "航空航天与高压特殊环境医学",
+    "scope": "Aerospace medicine and undersea/hyperbaric medicine",
+    "source_entry_count": 2,
+    "needs_review_count": 0,
+    "examples": [
+      "aerospaceMedicine",
+      "underseaAndHyperbaricMedicine"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_SPEECH_THERAPY",
+    "speciality_name": "Speech, Language and Swallowing Therapy",
+    "speciality_name_zh": "言语语言与吞咽治疗",
+    "scope": "Speech pathology, voice, fluency and swallowing therapy",
+    "source_entry_count": 23,
+    "needs_review_count": 0,
+    "examples": [
+      "dysphonia",
+      "voiceTherapy",
+      "oralMotricity",
+      "speechTherapy"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_SPINE_SURGERY",
+    "speciality_name": "Spine Surgery and Spinal Disorders",
+    "speciality_name_zh": "脊柱外科与脊柱疾病",
+    "scope": "Spine operations, disc disease and spinal structural conditions",
+    "source_entry_count": 31,
+    "needs_review_count": 0,
+    "examples": [
+      "spineCare",
+      "slippedDisc",
+      "spineSurgery",
+      "spinalSurgery"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_SPORTS_MEDICINE",
+    "speciality_name": "Sports Medicine",
+    "speciality_name_zh": "运动医学",
+    "scope": "Sports injury care and general sports medicine",
+    "source_entry_count": 21,
+    "needs_review_count": 0,
+    "examples": [
+      "sportsInjury",
+      "sportMedicine",
+      "sportsMedicine",
+      "Sports Medicine"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_STEM_CELL_TRANSPLANT",
+    "speciality_name": "Bone Marrow and Hematopoietic Stem Cell Transplant",
+    "speciality_name_zh": "骨髓与造血干细胞移植",
+    "scope": "Bone marrow transplantation and hematopoietic stem cell transplant; unspecified stem cells require review",
+    "source_entry_count": 18,
+    "needs_review_count": 3,
+    "examples": [
+      "haematologyAndBMT",
+      "stemCellTransplant",
+      "boneMarrowTransplant",
+      "hematoOncologyAndBMT"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_STRABISMUS",
+    "speciality_name": "Strabismus and Orthoptics",
+    "speciality_name_zh": "斜视与双眼视觉",
+    "scope": "Squint, strabismus, orthoptics, amblyopia and binocular vision",
+    "source_entry_count": 29,
+    "needs_review_count": 0,
+    "examples": [
+      "squint",
+      "lazyEye",
+      "orthoptics",
+      "Strabismus"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_SUPPORT_SERVICES",
+    "speciality_name": "Hospital Support and General Services",
+    "speciality_name_zh": "医院支持与综合服务",
+    "scope": "Non specialty operations, outpatient services, home care and unspecified diagnostics",
+    "source_entry_count": 16,
+    "needs_review_count": 0,
+    "examples": [
+      "Dental Lab",
+      "diagnostics",
+      "telemedicine",
+      "highEndTesting"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_SURGICAL_ONCOLOGY",
+    "speciality_name": "Surgical Oncology",
+    "speciality_name_zh": "肿瘤外科",
+    "scope": "Cancer surgery and surgical oncology; organ specific sites retained in source text",
+    "source_entry_count": 34,
+    "needs_review_count": 0,
+    "examples": [
+      "oncosurgery",
+      "Onco Surgery",
+      "cancerSurgery",
+      "Cancer Surgery"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_THORACIC_SURGERY",
+    "speciality_name": "Thoracic Surgery",
+    "speciality_name_zh": "胸外科",
+    "scope": "Noncardiac chest and thoracic surgery",
+    "source_entry_count": 9,
+    "needs_review_count": 0,
+    "examples": [
+      "chestSurgery",
+      "thoracicSurgery",
+      "thoracic-surgery",
+      "laser-lung-surgery"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_TOXICOLOGY",
+    "speciality_name": "Toxicology and Forensic Medicine",
+    "speciality_name_zh": "毒理与法医学",
+    "scope": "Poisoning, snake bite, toxicology and forensic medicine",
+    "source_entry_count": 8,
+    "needs_review_count": 0,
+    "examples": [
+      "toxicology",
+      "Toxicopathology",
+      "poisoningSnakeBite",
+      "medicalToxicologyEM"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_TRANSFUSION",
+    "speciality_name": "Transfusion Medicine and Blood Banking",
+    "speciality_name_zh": "输血医学与血库",
+    "scope": "Blood banks, blood storage, immunohematology and transfusion medicine",
+    "source_entry_count": 15,
+    "needs_review_count": 0,
+    "examples": [
+      "bloodBank",
+      "bloodCentre",
+      "bloodStorageUnit",
+      "immunoHaematology"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_UNRESOLVED",
+    "speciality_name": "Unresolved or Ambiguous",
+    "speciality_name_zh": "未解析或含义不明",
+    "scope": "Insufficient, malformed or ambiguous source text; exclude from automatic routing",
+    "source_entry_count": 36,
+    "needs_review_count": 36,
+    "examples": [
+      "PRP",
+      "silk",
+      "smile",
+      "facial"
+    ],
+    "routable": false,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_UNSPECIFIED",
+    "speciality_name": "Unspecified or Multi Specialty",
+    "speciality_name_zh": "未指明与多专科",
+    "scope": "Generic other, all and multi specialty entries without named clinical domains",
+    "source_entry_count": 7,
+    "needs_review_count": 7,
+    "examples": [
+      "otherDiseases",
+      "Other Diseases",
+      "allSpecialities",
+      "multispeciality"
+    ],
+    "routable": false,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_UROGYNECOLOGY",
+    "speciality_name": "Urogynecology and Pelvic Floor Care",
+    "speciality_name_zh": "泌尿妇科与盆底诊疗",
+    "scope": "Female pelvic reconstruction, urogynecology and pelvic organ prolapse",
+    "source_entry_count": 12,
+    "needs_review_count": 0,
+    "examples": [
+      "urogynecology",
+      "uroGynaecology",
+      "Neuropelveology",
+      "femaleUrogyneacology"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_UROLOGY",
+    "speciality_name": "Urology",
+    "speciality_name_zh": "泌尿外科",
+    "scope": "Urinary tract disease, urological surgery, prostate BPH, stones and urodynamics",
+    "source_entry_count": 62,
+    "needs_review_count": 0,
+    "examples": [
+      "urology",
+      "hydrocele",
+      "uroSurgery",
+      "endourology"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_VASCULAR_SURGERY",
+    "speciality_name": "Vascular and Endovascular Surgery",
+    "speciality_name_zh": "血管与腔内血管外科",
+    "scope": "Peripheral vascular disease, varicose veins and vascular surgery",
+    "source_entry_count": 20,
+    "needs_review_count": 0,
+    "examples": [
+      "Lymphedema",
+      "phlebology",
+      "varicoseVeins",
+      "vascularSurgery"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_VENEREOLOGY",
+    "speciality_name": "Venereology",
+    "speciality_name_zh": "性病学",
+    "scope": "Sexually transmitted disease and venereology",
+    "source_entry_count": 6,
+    "needs_review_count": 0,
+    "examples": [
+      "Venerology",
+      "venereology",
+      "venereologyAndSexology",
+      "dermatology_venereology"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  },
+  {
+    "speciality_id": "SP_WOUND_FOOT_CARE",
+    "speciality_name": "Wound Care and Podiatry",
+    "speciality_name_zh": "伤口与足病诊疗",
+    "scope": "Foot disorders, diabetic foot, wound care and limb salvage",
+    "source_entry_count": 19,
+    "needs_review_count": 0,
+    "examples": [
+      "podiary",
+      "podiatry",
+      "footSurgery",
+      "pediatricPodiatry"
+    ],
+    "routable": true,
+    "taxonomy_version": "1.0.0"
+  }
+]
