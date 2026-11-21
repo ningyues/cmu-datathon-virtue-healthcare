@@ -9,12 +9,22 @@ export const sampleFacilities = [
 
 export function sortFacilities(facilities, sortBy) {
   return [...facilities].sort((a, b) => {
-    const difference = sortBy === 'distance'
-      ? (a.distanceKm ?? Infinity) - (b.distanceKm ?? Infinity)
-      : (b.trustScore ?? -Infinity) - (a.trustScore ?? -Infinity);
+    const distanceDifference = (a.distanceKm ?? Infinity) - (b.distanceKm ?? Infinity);
+    if (sortBy === 'fit') {
+      if (a.fitScore == null && b.fitScore == null) return 0;
+      return (b.fitScore ?? -Infinity) - (a.fitScore ?? -Infinity) || distanceDifference || a.name.localeCompare(b.name);
+    }
+    if (sortBy === 'trust' && a.trustScore == null && b.trustScore == null) return 0;
+    const difference = sortBy === 'distance' ? distanceDifference : (b.trustScore ?? -Infinity) - (a.trustScore ?? -Infinity);
     return (Number.isNaN(difference) ? 0 : difference) || a.name.localeCompare(b.name);
   });
 }
 
-export const distanceLabel = (facility) => facility.distanceKm == null ? 'Distance unavailable' : `${facility.distanceKm} km`;
-export const scoreLabel = (facility) => facility.trustScore == null ? 'Unavailable' : `${facility.trustScore}/100`;
+export const distanceLabel = (facility) => facility.distanceKm == null ? 'Distance unavailable' : `${Number(facility.distanceKm.toFixed(1))} km`;
+
+export function facilityScore(facility, kind) {
+  if (kind === 'fit') {
+    return { label: 'Fit Score', text: facility.fitScore?.toFixed(2) ?? 'Pending', missing: facility.fitScore == null };
+  }
+  return { label: 'Trust score', text: facility.trustScore == null ? 'Unavailable' : `${facility.trustScore}/100`, missing: facility.trustScore == null };
+}

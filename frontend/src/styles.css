@@ -87,6 +87,10 @@ button, a, textarea, select { -webkit-tap-highlight-color: transparent; }
 .map-caption-top, .map-caption-bottom { position: absolute; left: 24px; color: var(--muted); line-height: 1.4; }
 .map-caption-top { top: 24px; font-size: 16px; }
 .map-caption-bottom { bottom: 24px; font-size: 14px; }
+.location-plot { position: absolute; inset: 15% 12%; background-color: white; border-radius: 12px; border: 1px solid var(--ice); background-image: linear-gradient(var(--ice) 1px, transparent 1px), linear-gradient(90deg, var(--ice) 1px, transparent 1px); background-size: 10% 10%; }
+.plot-marker, .plot-origin { position: absolute; transform: translate(-50%, -50%); width: 16px; height: 16px; padding: 0; border: 2px solid white; border-radius: 50%; background: var(--indigo); box-shadow: 0 0 0 1px var(--indigo); }
+.plot-marker:hover, .plot-marker:focus-visible, .plot-marker.is-selected { z-index: 2; width: 24px; height: 24px; }
+.plot-origin { left: 50%; top: 50%; z-index: 1; pointer-events: none; background: #b78329; box-shadow: 0 0 0 1px #8b5d16; }
 .map-unavailable { padding: 32px; }
 .map-unavailable h2 { font-size: 20px; }
 .map-unavailable p { color: var(--muted); margin-top: 8px; }
@@ -101,6 +105,7 @@ button, a, textarea, select { -webkit-tap-highlight-color: transparent; }
 .trust-display > strong { color: var(--indigo); font-size: 52px; line-height: 1.4; font-weight: 800; }
 .trust-display > .score-unavailable { font-size: 30px; }
 .hospital-information { padding: 12px 16px 0; font-size: 16px; line-height: 22px; font-weight: 700; }
+.hospital-information a { display: inline-block; margin-top: 8px; color: var(--indigo); }
 .score-breakdown { display: flex; flex-direction: column; gap: 16px; margin-top: 0; }
 .breakdown-row { display: flex; flex-direction: column; gap: 8px; }
 .breakdown-row h3 { font-size: 16px; line-height: 1.4; }

@@ -6,13 +6,23 @@ React JSX and plain CSS implementation of the supplied **CareLens / Aurora Glass
 
 Use Node.js 22.12+ (or Node.js 24).
 
+Start the Python API from the repository root.
+
 ```bash
-cd carelens-frontend
+python3 -m app.api
+```
+
+In a second terminal, start Vite.
+
+```bash
+cd frontend
 npm ci
 npm run dev
 ```
 
-Open the local URL printed by Vite. To validate and build:
+Open the local URL printed by Vite and search for `Find dialysis near Hyderabad 500003`.
+
+Validate and build the frontend with these commands.
 
 ```bash
 npm test
@@ -26,13 +36,13 @@ The production output is in `dist/`. Serve it with an HTTP server; do not double
 
 - Landing page with the original gradient, Inter typography, exported orbital artwork, and 8-second floating animation. Reduced-motion preferences disable animation.
 - Editable service/location query; submit with Send or Enter (Shift+Enter inserts a new line).
-- Default trust ranking and working nearest-distance sorting.
+- Default Fit Score ranking for live results, with evidence order while scores are pending and a nearest-distance option.
 - Four sample hospital cards transcribed from Figma; the result count is calculated dynamically.
 - Original exported illustrative map with three clickable markers. Figma supplies no marker for the fourth facility, so no coordinate was invented.
 - Facility details with supplied scores, locations, and category placeholders. Close with the × button, Escape, or the dimmed map; keyboard focus is contained in the dialog and restored on close.
 - View details expands a truthful explanation of the missing supporting evidence; no scoring methodology or clinical claims have been invented.
 - Click the CareLens logo to return to the search page with the query preserved.
-- Loading, empty, error, and missing-value states for a future backend.
+- Live search through the local Python API, with loading, empty, error, and missing-value states.
 
 ## Edit these files
 
@@ -52,26 +62,34 @@ The production output is in `dist/`. Serve it with an HTTP server; do not double
 
 No Tailwind is required. Font files are bundled locally through `@fontsource/inter`. Figma asset URLs are not used at runtime.
 
-## Connect your agent/backend
+## Search API
 
-The default is a frontend demonstration: **every valid query returns the same four illustrative records**. It does not perform NLP, search a database, verify trust scores, resolve a postcode, or calculate distance. The current map is the design's illustration, not a live geographical map.
+The frontend sends requests to `/api/search`. Vite forwards them to `127.0.0.1:8000` during development and preview. A deployment can serve the API at the same path or set `VITE_FACILITIES_API_URL` to another compatible endpoint. Set `VITE_FACILITIES_API_URL=` explicitly in `.env.local` to use the labelled Figma sample records.
 
-1. Copy `.env.example` to `.env.local`.
-2. Set `VITE_FACILITIES_API_URL` to your backend search endpoint.
-3. Restart Vite (or rebuild for production).
-
-The adapter sends:
+The frontend sends this request.
 
 ```http
-POST <VITE_FACILITIES_API_URL>
+POST /api/search
 Content-Type: application/json
 ```
 
 ```json
-{ "query": "I need to find a nursing service in 800001" }
+{ "query": "Find dialysis near Hyderabad 500003" }
 ```
 
-Expected response shape (this is an illustrative record from the design):
+An upstream agent can send a parsed intent to the same endpoint.
+
+```json
+{
+  "intent": {
+    "location": {"postcode": null, "city": "Lucknow"},
+    "specialities": ["dentistry", "General Dentistry"],
+    "service": ["toothache consultation", "dental care"]
+  }
+}
+```
+
+The API responds with a `facilities` array. This example shows the response fields.
 
 ```json
 {
@@ -83,16 +101,28 @@ Expected response shape (this is an illustrative record from the design):
       "area": "Gandhi Maidan, Patna",
       "postalCode": "800001",
       "distanceKm": 3.2,
-      "trustScore": 92,
-      "featured": true
+      "trustScore": null,
+      "serviceEvidence": null
     }
   ]
 }
 ```
 
-`id` must be unique and nonempty; `name` must be nonempty. `trustScore` can be a number from 0 to 100 or `null`; `distanceKm` can be a nonnegative number or `null`. Missing values appear as unavailable and sort last. An empty array shows the empty state. Invalid records or failed requests show an error with retry.
+The live endpoint uses these backend fields.
 
-The backend should handle query interpretation, postcode/geocoding, matching, evidence and score computation. Backend-supplied results intentionally do not appear on the illustrative map. Replace `FacilityMap.jsx` with a geographical map once real coordinates and a map provider are available. Add the appropriate authentication and CORS handling in the API adapter for your backend. Never put private API keys in Vite environment variables: `VITE_` values are exposed to the browser.
+| Backend field | API field and frontend use |
+| --- | --- |
+| `unique_id`, `name_standardized`, `name` | `id` and `name` identify cards and map points. |
+| `facilityTypeId`, `operatorTypeId` | `type` and `operatorType` display the facility category and how it is operated. |
+| `address_line1`–`address_line3`, `address_city`, `address_stateOrRegion`, `address_zipOrPostcode` | `address`, `area`, and `postalCode` populate the card and detail drawer. |
+| `officialWebsite` | `website` is displayed as a dataset link when it resolves to an HTTP(S) URL. |
+| `latitude`, `longitude`, `QueryLocation`, `radius_km` | Facility coordinates, `queryLocation`, and `radiusKm` drive the location plot and results summary. |
+| `distance_km`, `fit_score` | `distanceKm` and `fitScore` support nearest-distance and Fit Score sorting. |
+| `service_match`, `service_evidence` | `serviceMatch` labels each card, and `serviceEvidence` supplies the original claim in the drawer. |
+
+`fitScore` displays as `Pending` when the dataset has no score. `trustScore` is a separate optional 0–100 value. When Fit Scores are pending, the frontend keeps the API's order, which prioritizes dataset service claims and uses straight-line distance within each group. Service availability remains unverified.
+
+The API uses the local service-catalog parser for free-text queries. To use the existing OpenAI parser, start it with `python3 -m app.api --agent` and configure `OPENAI_API_KEY` in the Python process. The API sends free-text queries to OpenAI in this mode. Live map points use the dataset coordinates and open the same detail drawer as the facility cards. The point plot uses a coordinate grid without a street basemap.
 
 ## Design and validation notes
 

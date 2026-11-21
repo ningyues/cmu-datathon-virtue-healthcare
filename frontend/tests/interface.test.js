@@ -14,7 +14,11 @@ test('search validation, results, distance sorting, drawer keyboard controls, an
   globalThis.ResizeObserver = class { observe() {} disconnect() {} };
   const { render, screen, cleanup } = await import('@testing-library/react');
   const { default: userEvent } = await import('@testing-library/user-event');
-  const server = await createServer({ server: { middlewareMode: true }, appType: 'custom' });
+  const server = await createServer({
+    define: { 'import.meta.env.VITE_FACILITIES_API_URL': JSON.stringify('') },
+    server: { middlewareMode: true, ws: false },
+    appType: 'custom',
+  });
   try {
     const { default: App } = await server.ssrLoadModule('/src/App.jsx');
     const user = userEvent.setup({ document: dom.window.document });

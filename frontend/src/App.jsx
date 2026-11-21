@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import LandingPage from './components/LandingPage.jsx';
 import ResultsPage from './components/ResultsPage.jsx';
-import { searchFacilities } from './services/search.js';
+import { searchFacilities, usesIllustrativeData } from './services/search.js';
 
 export default function App() {
   const [page, setPage] = useState('landing');
   const [query, setQuery] = useState('');
-  const [result, setResult] = useState({ facilities: [], illustrative: true });
+  const [result, setResult] = useState({ facilities: [], illustrative: usesIllustrativeData });
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState('');
   const request = useRef(null);
@@ -19,7 +19,7 @@ export default function App() {
     setPage('results');
     setStatus('loading');
     setError('');
-    setResult({ facilities: [], illustrative: !import.meta.env.VITE_FACILITIES_API_URL });
+    setResult({ facilities: [], illustrative: usesIllustrativeData });
     try {
       const data = await searchFacilities(nextQuery, { signal: controller.signal });
       if (controller.signal.aborted) return;
