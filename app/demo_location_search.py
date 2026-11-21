@@ -5,11 +5,14 @@ import csv
 import gzip
 import json
 import lzma
+import sys
 from pathlib import Path
 
 from app.location_matching import LocationMatcher, PIN_PATTERN
 from app.search_output import print_nearby_results
-from app.service_search import match_service, parse_query, parse_query_with_agent
+from app.service_search import (
+    match_search_intent, match_service, parse_query, parse_query_with_agent, parse_search_intent,
+)
 
 
 FACILITIES = Path(__file__).resolve().parents[1] / "data/processed/facilities_clean.csv.xz"
@@ -20,6 +23,10 @@ def main() -> int:
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument("--specialty", help="Dataset specialty, e.g. nephrology")
     mode.add_argument("--query", help='Service and location, e.g. "dialysis near Hyderabad 500003"')
+    mode.add_argument(
+        "--intent", "--search-output", metavar="FILE",
+        help="Read agent-parsed search intent JSON from a file or - for stdin",
+    )
     parser.add_argument("--agent", action="store_true", help="Use the OpenAI API to parse --query")
     parser.add_argument(
         "--sort", choices=("fit", "evidence", "distance"), default="fit",
@@ -33,7 +40,22 @@ def main() -> int:
     pincode = (args.pincode or "").strip()
     specialty = args.specialty.strip().casefold() if args.specialty is not None else None
     service_id = None
-    if args.query is not None:
+    intent = None
+    if args.intent is not None:
+        if args.agent:
+            parser.error("--agent requires --query")
+        if city or pincode:
+            parser.error("provide the location in the intent JSON")
+        try:
+            if args.intent == "-":
+                payload = json.load(sys.stdin)
+            else:
+                payload = json.loads(Path(args.intent).read_text(encoding="utf-8-sig"))
+            intent = parse_search_intent(payload)
+        except (OSError, ValueError) as error:
+            parser.error(f"could not read search intent ({error})")
+        city, pincode = intent.city, intent.pincode
+    elif args.query is not None:
         if city or pincode:
             parser.error("include the location in --query")
         try:
@@ -56,7 +78,9 @@ def main() -> int:
     with opener(snapshot, "rt", encoding="utf-8-sig", newline="") as file:
         # The snapshot contains NULs that Python 3.10's CSV reader rejects.
         rows = csv.DictReader(line.replace("\0", "") for line in file)
-        if service_id is not None:
+        if intent is not None:
+            candidates = list(match_search_intent(rows, intent))
+        elif service_id is not None:
             candidates = list(match_service(rows, service_id))
         else:
             candidates = [
@@ -75,21 +99,22 @@ def main() -> int:
         )
 
     nearby = result["candidates"]
+    service_label = ", ".join(intent.service) if intent is not None else service_id
     print(f"Origin: {location['label']} ({location['source']}, approximate)")
-    if service_id is not None:
+    if service_label:
         listed = sum(row["service_match"] == "listed_in_dataset" for row in candidates)
-        print(f"Service: {service_id}")
+        print(f"Service: {service_label}")
         print(f"Dataset service claims: {listed}")
         print(f"Related specialty only: {len(candidates) - listed}")
     else:
         print(f"Dataset specialty matches: {len(candidates)}")
     print(f"Within {result['radius_km']:g} km: {len(nearby)} (straight-line distance)")
-    if service_id is not None:
+    if service_label:
         nearby_listed = sum(row["service_match"] == "listed_in_dataset" for row in nearby)
         print(f"Nearby: {nearby_listed} with dataset claims, {len(nearby) - nearby_listed} specialty only")
     print(f"Distance unavailable: {len(result['unlocated_candidates'])}")
     print("Service availability is unverified.")
-    print_nearby_results(nearby, sort_by=args.sort, service_search=service_id is not None)
+    print_nearby_results(nearby, sort_by=args.sort, service_search=bool(service_label))
     return 0
 
 
