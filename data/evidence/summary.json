@@ -29,6 +29,8 @@
     "scope_conflict": 1,
     "coordinate_location_conflict": 9,
     "coordinate_locations_withdrawn": 3,
+    "specialty_case_duplicates_removed": 153,
+    "specialty_records_deduplicated": 81,
     "invalid_pin_format": 76,
     "coordinate_pair_unusable": 18,
     "invalid_establishment_year": 3

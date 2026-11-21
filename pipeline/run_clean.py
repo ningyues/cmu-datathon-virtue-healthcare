@@ -270,6 +270,21 @@ def build(zip_path, csv_path, dest):
                     kept.append(normalized)
                     if status in SUPPORTED_CLAIMS:
                         verified_for_branch.append((field, normalized, *proof))
+                if field == "specialties":
+                    unique_specialties = {}
+                    duplicate_count = 0
+                    for specialty in kept:
+                        key = specialty.casefold()
+                        if key in unique_specialties:
+                            duplicate_count += 1
+                            removed.append(("hospital", number, uid, field, specialty, unique_specialties[key],
+                                            "remove_claim", "specialty_case_duplicate", "", "", ""))
+                        else:
+                            unique_specialties[key] = specialty
+                    if duplicate_count:
+                        field_actions["specialty_case_duplicates_removed"] += duplicate_count
+                        field_actions["specialty_records_deduplicated"] += 1
+                    kept = list(unique_specialties.values())
                 row[field] = json.dumps(kept, ensure_ascii=False) if kept else ""
             pin = row["address_zipOrPostcode"]
             p = reference.get(pin)

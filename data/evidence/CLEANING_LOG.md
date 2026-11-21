@@ -26,6 +26,7 @@ This run used `Datathon/facilities.csv` from `Datathon.zip` and the uploaded Ind
 | Page update date after the run cutoff | Cleared the date `2027-07-20` because it falls after the `2026-11-21` cutoff. | 1 field cleared |
 | Empty list entries | Removed blank and null entries from lists such as specialties, procedures, equipment, and source URLs. | 19,877 entries removed |
 | Duplicate list entries | Removed identical entries within the same field of the same facility record. | 698,437 entries removed |
+| Specialty capitalization variants | Kept the first spelling and original order for each case-insensitive specialty within a facility record. The removal log records both spellings. | 153 entries removed across 81 records |
 | Service or equipment attributed to the wrong facility | Removed the claims from the affected fields and retained the original wording in the evidence table. | 17 claims removed |
 | Mixed branch information | Cleared PIN `110002` from the Aravind record because it combines information from different locations. The intended branch is still under review. | 1 field cleared |
 | Conflicting source addresses | Wockhardt Nagpur's own pages list different PINs. Cleared the original `400078` and left the exact branch PIN open for review. | 1 field cleared |
@@ -69,4 +70,4 @@ After the backfills, **9,342 facility records** agree with the postal reference 
 
 - **17 claims were attributed to the wrong facility.** In 16 cases, the original entry explicitly named a different institution. A source check confirmed the attribution error in the other entry. [Reviewed claim evidence](reviewed_claim_evidence.csv)
 - **6 individual claims have source support.** Accreditation scopes support five and a facility page supports one. In one additional case, the source supports the service and leaves ownership of the equipment unverified. [Verified service claims](verified_service_claims.csv) · [Reviewed claim evidence](reviewed_claim_evidence.csv)
-- **549,825 claims from array fields** rely on the source dataset alone. Another **9,989 facility descriptions** have yet to be verified individually. The app should show the evidence status for each claim and verify facility names, full addresses, coordinates, and links at the branch level.
+- **549,825 claims from array fields** rely on the source dataset alone. This audit count includes specialty capitalization variants before deduplication. Another **9,989 facility descriptions** have yet to be verified individually. The app should show the evidence status for each claim and verify facility names, full addresses, coordinates, and links at the branch level.
