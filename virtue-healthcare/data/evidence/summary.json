@@ -1,0 +1,59 @@
+{
+  "as_of_date": "2026-11-21",
+  "hospital_input_rows": 10088,
+  "hospital_output_rows": 9989,
+  "hospital_removed_rows": {
+    "invalid_uuid": 88,
+    "exact_duplicates_removed": 11
+  },
+  "post": {
+    "input_rows": 165627,
+    "output_rows": 165625,
+    "coordinate_pairs_unusable": 14617,
+    "coordinate_pairs_removed": 2617,
+    "reference_rows_corrected": 4,
+    "exact_duplicates_removed": 2,
+    "state_ambiguous_pins": 52,
+    "district_ambiguous_pins": 1258,
+    "unique_pins": 19586
+  },
+  "field_actions": {
+    "mixed_branch_pending": 1,
+    "future_page_or_post_date": 1,
+    "exact_array_duplicates_removed": 698437,
+    "wrong_facility_claims_removed": 17,
+    "masked_email": 355,
+    "empty_array_items_removed": 19877,
+    "source_conflict": 1,
+    "source_backfill": 35,
+    "scope_conflict": 1,
+    "coordinate_location_conflict": 9,
+    "coordinate_locations_withdrawn": 3,
+    "invalid_pin_format": 76,
+    "coordinate_pair_unusable": 18,
+    "invalid_establishment_year": 3
+  },
+  "pin_checks_after_cleaning": {
+    "missing_or_removed": 82,
+    "state_consistent": 9342,
+    "not_in_snapshot": 205,
+    "state_conflict": 31,
+    "state_unresolved": 314,
+    "ambiguous_state": 15
+  },
+  "claims": {
+    "dataset_only": 549825,
+    "wrong_facility": 1,
+    "description_unreviewed": 9989,
+    "claim_text_names_other_facility": 16,
+    "accreditation_supports_service": 5,
+    "service_supported_equipment_ownership_unverified": 1,
+    "official_page_supports": 1
+  },
+  "verified_service_claim_rows": 6,
+  "review_queue_rows": 1558,
+  "dataset_sha256": {
+    "datathon_zip": "6d580523b834b3df8cde3be30ba35b03543b53cdaf429639de2c890223707585",
+    "postal_csv": "701ee84ba125a914e7ffc979c0308b3a041b8adffa85ec9d5f4e0579ecf062e5"
+  }
+}
