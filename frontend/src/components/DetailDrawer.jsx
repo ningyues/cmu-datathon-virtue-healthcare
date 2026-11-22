@@ -1,11 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import NabhVerification from './NabhVerification.jsx';
 import { distanceLabel, facilityScore } from '../data/facilities.js';
 
 export default function DetailDrawer({ facility, onClose, illustrative, scoreKind }) {
   const panel = useRef(null);
   const closeButton = useRef(null);
-  const [expanded, setExpanded] = useState(false);
   const score = facilityScore(facility, scoreKind);
   const breakdown = facility.scoreBreakdown;
   const hasAuthorityFlags = typeof breakdown?.addressPostcodeCoordinatesMismatch === 'boolean' &&
@@ -63,12 +62,7 @@ export default function DetailDrawer({ facility, onClose, illustrative, scoreKin
         {illustrative && <div className="score-breakdown">
           {['Data completeness', 'Verification', 'Consistency'].map((label) => <div className="breakdown-row" key={label}><h3>{label}</h3><div className="unmeasured-track" aria-hidden="true" /><p>Proposed category · Not quantified</p></div>)}
         </div>}
-        {expanded && <p className="evidence-note" id="evidence-note">{illustrative
-          ? 'Illustrative data from the design. Supporting source records and a scoring methodology have not been supplied.'
-          : facility.serviceEvidence
-            ? <>Dataset claim ({facility.serviceEvidence.field}) · {facility.serviceEvidence.text}. Service availability is unverified.</>
-            : 'No dataset service claim was supplied for this facility.'}</p>}
-        <button className="primary-button detail-action" type="button" onClick={() => setExpanded(!expanded)} aria-expanded={expanded} aria-controls="evidence-note">{expanded ? 'Hide details ↑' : 'View details →'}</button>
+
       </section>
     </>
   );

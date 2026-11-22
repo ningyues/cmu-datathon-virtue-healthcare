@@ -6,9 +6,10 @@ import React from 'react';
 
 test('search validation, results, distance sorting, drawer keyboard controls, and return to search', async () => {
   const dom = new JSDOM('<!doctype html><html><body></body></html>', { url: 'http://localhost', pretendToBeVisual: true });
-  for (const key of ['window', 'document', 'navigator', 'HTMLElement', 'Element', 'Node', 'MutationObserver']) {
+  for (const key of ['window', 'document', 'navigator', 'HTMLElement', 'HTMLLabelElement', 'Element', 'Node', 'MutationObserver']) {
     Object.defineProperty(globalThis, key, { configurable: true, value: dom.window[key] });
   }
+  dom.window.scrollTo = () => {};
   globalThis.getComputedStyle = dom.window.getComputedStyle;
   globalThis.IS_REACT_ACT_ENVIRONMENT = true;
   globalThis.ResizeObserver = class { observe() {} disconnect() {} };
@@ -36,8 +37,7 @@ test('search validation, results, distance sorting, drawer keyboard controls, an
     assert.ok(screen.getByRole('dialog', { name: 'Nirmal Care Hospital' }));
     const close = screen.getByRole('button', { name: 'Close facility details' });
     assert.equal(dom.window.document.activeElement, close);
-    await user.click(screen.getByRole('button', { name: 'View details →' }));
-    assert.match(screen.getByText(/Illustrative data from the design/).textContent, /not been supplied/);
+    assert.equal(screen.queryByRole('button', { name: 'View details →' }), null);
     await user.keyboard('{Escape}');
     assert.equal(screen.queryByRole('dialog'), null);
     assert.match(dom.window.document.activeElement.getAttribute('aria-label'), /Nirmal/);
@@ -51,6 +51,21 @@ test('search validation, results, distance sorting, drawer keyboard controls, an
     await screen.findByRole('heading', { name: 'Search results' });
     await user.click(screen.getByRole('button', { name: 'CareLens — start a new search' }));
     assert.equal(screen.getByLabelText('How can I help you?').value, 'I need to find a nursing service in 800001');
+    cleanup();
+    const { default: FacilityMap } = await server.ssrLoadModule('/src/components/FacilityMap.jsx');
+    let selected = null;
+    const facility = { id: 'live', name: 'Hyderabad Clinic', coordinates: { latitude: 17.44, longitude: 78.49 } };
+    const props = { facilities: [facility], queryLocation: { latitude: 17.43, longitude: 78.48, label: 'Hyderabad' }, selectedId: 'live', onSelect: f => { selected = f; }, illustrative: false, status: 'success' };
+    const live = render(React.createElement(FacilityMap, props));
+    assert.ok(screen.getByRole('region', { name: 'Healthcare facility map of India' }));
+    assert.ok(document.querySelector('img.leaflet-tile').src.includes('tile.openstreetmap.org'));
+    const marker = screen.getByRole('button', { name: 'Open Hyderabad Clinic' });
+    assert.ok(marker.classList.contains('is-selected'));
+    await user.click(marker);
+    assert.equal(selected.id, 'live');
+    live.rerender(React.createElement(FacilityMap, { ...props, facilities: [{ id: 'missing', name: 'Unknown' }], queryLocation: null }));
+    assert.equal(screen.queryByRole('button', { name: 'Open Hyderabad Clinic' }), null);
+    assert.ok(screen.getByText('1 facilities have no map coordinates.'));
   } finally { cleanup(); await server.close(); dom.window.close(); }
 });
 

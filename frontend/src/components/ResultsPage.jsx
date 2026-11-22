@@ -35,7 +35,7 @@ export default function ResultsPage({ facilities, illustrative, queryLocation, r
                 <div>
                   <h1 ref={heading} tabIndex={-1}>Search results</h1>
                   <p className="result-count" aria-live="polite">{status === 'loading' ? 'Finding facilities…' : `${facilities.length} ${facilities.length === 1 ? 'facility' : 'facilities'}${illustrative ? ' · Illustrative data' : ''}`}</p>
-                  {queryLocation?.label && <p className="result-count">{radiusKm ? `Within ${radiusKm} km of ` : ''}{queryLocation.label}{queryLocation.approximate && ' · Approximate origin'}</p>}
+                  {queryLocation?.label && <p className="result-count">{radiusKm ? `Within ${radiusKm} km of ` : ''}{queryLocation.label}</p>}
                 </div>
                 <label className="sort-control">Sort by<select value={sortBy} onChange={(event) => setSortChoice(event.target.value)} disabled={status !== 'success' || facilities.length === 0}>
                   {!illustrative && <option value="fit">{hasFitScores ? 'Highest Fit Score' : 'Best match'}</option>}
@@ -50,7 +50,7 @@ export default function ResultsPage({ facilities, illustrative, queryLocation, r
                 {status === 'success' && sorted.map((facility, index) => <FacilityCard key={facility.id} facility={facility} rank={index + 1} selected={selectedId === facility.id} onSelect={selectFacility} scoreKind={scoreKind} />)}
               </div>
             </section>
-            <div className="map-column"><FacilityMap facilities={sorted} queryLocation={queryLocation} radiusKm={radiusKm} selectedId={selectedId} onSelect={selectFacility} illustrative={illustrative} hasDetail={Boolean(detail)} /></div>
+            <div className="map-column"><FacilityMap facilities={sorted} status={status} queryLocation={queryLocation} radiusKm={radiusKm} selectedId={selectedId} onSelect={selectFacility} illustrative={illustrative} hasDetail={Boolean(detail)} /></div>
           </div>
           {detail && <DetailDrawer key={detail.id} facility={detail} onClose={closeDetail} illustrative={illustrative} scoreKind={scoreKind} />}
         </main>
