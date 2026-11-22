@@ -92,21 +92,11 @@ export DATABASE_URL='postgresql://healthcare:local-development-only@localhost:54
 )
 ```
 
-`init` also upgrades an existing schema. Run `load` for the first import or when updating the snapshot. For an existing PostgreSQL server, set `DATABASE_URL` to its connection string and run the same import commands.
+`init` also upgrades an existing schema. `load` imports the facility and postal records along with the [bundled website scores](data/processed/website_reachability.csv.gz). If you already imported the data, run `load` again after pulling the latest code to pick up the bundled results. For an existing PostgreSQL server, set `DATABASE_URL` to its connection string and run the same import commands.
 
-### 2. Prepare website evidence
+The bundled scores cover all 9,989 records in the current facility snapshot. The import fills missing scores for records with the same listed websites and preserves completed local scores. Website reachability imports run entirely offline. [Website score import and export](virtue-healthcare/db/README.md#bundled-website-scores)
 
-The bundled snapshot contains the dataset links. On a new database, run the checks to populate their reachability scores and hospital-match evidence. This example scopes the batch to records in Hyderabad. Omit `--city Hyderabad` to process the entire dataset, or use `--facility-id` to check one record.
-
-```bash
-python -m app.website_verification --city Hyderabad
-python -m app.website_facility_matching --city Hyderabad 2>&1 \
-  | tee /tmp/carelens-website-matching.log
-```
-
-The jobs save results incrementally. Search is available as soon as the snapshot is loaded, and scores appear for facilities as their reachability checks finish. [Offline verification workflow](app/README.md#facility-website-verification)
-
-### 3. Start the API
+### 2. Start the API
 
 For a local demo with the built-in service catalog, run this in the backend terminal with `DATABASE_URL` still exported.
 
@@ -116,7 +106,7 @@ python -m app.api --local-parser --port 8000
 
 The local parser covers dialysis, hemodialysis, peritoneal dialysis, cataract surgery, and MRI. For the default Ark parser and model-assisted NABH verification, copy `agents/.env.example` to `agents/.env`, set `ARK_API_KEY` and `ARK_MODEL`, and start the API with `python -m app.api --port 8000`. Keep agent credentials on the backend. [Agent setup](agents/README.md)
 
-### 4. Start the frontend
+### 3. Start the frontend
 
 In a second terminal, run the following commands.
 
