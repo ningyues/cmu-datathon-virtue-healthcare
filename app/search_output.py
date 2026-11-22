@@ -6,7 +6,7 @@ from math import inf, isfinite
 from app.location_matching import rank_by_distance
 
 
-def _fit_score(value: object) -> float | None:
+def fit_score_value(value: object) -> float | None:
     try:
         score = float(value)
     except (TypeError, ValueError, OverflowError):
@@ -18,7 +18,7 @@ def print_nearby_results(
     candidates: Iterable[dict], *, sort_by: str = "fit", service_search: bool = False,
 ) -> None:
     """Print up to ten results. A missing Fit Score displays as Pending."""
-    ranked = [(row, _fit_score(row.get("fit_score"))) for row in rank_by_distance(candidates)]
+    ranked = [(row, fit_score_value(row.get("fit_score"))) for row in rank_by_distance(candidates)]
     if not ranked:
         return
 

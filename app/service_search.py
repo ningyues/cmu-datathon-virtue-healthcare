@@ -2,12 +2,13 @@
 
 from dataclasses import dataclass
 import json
+from math import isfinite
 import os
 import re
 from urllib.error import URLError
 from urllib.request import Request, urlopen
 
-from app.location_matching import PIN_PATTERN
+from app.location_matching import DEFAULT_RADIUS_KM, PIN_PATTERN
 
 
 @dataclass(frozen=True)
@@ -55,6 +56,51 @@ class SearchQuery:
     service_id: str
     city: str | None
     pincode: str | None
+
+
+@dataclass(frozen=True)
+class SearchIntent:
+    city: str | None
+    pincode: str | None
+    specialities: tuple[str, ...]
+    service: tuple[str, ...]
+    range: float = DEFAULT_RADIUS_KM
+
+
+def parse_search_intent(payload: object) -> SearchIntent:
+    """Read the search intent produced by an upstream agent."""
+    if not isinstance(payload, dict) or not isinstance(payload.get("location"), dict):
+        raise ValueError("Search intent must contain a location object.")
+
+    location = payload["location"]
+    city, postcode = location.get("city"), location.get("postcode")
+    if any(value is not None and not isinstance(value, str) for value in (city, postcode)):
+        raise ValueError("location.city and location.postcode must be strings or null.")
+    city = (city or "").strip() or None
+    postcode = (postcode or "").strip() or None
+    if postcode and not PIN_PATTERN.fullmatch(postcode):
+        raise ValueError("location.postcode must be a valid six-digit PIN.")
+    if not (city or postcode):
+        raise ValueError("Search intent must include a city or postcode.")
+
+    terms = {}
+    for field in ("specialities", "service"):
+        values = payload.get(field)
+        if not isinstance(values, list) or any(not isinstance(value, str) for value in values):
+            raise ValueError(f"{field} must be an array of strings.")
+        terms[field] = tuple(value.strip() for value in values if value.strip())
+    if not (terms["specialities"] or terms["service"]):
+        raise ValueError("Search intent must include at least one speciality or service.")
+
+    radius = payload.get("range", DEFAULT_RADIUS_KM)
+    try:
+        valid_radius = (not isinstance(radius, bool) and isinstance(radius, (int, float))
+                        and radius > 0 and isfinite(radius))
+    except OverflowError:
+        valid_radius = False
+    if not valid_radius:
+        raise ValueError("range must be a positive finite number in kilometers.")
+    return SearchIntent(city, postcode, terms["specialities"], terms["service"], radius)
 
 
 def _contains(text, term):
@@ -163,23 +209,40 @@ def parse_query_with_agent(query):
 
 def match_service(facilities, service_id):
     """Return one candidate per input facility row, with dataset evidence attached."""
-    service = SERVICES[service_id]
+    return _match_service(facilities, SERVICES[service_id])
+
+
+def _normalize_service_term(value: str) -> str:
+    return " ".join(value.casefold().replace("-", " ").split()).strip(" .")
+
+
+def match_search_intent(facilities, intent: SearchIntent):
+    """Match supplied labels exactly after normalization, outside the service catalog."""
+    terms = tuple(filter(None, map(_normalize_service_term, intent.service)))
+    specialties = tuple(value.casefold() for value in intent.specialities)
+    return _match_service(facilities, Service(terms, specialties), exact_terms=True)
+
+
+def _match_service(facilities, service: Service, *, exact_terms: bool = False):
+    specialties = set(service.specialties)
+    service_terms = set(service.terms)
+    fields = ("procedure", "capability") if service_terms else ()
     for row in facilities:
         evidence = None
-        for field in ("procedure", "capability"):
+        for field in fields:
             for claim in json.loads(row[field] or "[]"):
-                text = " ".join(claim.casefold().replace("-", " ").split()).strip(" .")
-                if not any(_contains(text, term) for term in service.terms):
+                text = _normalize_service_term(claim)
+                exact_match = text in service_terms
+                if not exact_match and (exact_terms or not any(_contains(text, term) for term in service.terms)):
                     continue
                 if REFERRAL_OR_UNCERTAIN.search(claim) or OTHER_SITE.search(claim):
                     continue
-                unit = any(text.startswith(term + " unit") for term in service.terms)
-                if text in service.terms or unit or OFFERING.search(claim):
+                if exact_match or any(text.startswith(term + " unit") for term in service.terms) or OFFERING.search(claim):
                     evidence = {"field": field, "text": claim}
                     break
             if evidence:
                 break
         if evidence:
             yield {**row, "service_match": "listed_in_dataset", "service_evidence": evidence}
-        elif any(s.casefold() in service.specialties for s in json.loads(row["specialties"] or "[]")):
+        elif any(s.casefold() in specialties for s in json.loads(row["specialties"] or "[]")):
             yield {**row, "service_match": "related_specialty_only", "service_evidence": None}

@@ -11,6 +11,7 @@ from tempfile import TemporaryDirectory
 from zipfile import ZipFile
 
 from audit_helpers import UUID_RE, clean, state, point, km, evidence, export_rows, table
+from facility_names import read_name_decisions
 
 PIN = re.compile(r"[1-9][0-9]{5}")
 ROOT = Path(__file__).resolve().parent
@@ -138,6 +139,7 @@ def build(zip_path, csv_path, dest):
             raise ValueError(f"Duplicate website decision: {key}")
         seen_websites.add(key)
         website_decisions[decision["id"]].append(decision)
+    name_decisions = read_name_decisions()
     by_id = defaultdict(list)
     counts, field_actions, pin_checks, claim_checks = Counter(), Counter(), Counter(), Counter()
     evidence_rows, services, queue = [], [], []
@@ -354,7 +356,18 @@ def build(zip_path, csv_path, dest):
                 claim_writer.writerow([uid, number, "description", row["description"], "dataset_only"])
             for field, claim, status, url, note, reviewed_on in verified_for_branch:
                 services.append((uid, row["name"], field, claim, status, url, note, reviewed_on, geo))
-            hospital_writer.writerow([*(row[k] for k in [*header,"sanctioned_beds"]), " ".join(row["name"].split()), number, pin_status,
+            display_name = " ".join(row["name"].split())
+            name_decision = name_decisions.pop(uid, None)
+            if name_decision is not None:
+                if display_name != name_decision["expected_name"]:
+                    raise ValueError(f"Facility name decision did not match: {uid}")
+                cleaned_name = name_decision["cleaned_name"]
+                field_actions["facility_display_names_cleaned"] += 1
+                removed.append(("hospital", number, uid, "name_standardized", display_name, cleaned_name,
+                                "normalize_display_name", "address_in_facility_name", name_decision["source_url"],
+                                "", name_decision["note"]))
+                display_name = cleaned_name
+            hospital_writer.writerow([*(row[k] for k in [*header,"sanctioned_beds"]), display_name, number, pin_status,
                                        json.dumps(sorted(p["states"]) if p else [], ensure_ascii=False),
                                        json.dumps(sorted(p["districts"]) if p else [], ensure_ascii=False),
                                        round(distance, 1) if distance is not None else "", geo, "|".join(repaired)])
@@ -362,6 +375,8 @@ def build(zip_path, csv_path, dest):
     assert applied_ids == set(decisions)
     if website_decisions:
         raise ValueError(f"Website decisions did not match facilities: {list(website_decisions)}")
+    if name_decisions:
+        raise ValueError(f"Name decisions did not match facilities: {list(name_decisions)}")
     assert len(records) == count_output + sum(counts.values())
     assert sum(pin_checks.values()) == count_output
     log_cols = ("table", "source_record", "unique_id", "field", "original_value", "cleaned_value",
