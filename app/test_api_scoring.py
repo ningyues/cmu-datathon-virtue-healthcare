@@ -29,6 +29,7 @@ class ApiTests(unittest.TestCase):
             self.assertEqual([r['unique_id'] for r in rows], ['inside'])
             self.assertEqual(intent.service, ('x-ray',))
             return [dict(unique_id='inside', final_score=56.25, authority=0.75, flags_origin='synthetic',
+                         postcode_address_cordination_unmatch=1, url_domain_invalid=0,
                          specialty_score=10, service_score=2, raw_score=12, max_raw_score=16,
                          match_score_100=75, specialty_details=[], service_details=[])]
         result = search_facilities({'intent': {'location': {'city': 'Lucknow', 'postcode': None},
@@ -37,6 +38,8 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(result['facilities'][0]['fitScore'], 56.25)
         self.assertEqual(result['facilities'][0]['serviceMatch'], 'text_match')
         self.assertEqual(result['facilities'][0]['scoreBreakdown']['authoritySource'], 'synthetic')
+        self.assertTrue(result['facilities'][0]['scoreBreakdown']['addressPostcodeCoordinatesMismatch'])
+        self.assertFalse(result['facilities'][0]['scoreBreakdown']['urlDomainSuspicious'])
         json.dumps(result)
         self.assertEqual(matcher.match.call_args.args[0], [inside, outside])
 

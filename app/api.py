@@ -89,6 +89,8 @@ def search_facilities(payload, *, facilities, matcher, parse, score):
                 "scoreBreakdown": {
                     "authority": float(row['score_details']['authority']),
                     "authoritySource": row['score_details']['flags_origin'],
+                    "addressPostcodeCoordinatesMismatch": bool(row['score_details']['postcode_address_cordination_unmatch']),
+                    "urlDomainSuspicious": bool(row['score_details']['url_domain_invalid']),
                     "specialtyScore": row['score_details']['specialty_score'],
                     "serviceScore": row['score_details']['service_score'],
                     "rawScore": row['score_details']['raw_score'],

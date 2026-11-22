@@ -43,6 +43,9 @@ export function validateFacilities(data) {
     if (fit != null && (!Number.isFinite(fit) || fit < 0 || fit > 100)) throw new Error('Invalid Fit Score.');
     const breakdown = item.scoreBreakdown;
     if (breakdown != null) {
+      for (const key of ['addressPostcodeCoordinatesMismatch', 'urlDomainSuspicious']) {
+        if (breakdown[key] != null && typeof breakdown[key] !== 'boolean') throw new Error('Invalid authority flag.');
+      }
       const values = ['authority', 'specialtyScore', 'serviceScore', 'rawScore', 'maxRawScore', 'matchScore100'];
       if (values.some(key => !Number.isFinite(breakdown[key])) ||
           breakdown.authority < 0 || breakdown.authority > 1 ||

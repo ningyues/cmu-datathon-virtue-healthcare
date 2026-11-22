@@ -197,3 +197,5 @@ button, a, textarea, select { -webkit-tap-highlight-color: transparent; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+ .authority-reasons { margin: 12px 0; padding: 12px; border: 1px solid #e5d4a2; border-radius: 8px; background: #fffaf0; }
+ .authority-warning { color: #78500a; overflow-wrap: anywhere; }
