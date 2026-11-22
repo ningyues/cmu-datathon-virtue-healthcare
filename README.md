@@ -11,6 +11,9 @@ CareLens is a healthcare facility search and comparison tool for India. It helps
 [Watch the CareLens live demo on Google Drive](https://drive.google.com/file/d/1IZL8A6J02tdDjT6skSbMARxwAA_fqeJc/view?usp=drive_link)
 
 [Watch the CareLens presentation on Google Drive](https://drive.google.com/file/d/1YRKJs_y5BEh4WebLYI3Ig7qO5PefJuCi/view?usp=drive_link)
+
+[Browse the presentation figures](#presentation-figures)
+
 ## Why we built it
 
 Facility names, addresses, specialty tags, and service descriptions often come from different sources. They can be incomplete or describe different branches of the same hospital. A person looking for dialysis needs to know which facilities are nearby and what supports the claim that a specific branch offers it.
@@ -147,6 +150,50 @@ python -m unittest discover -s agents
 npm --prefix frontend test
 npm --prefix frontend run build
 ```
+
+## Presentation figures
+
+### Healthcare facility data pipeline
+
+![Bronze, Silver, and Gold stages from raw exports to search-ready facility records](docs/presentation/03-data-pipeline.png)
+
+*Page 3.* The pipeline ingests facility and postal exports, removes duplicates, and checks PINs and coordinates. It retained **9,989 facility records** and produced a lookup with **19,586 unique PINs**. The search-ready data includes reviewed facility names and service evidence.
+
+### Data quality before and after cleaning
+
+![Before-and-after comparisons for coordinates, PINs, region agreement, and field completeness](docs/presentation/04-data-quality.png)
+
+*Page 4.* Valid coordinates rose from **98.77% to 99.62%**, and agreement between a facility's PIN and state rose from **92.49% to 94.19%**. The chart also tracks valid PINs and completeness across seven core fields.
+
+### Technical architecture
+
+![React search, Python API, Ark intent parsing, radius filtering, PostgreSQL scoring, and external evidence](docs/presentation/05-technical-architecture.png)
+
+*Page 5.* The React app sends a query to the Python API. The Ark intent agent extracts the care need and location, the location matcher filters by radius, and the scorer reads the prepared data from PostgreSQL. NABH and Practo results appear alongside the Fit Score as separate evidence.
+
+### Product walkthrough
+
+![CareLens search form, nearby results and map, and a hospital's Fit Score breakdown](docs/presentation/06-product-demo.png)
+
+*Page 6.* The screenshots show how to enter a care need and location, adjust the search radius on the results page, and open a facility card to inspect its Fit Score, straight-line distance, and matching evidence.
+
+### Hospital Fit Score
+
+![Authority and service matching components of the Hospital Fit Score](docs/presentation/09-hospital-fit-score.png)
+
+*Page 9.* Fit Score multiplies Authority by the match percentage. The API uses the share of unreachable URLs for the URL deduction. The hospital-match label uses the website's name and branch address evidence. Specialty and per-service points supply the match percentage.
+
+### Authority score distribution
+
+![Authority score distribution for 9,970 hospitals in the presentation snapshot](docs/presentation/10-authority-score-distribution.png)
+
+*Page 10.* In this snapshot of **9,970 hospitals**, the mean Authority Score was **0.61** and the median was **0.60**. The largest concentration was between **0.50 and just under 0.65**, where 58.6% of hospitals scored.
+
+### External verification
+
+![Example NABH accreditation certificate for Xenia Hospitals and a Practo institution rating](docs/presentation/11-external-verification.png)
+
+*Page 11.* CareLens checks the NABH branch identity and certificate validity against the official directory and certificate PDF. Practo provides a rating and source link from a listed institution profile. The example's Practo branch address is pending verification.
 
 ## Repository structure
 
