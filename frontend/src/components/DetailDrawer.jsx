@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import NabhVerification from './NabhVerification.jsx';
 import { distanceLabel, facilityScore } from '../data/facilities.js';
 
 export default function DetailDrawer({ facility, onClose, illustrative, scoreKind }) {
@@ -45,6 +46,7 @@ export default function DetailDrawer({ facility, onClose, illustrative, scoreKin
           <p>{[facility.type, facility.operatorType].filter(Boolean).join(' · ')}</p>
           {facility.website && <a href={facility.website} target="_blank" rel="noopener noreferrer">Website listed in dataset ↗</a>}
         </div>
+        <NabhVerification key={facility.id} facility={facility} illustrative={illustrative} />
         {illustrative && <div className="score-breakdown">
           {['Data completeness', 'Verification', 'Consistency'].map((label) => <div className="breakdown-row" key={label}><h3>{label}</h3><div className="unmeasured-track" aria-hidden="true" /><p>Proposed category · Not quantified</p></div>)}
         </div>}
