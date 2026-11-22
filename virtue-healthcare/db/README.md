@@ -77,17 +77,26 @@ preserves completed local scores, and uses any local per-link outcomes when
 completing a partial check. Run `load` again after pulling the bundle into an
 existing checkout. No network requests are needed to import these results.
 
+`load` also imports [website_facility_matches.csv.gz](../../data/processed/website_facility_matches.csv.gz)
+after the reachability data. It matches the facility ID, name and address fields,
+and listed websites. It fills in evidence for saved reachable links and
+preserves locally available match results. Run `init` before `load` to add the
+`website_facility_matches` column to an older database.
+
 To regenerate the bundle from an already checked database, run this from
 `virtue-healthcare/` with `DATABASE_URL` set.
 
 ```bash
 python -m app.postgres export-website-checks
+python -m app.postgres export-website-matches
 ```
 
 The export replaces `data/processed/website_reachability.csv.gz` with complete
 reachability results. It contains facility IDs, website-input hashes, scores,
-and booleans keyed by the original dataset URLs. Redirect targets, hospital
-identity evidence, and database credentials are outside this snapshot.
+and booleans keyed by the original dataset URLs. The match bundle contains the
+saved statuses, check times, and available hospital name and address evidence.
+Evidence links use the original dataset URLs. Redirect destinations and database
+credentials are outside the bundles.
 
 ## Legacy SQL usage
 

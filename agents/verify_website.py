@@ -8,6 +8,8 @@ import socket
 import ssl
 from urllib.parse import quote, urljoin, urlsplit, urlunsplit
 
+MAX_HTML_BYTES = 1024 * 1024
+
 
 class WebsiteUnavailable(ValueError):
     pass
@@ -50,9 +52,10 @@ def _public_address(host, port=443):
     return str(min(addresses, key=lambda ip: (ip.version, int(ip))))
 
 
-def reachable_page(url):
-    """Follow public redirects and make sure the destination returns content."""
-    current = url
+def _read_public_page(url, *, html=False):
+    current = website_url(url)
+    if not current:
+        raise WebsiteUnavailable('The website URL is invalid.')
     context = ssl.create_default_context()
     for _ in range(4):
         parsed = urlsplit(current)
@@ -76,12 +79,30 @@ def reachable_page(url):
                             raise WebsiteUnavailable('The website did not redirect to a usable page.')
                         current = redirect
                         continue
-                    if not 200 <= response.status < 300 or not response.read(1):
+                    if not 200 <= response.status < 300:
+                        raise WebsiteUnavailable('The link did not return an accessible page.')
+                    if html:
+                        media_type = response.getheader('Content-Type', '').split(';', 1)[0].strip().lower()
+                        if media_type not in {'text/html', 'application/xhtml+xml'}:
+                            raise WebsiteUnavailable('The destination is not an HTML page.')
+                        body = response.read(MAX_HTML_BYTES + 1)
+                        if not body or len(body) > MAX_HTML_BYTES:
+                            raise WebsiteUnavailable('The HTML page is empty or too large to inspect.')
+                        return current, body
+                    if not response.read(1):
                         raise WebsiteUnavailable('The link did not return an accessible page.')
                     return current
             finally:
                 connection.close()
     raise WebsiteUnavailable('The website redirected too many times.')
+
+
+def reachable_page(url):
+    return _read_public_page(url)
+
+
+def fetch_public_html(url):
+    return _read_public_page(url, html=True)
 
 
 def verify_website(url):

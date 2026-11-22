@@ -105,8 +105,11 @@ test('live search ranks Fit Scores and shows the scoring breakdown', async () =>
        websiteVerificationResults: {
          'https://hospital.example.com/': {
            status: 'verified', reason: 'The link opens successfully.', evidenceUrl: 'https://hospital.example.com/contact',
+           facilityMatch: {status: 'verified', evidenceUrl: 'https://hospital.example.com/contact',
+             nameEvidence: 'Best Match Hospital', addressEvidence: '42 Hospital Road, Lucknow 226001'},
          },
-         'https://directory.example.org/listing': {status: 'unavailable', reason: 'The page could not be reached.'},
+         'https://directory.example.org/listing': {status: 'verified', evidenceUrl: 'https://directory.example.org/listing',
+           facilityMatch: {status: 'unverified', reason: 'The page names a different hospital.'}},
        },
        serviceMatch: 'text_match', scoreBreakdown: {authority: 0.45, geographyCheckStatus: 'mismatch', geographyCheckSource: 'geoapify', addressPostcodeCoordinatesMismatch: true, urlDomainVerifiedRatio: 0.5, authoritySource: 'synthetic',
        specialtyScore: 10, serviceScore: 6, rawScore: 16, maxRawScore: 16, matchScore100: 100,
@@ -138,18 +141,18 @@ test('live search ranks Fit Scores and shows the scoring breakdown', async () =>
     assert.ok(screen.getByRole('region', {name: 'Facility details'}));
     assert.ok(screen.getByRole('region', {name: 'NABH accreditation'}));
     const websites = within(screen.getByRole('region', {name: 'Website verification'}));
-    assert.ok(websites.getByText('Verified'));
+    assert.ok(websites.getByText('Verified · Hospital match'));
     assert.equal(websites.getByRole('link', {name: /Open checked destination/}).getAttribute('href'), 'https://hospital.example.com/contact');
-    assert.ok(screen.getByText('URL domain verification · 50%'));
-    assert.ok(websites.getByText('1/2 verified · 50%'));
+    assert.ok(screen.getByText('Reachable URL share · 50%'));
+    assert.ok(websites.getByText('1/2 hospital links verified'));
     assert.equal(websites.queryByRole('button'), null);
     await user.click(websites.getByText('More dataset links (1)'));
-    assert.ok(await websites.findByText('Unable to verify'));
+    assert.ok(await websites.findByText('Hospital match unconfirmed'));
     assert.equal(websites.getByRole('link', {name: /directory\.example\.org\/listing/}).getAttribute('href'), 'https://directory.example.org/listing');
     await user.click(dom.window.document.querySelector('.drawer-backdrop'));
     assert.equal(screen.queryByRole('dialog'), null);
     await user.click(screen.getByRole('button', {name: /Best Match Hospital, fit score/}));
-    assert.ok(screen.getByText('1/2 verified · 50%'));
+    assert.ok(screen.getByText('1/2 hospital links verified'));
     assert.deepEqual(websiteCalls, []);
     await user.click(screen.getByRole('button', {name: 'Close facility details'}));
     await user.selectOptions(screen.getByLabelText('Sort by'), 'distance');

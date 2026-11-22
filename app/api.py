@@ -92,11 +92,12 @@ def search_facilities(payload, *, facilities, matcher, parse, score):
         verified_url_ratio = details.get('url_domain_invalid')
         urls = website_candidates(row)
         saved_checks = details.get('website_verification_results') or {}
+        website_matches = details.get('website_facility_matches') or {}
         proof = evidence.get(row['unique_id'], {})
         nearby.append({**row, 'fit_score': fit_score_value(details['final_score']),
                        'score_details': details,
                        'website_urls': urls,
-                       'website_checks': {url: check for url in urls
+                       'website_checks': {url: {**check, 'facilityMatch': website_matches.get(url)} for url in urls
                                           if (check := saved_website_result(url, saved_checks.get(url))) is not None},
                        'url_verified_ratio': float(verified_url_ratio) if verified_url_ratio is not None else None,
                        'service_match': 'listed_in_dataset' if proof.get('service_evidence') else (

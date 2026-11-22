@@ -34,15 +34,18 @@ def load_website_check(database_url, facility_id, url):
         with psycopg.connect(database_url, row_factory=dict_row, connect_timeout=5) as conn:
             conn.execute("SET LOCAL statement_timeout = '5s'")
             row = conn.execute('''
-                SELECT website_verification_results -> %s::text AS result, url_domain_invalid
+                SELECT website_verification_results -> %s::text AS result, url_domain_invalid,
+                       website_facility_matches -> %s::text AS facility_match
                 FROM healthcare.facilities WHERE unique_id = %s
-            ''', (url, facility_id)).fetchone()
+            ''', (url, url, facility_id)).fetchone()
     except psycopg.Error as error:
         raise ScoringUnavailable('Website verification could not read its saved results.') from error
     result = saved_website_result(url, row['result']) if row else None
     if result is None:
         return None
     ratio = row['url_domain_invalid']
+    if row['facility_match'] is not None:
+        result = {**result, 'facilityMatch': row['facility_match']}
     return {**result, 'urlDomainVerifiedRatio': float(ratio) if ratio is not None else None}
 
 
@@ -118,7 +121,7 @@ def website_verification_service(facilities, *, store=None, load=None, saved_onl
     return verify
 
 
-def check_websites(urls, workers):
+def check_websites(urls, workers, *, check=verify_website):
     by_host = defaultdict(deque)
     for url in urls:
         by_host[urlsplit(url).hostname].append(url)
@@ -129,7 +132,7 @@ def check_websites(urls, workers):
             while ready and len(active) < workers:
                 host = ready.popleft()
                 url = by_host[host].popleft()
-                active[executor.submit(verify_website, url)] = (host, url)
+                active[executor.submit(check, url)] = (host, url)
             done, _ = wait(active, return_when=FIRST_COMPLETED)
             for future in done:
                 host, url = active.pop(future)
@@ -197,7 +200,7 @@ def prepare_website_scores(database_url, *, city=None, facility_id=None, limit=N
             save(uid, checks)
 
     LOGGER.info('Selected %s facilities, %s distinct URLs to fetch', selected, len(pending_by_url))
-    for url, result in check_websites(pending_by_url, workers):
+    for url, result in check_websites(pending_by_url, workers, check=verify_website):
         fetched += 1
         for uid in pending_by_url.pop(url):
             checks, remaining = facility_checks[uid]

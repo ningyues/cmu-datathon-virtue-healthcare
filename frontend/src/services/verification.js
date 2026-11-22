@@ -32,10 +32,16 @@ export function parseWebsiteVerification(data) {
   if (!['verified', 'unverified', 'unavailable'].includes(data?.status)) return null;
   const evidenceUrl = data.status === 'verified' && safeEvidenceUrl(data.evidenceUrl, ['https:', 'http:'])
     ? data.evidenceUrl : null;
+  const match = data.facilityMatch;
+  const confirmed = match?.status === 'verified' && safeEvidenceUrl(match.evidenceUrl, ['https:', 'http:'])
+    && typeof match.nameEvidence === 'string' && typeof match.addressEvidence === 'string';
   return {
     status: evidenceUrl ? 'verified' : data.status === 'unavailable' ? 'unavailable' : 'unverified',
     evidenceUrl,
     reason: typeof data.reason === 'string' ? data.reason : '',
+    facilityMatch: confirmed ? {status: 'verified', evidenceUrl: match.evidenceUrl,
+      nameEvidence: match.nameEvidence, addressEvidence: match.addressEvidence}
+      : ['unverified', 'unavailable'].includes(match?.status) ? {status: match.status, reason: match.reason} : null,
   };
 }
 

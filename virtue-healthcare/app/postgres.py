@@ -9,7 +9,10 @@ from pathlib import Path
 import random
 from decimal import Decimal
 from app.scoring import search_facilities, normalize_query
-from app.website_snapshot import WEBSITE_CHECKS_FILENAME, export_website_checks, load_website_checks
+from app.website_snapshot import (
+    WEBSITE_CHECKS_FILENAME, WEBSITE_MATCHES_FILENAME,
+    export_website_checks, export_website_matches, load_website_checks, load_website_matches,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = (ROOT / 'data' / 'processed' if (ROOT / 'data' / 'processed').exists()
@@ -93,10 +96,17 @@ def upsert_rows(conn, table, columns, rows, key, preserve=()):
     if table == 'facilities':
         website_changes = ('(facilities."officialWebsite", facilities."websites") '
                            'IS DISTINCT FROM (excluded."officialWebsite", excluded."websites")')
+        identity_columns = ('name', 'name_standardized', 'address_line1', 'address_line2', 'address_line3',
+                            'address_city', '"address_zipOrPostcode"')
+        old_identity = ', '.join('facilities.' + name for name in identity_columns)
+        new_identity = ', '.join('excluded.' + name for name in identity_columns)
+        identity_changes = f'({old_identity}) IS DISTINCT FROM ({new_identity})'
         updates.extend([
             sql.SQL(f'url_domain_invalid = CASE WHEN {website_changes} THEN NULL ELSE facilities.url_domain_invalid END'),
             sql.SQL(f'website_verification_results = CASE WHEN {website_changes} THEN \'{{}}\'::jsonb '
                     'ELSE facilities.website_verification_results END'),
+            sql.SQL(f'website_facility_matches = CASE WHEN {website_changes} OR {identity_changes} THEN \'{{}}\'::jsonb '
+                    'ELSE facilities.website_facility_matches END'),
         ])
         updates.append(sql.SQL('updated_at = now()'))
     conn.execute(sql.SQL('INSERT INTO {} ({}) SELECT {} FROM {} ORDER BY {} '
@@ -109,6 +119,7 @@ def load_snapshot(conn, data_dir, seed):
     postal = list(prepare_postal(data_dir / 'pincode_offices_clean.csv.gz'))
     result = {'facilities_loaded': len(rows), 'postal_offices_loaded': len(postal)}
     website_checks = data_dir / WEBSITE_CHECKS_FILENAME
+    website_matches = data_dir / WEBSITE_MATCHES_FILENAME
     with conn.transaction():
         # Serialize importers and preserve existing authority overrides.
         conn.execute('SELECT pg_advisory_xact_lock(72610419)')
@@ -117,6 +128,8 @@ def load_snapshot(conn, data_dir, seed):
         upsert_rows(conn, 'pincode_offices', POSTAL_COLUMNS, postal, 'source_record')
         if website_checks.is_file():
             result['website_checks_loaded'] = load_website_checks(conn, website_checks)
+        if website_matches.is_file():
+            result['website_matches_loaded'] = load_website_matches(conn, website_matches)
     return result
 
 
@@ -152,6 +165,8 @@ def main():
     load.add_argument('--seed', type=int, default=42)
     export = sub.add_parser('export-website-checks')
     export.add_argument('--output', type=Path, default=DATA_DIR / WEBSITE_CHECKS_FILENAME)
+    export_matches = sub.add_parser('export-website-matches')
+    export_matches.add_argument('--output', type=Path, default=DATA_DIR / WEBSITE_MATCHES_FILENAME)
     search = sub.add_parser('search')
     search.add_argument('--postcode')
     search.add_argument('--city')
@@ -210,6 +225,9 @@ def main():
         elif args.command == 'export-website-checks':
             export_website_checks(conn, args.output)
             result = {'website_checks_exported': str(args.output)}
+        elif args.command == 'export-website-matches':
+            export_website_matches(conn, args.output)
+            result = {'website_matches_exported': str(args.output)}
         elif args.command == 'set-authority':
             result = set_authority(conn, args.facility_id, args.value)
         else:
