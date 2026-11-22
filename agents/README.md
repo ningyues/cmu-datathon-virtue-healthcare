@@ -1,23 +1,70 @@
-# NABH Check
+# Healthcare Agents
 
 独立的实时 NABH 认证验证 Agent。输入医疗机构的名称和地址，实时查询 NABH 官方目录、
 读取目录链接的认证 PDF，由火山方舟模型核对机构与分院，并返回带原文证据的 JSON。
 
-不依赖 Databricks、Lakehouse、Lakebase 或其他项目。当前 Demo 是命令行程序。
+本目录属于 `cmu-datathon-virtue-healthcare` 仓库，包含 NABH 验证和医疗需求意图解析两个命令行应用。
+不依赖 Databricks、Lakehouse 或 Lakebase。
 
 ## 快速启动 Demo
 
-需要 Python 3.10+。在终端执行：
+需要 Python 3.10+。**本 README 下方命令默认在仓库的 `agents/` 目录执行**，
+不是仓库根目录，也不需要克隆独立的 NABH-check 仓库。
+
+从当前仓库根目录开始：
 
 ```bash
-git clone https://github.com/RainLiu1015/NABH-check.git
-cd NABH-check
+cd agents
+python3 --version  # 必须为 3.10 或更高版本
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
+python -m unittest -v test_verify test_intent_agent test_specialities
+python verify.py --help
+python intent_agent.py --help
 ```
 
+macOS 的 `/usr/bin/python3` 可能是 3.9。若版本不足，用已安装的新版解释器创建环境，
+例如本机可用的 `~/miniconda3/bin/python3 -m venv .venv`，之后同样激活并安装依赖。
+已经用旧版 Python 创建过环境时，可用新版解释器创建 `.venv310`，并激活该目录。
 Windows PowerShell 激活命令为 `.venv\Scripts\Activate.ps1`。
+
+每次打开新终端，先进入 `agents/` 并执行 `source .venv/bin/activate`。
+用 `python -m pip` 可以确保依赖安装到当前解释器；`verify.py` 需要 BeautifulSoup、pypdf 等依赖，
+`test_intent_agent.py` 是离线单元测试，不是调用模型的应用入口。
+测试不需要 API Key，也不会调用官网或模型。
+
+也可以留在**仓库根目录**，直接使用虚拟环境解释器，无需激活：
+
+```bash
+agents/.venv/bin/python agents/verify.py --help
+agents/.venv/bin/python agents/intent_agent.py --help
+agents/.venv/bin/python -m unittest discover -s agents -p 'test_*.py' -v
+```
+
+### 两个 Agent 共用的配置
+
+`verify.py` 和 `intent_agent.py`（包括对应的 Python 函数入口）都默认读取
+**脚本目录中的 `agents/.env`**，不受启动时工作目录影响，不自动读取仓库根目录 `.env`。
+
+```bash
+# 在 agents/ 目录执行；仅首次创建，已有 .env 时不要覆盖
+cp -n .env.example .env
+```
+
+编辑 `.env`，填入真实配置：
+
+```dotenv
+ARK_API_KEY=你的真实APIKey
+ARK_MODEL=账号中已开通的模型或endpointID
+```
+
+两个脚本都支持 `--env-file /path/to/custom.env`，Python 函数都支持 `env_file=Path(...)`。
+加载规则相同：文件值覆盖同名终端环境变量；默认 `.env` 不存在时仅使用终端环境变量；
+指定的其他文件不存在、格式错误或不可读时返回配置错误。
+支持 `KEY=VALUE`、`export KEY=VALUE`、引号和 `#` 注释，不执行 shell 命令或变量展开。
+配置文件须使用 UTF-8 编码；`.env` 和虚拟环境已被 Git 忽略，`.env.example` 只含占位符。
+无需模型的 `--directory-only` 不要求 Key；其他实际模型调用需要有效 Key 和模型权限。
 
 ### Demo 1：无需 API Key 的官网实时查询
 
@@ -35,7 +82,7 @@ python verify.py \
 ### Demo 2：火山方舟完整 Agent 验证
 
 在火山方舟控制台创建 API Key，并开通支持 Responses API 的模型或推理接入点。
-在当前终端设置环境变量：
+按上文配置 `.env`，或在未创建 `.env` 时设置终端环境变量：
 
 ```bash
 export ARK_API_KEY='你的真实 API Key'
@@ -46,7 +93,7 @@ python verify.py \
   --address 'Sant Nagar, Sector No.4, Plot No.1/1, Moshi Pradhikaran, Pune, Maharashtra 412105'
 ```
 
-`.env.example` 仅是配置参考，程序不会自动加载 `.env` 文件。
+两个脚本自动加载 `agents/.env`；使用其他配置时添加 `--env-file /path/to/custom.env`。
 Key 只留在本地/后端环境。完整验证会把机构名称、地址和证书文本发送给火山方舟。
 不需要开通联网搜索组件：Python 实时读取官网和 PDF，方舟模型只分析本次获取的证据。
 
@@ -147,10 +194,10 @@ JSON 结果 + 证据 + PDF URL
 
 ## 在自己的后端调用
 
-将仓库目录作为 Python 模块路径，在工作线程/任务队列中调用：
+在仓库根目录中可按下面方式导入；若已进入 `agents/`，则使用 `from verify import verify_facility`。在工作线程/任务队列中调用：
 
 ```python
-from verify import verify_facility
+from agents.verify import verify_facility
 
 result = verify_facility(
     name="Accord Hospital",
@@ -164,12 +211,12 @@ Node.js 后端亦可使用 `execFile` 启动 CLI，并通过参数数组传入�
 ## 测试
 
 ```bash
-python -m unittest -v test_verify
+python -m unittest -v test_verify test_intent_agent test_specialities
 ```
 
 离线测试覆盖有效期、分院邮编冲突、Empaneled 与认证的区别、虚构引用、证书号不一致、
 扫描 PDF、下载域名限制、源站失败和候选截断。
-真实官网查询和 PDF 提取已检查；火山方舟完整链路需要自行配置有效 Key 后运行。
+以上为离线测试；真实官网查询使用 `--directory-only`，火山方舟完整链路需要配置有效 Key 后运行。
 
 ## 限制
 
@@ -297,7 +344,7 @@ ID 不随输入排序变化；修改原文会生成新的 `source_id`，修改�
 
 ### 运行
 
-默认自动读取项目目录 `.env` 中的 `ARK_API_KEY` 和 `ARK_MODEL`。
+与 `verify.py` 一致，默认自动读取 `agents/.env` 中的 `ARK_API_KEY` 和 `ARK_MODEL`。
 文件中的配置优先于终端环境变量；不再使用 `ARK_INTENT_MODEL`。
 应用不会修改 `.env` 中的模型 ID 或 API Key。
 
@@ -315,7 +362,7 @@ python3 intent_agent.py --env-file /path/to/custom.env \
 
 `ARK_MODEL` 应填写账号中已开通的 Responses 模型/接入点 ID。
 如果模型返回 404，应检查 `.env` 中的模型 ID 与账号权限；应用不会自动换用其他模型。
-项目 `.env` 不存在时，使用进程环境中的 `ARK_MODEL` 和 `ARK_API_KEY`。
+`agents/.env` 不存在时，使用进程环境中的 `ARK_MODEL` 和 `ARK_API_KEY`。
 
 省略 `--text` 时从标准输入读取请求，方便管道调用。添加 `--verbose` 可将简要调用日志写到 stderr，
 stdout 保持为一个 JSON 对象。成功退出码为 0；请求需要补充信息、配置不正确或模型调用失败时为 1。
@@ -362,8 +409,10 @@ stdout 保持为一个 JSON 对象。成功退出码为 0；请求需要补充�
 
 ### Python 调用与配置
 
+以下导入适用于仓库根目录；在 `agents/` 内使用 `from intent_agent import ...`。
+
 ```python
-from intent_agent import IntentError, SpecialityCatalog, parse_intent
+from agents.intent_agent import IntentError, SpecialityCatalog, parse_intent
 
 catalog = SpecialityCatalog()  # 后端可在启动时加载一次，在多次请求之间复用
 try:

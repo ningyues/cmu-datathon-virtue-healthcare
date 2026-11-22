@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
-import { distanceLabel, scoreLabel } from '../data/facilities.js';
+import { distanceLabel, facilityScore } from '../data/facilities.js';
 
-export default function DetailDrawer({ facility, onClose, illustrative }) {
+export default function DetailDrawer({ facility, onClose, illustrative, scoreKind }) {
   const panel = useRef(null);
   const closeButton = useRef(null);
   const [expanded, setExpanded] = useState(false);
+  const score = facilityScore(facility, scoreKind);
   useEffect(() => {
     const previousFocus = document.activeElement;
     closeButton.current?.focus();
@@ -27,12 +28,22 @@ export default function DetailDrawer({ facility, onClose, illustrative }) {
       <button className="map-dimmer" type="button" onClick={onClose} tabIndex={-1} aria-hidden="true" />
       <section ref={panel} className="detail-drawer" role="dialog" aria-modal="true" aria-labelledby="detail-name">
         <div className="drawer-heading"><h2 id="detail-name">{facility.name}{facility.featured && <span className="featured-star"> ★</span>}</h2><button ref={closeButton} type="button" className="close-button" onClick={onClose} aria-label="Close facility details">×</button></div>
-        <div className="trust-display"><h3>Trust score</h3><strong className={facility.trustScore == null ? 'score-unavailable' : ''}>{scoreLabel(facility)}</strong></div>
-        <div className="hospital-information"><p>{facility.area}</p><p>{facility.postalCode}</p><p>{distanceLabel(facility)}</p><p>{facility.type}</p></div>
-        <div className="score-breakdown">
-          {['Data completeness', 'Verification', 'Consistency'].map((label) => <div className="breakdown-row" key={label}><h3>{label}</h3><div className="unmeasured-track" aria-hidden="true" /><p>Proposed category · Not quantified</p></div>)}
+        <div className="trust-display"><h3>{score.label}</h3><strong className={score.missing ? 'score-unavailable' : ''}>{score.text}</strong></div>
+        <div className="hospital-information">
+          {facility.address && <p>{facility.address}</p>}
+          <p>{facility.area}{facility.postalCode && ` · ${facility.postalCode}`}</p>
+          <p>{distanceLabel(facility)}</p>
+          <p>{[facility.type, facility.operatorType].filter(Boolean).join(' · ')}</p>
+          {facility.website && <a href={facility.website} target="_blank" rel="noopener noreferrer">Website listed in dataset ↗</a>}
         </div>
-        {expanded && <p className="evidence-note" id="evidence-note">{illustrative ? 'Illustrative data from the design. Supporting source records and a scoring methodology have not been supplied.' : 'Supporting source records and a score breakdown were not provided with this result.'}</p>}
+        {illustrative && <div className="score-breakdown">
+          {['Data completeness', 'Verification', 'Consistency'].map((label) => <div className="breakdown-row" key={label}><h3>{label}</h3><div className="unmeasured-track" aria-hidden="true" /><p>Proposed category · Not quantified</p></div>)}
+        </div>}
+        {expanded && <p className="evidence-note" id="evidence-note">{illustrative
+          ? 'Illustrative data from the design. Supporting source records and a scoring methodology have not been supplied.'
+          : facility.serviceEvidence
+            ? <>Dataset claim ({facility.serviceEvidence.field}) · {facility.serviceEvidence.text}. Service availability is unverified.</>
+            : 'No dataset service claim was supplied for this facility.'}</p>}
         <button className="primary-button detail-action" type="button" onClick={() => setExpanded(!expanded)} aria-expanded={expanded} aria-controls="evidence-note">{expanded ? 'Hide details ↑' : 'View details →'}</button>
       </section>
     </>

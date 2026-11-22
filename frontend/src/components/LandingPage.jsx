@@ -27,7 +27,7 @@ export default function LandingPage({ query, setQuery, onSearch }) {
           </div>
           <form className="search-form" onSubmit={submit} noValidate>
             <label htmlFor="care-query">How can I help you?</label>
-            <textarea id="care-query" ref={input} value={query} onChange={(event) => { setQuery(event.target.value); setError(''); }} placeholder="I need to find a nursing service in 800001" aria-invalid={Boolean(error)} aria-describedby={error ? 'query-error' : undefined} onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); submit(event); } }} />
+            <textarea id="care-query" ref={input} value={query} onChange={(event) => { setQuery(event.target.value); setError(''); }} placeholder="Find dialysis near Hyderabad 500003" aria-invalid={Boolean(error)} aria-describedby={error ? 'query-error' : undefined} onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); submit(event); } }} />
             <div className="search-form-bottom">
               <p id="query-error" className="form-error" role="alert">{error}</p>
               <button className="primary-button" type="submit">Send ↑</button>

@@ -1,21 +1,16 @@
 """Run a specialty and location search against the checked-in CSV snapshots."""
 
 import argparse
-import csv
-import gzip
 import json
-import lzma
 import sys
 from pathlib import Path
 
+from app.facility_data import FACILITIES, read_facilities
 from app.location_matching import LocationMatcher, PIN_PATTERN
 from app.search_output import print_nearby_results
 from app.service_search import (
     match_search_intent, match_service, parse_query, parse_query_with_agent, parse_search_intent,
 )
-
-
-FACILITIES = Path(__file__).resolve().parents[1] / "data/processed/facilities_clean.csv.xz"
 
 
 def main() -> int:
@@ -73,20 +68,16 @@ def main() -> int:
         parser.error("--pincode must contain six digits and start with 1–9")
 
     address = ", ".join(part for part in (city, pincode) if part)
-    snapshot = FACILITIES if FACILITIES.is_file() else FACILITIES.with_suffix(".gz")
-    opener = lzma.open if snapshot.suffix == ".xz" else gzip.open
-    with opener(snapshot, "rt", encoding="utf-8-sig", newline="") as file:
-        # The snapshot contains NULs that Python 3.10's CSV reader rejects.
-        rows = csv.DictReader(line.replace("\0", "") for line in file)
-        if intent is not None:
-            candidates = list(match_search_intent(rows, intent))
-        elif service_id is not None:
-            candidates = list(match_service(rows, service_id))
-        else:
-            candidates = [
-                row for row in rows
-                if any(item.casefold() == specialty for item in json.loads(row["specialties"] or "[]"))
-            ]
+    rows = read_facilities(FACILITIES)
+    if intent is not None:
+        candidates = list(match_search_intent(rows, intent))
+    elif service_id is not None:
+        candidates = list(match_service(rows, service_id))
+    else:
+        candidates = [
+            row for row in rows
+            if any(item.casefold() == specialty for item in json.loads(row["specialties"] or "[]"))
+        ]
 
     result = LocationMatcher().match(candidates, address)
     location = result["query_location"]
