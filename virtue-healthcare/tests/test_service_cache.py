@@ -132,3 +132,13 @@ class CacheIntegrationTests(unittest.TestCase):
         row = search_facilities(self.conn, self.pin, [], ['dialysis'])[0]
         self.assertEqual(row['max_raw_score'], 6)
         self.assertEqual(row['final_score'], Decimal('100'))
+
+    def test_candidate_ids_do_not_expand_or_truncate_geo_scope(self):
+        self.assertEqual(search_facilities(self.conn, specialty=['nephrology'], services=['dialysis'],
+                                           candidate_ids=[], limit=None), [])
+        rows = search_facilities(self.conn, specialty=['nephrology'], services=['dialysis'],
+                                 candidate_ids=[self.uid], limit=None)
+        self.assertEqual([row['unique_id'] for row in rows], [self.uid])
+        with self.assertRaises(ValueError):
+            search_facilities(self.conn, specialty=['nephrology'], services=[],
+                              candidate_ids=['missing:' + str(uuid.uuid4())], limit=None)

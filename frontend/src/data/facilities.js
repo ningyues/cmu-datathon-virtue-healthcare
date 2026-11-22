@@ -24,7 +24,7 @@ export const distanceLabel = (facility) => facility.distanceKm == null ? 'Distan
 
 export function facilityScore(facility, kind) {
   if (kind === 'fit') {
-    return { label: 'Fit Score', text: facility.fitScore?.toFixed(2) ?? 'Pending', missing: facility.fitScore == null };
+    return { label: 'Fit Score', text: facility.fitScore == null ? 'Pending' : `${facility.fitScore.toFixed(2)}/100`, missing: facility.fitScore == null };
   }
   return { label: 'Trust score', text: facility.trustScore == null ? 'Unavailable' : `${facility.trustScore}/100`, missing: facility.trustScore == null };
 }
