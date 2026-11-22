@@ -82,25 +82,29 @@ test('live search ranks Fit Scores and shows the scoring breakdown', async () =>
   globalThis.fetch = async (url, options) => {
     if (url === '/api/nabh/verify') return {ok: true, json: async () => ({status: 'unverified'})};
     if (url === '/api/website/verify') {
-      const { facilityId, websiteIndex } = JSON.parse(options.body);
-      assert.equal(facilityId, 'best');
-      assert.ok([0, 1].includes(websiteIndex));
-      websiteCalls.push(websiteIndex);
-      return {ok: true, json: async () => websiteIndex === 0
-        ? {status: 'verified', reason: 'The link opens successfully.', evidenceUrl: 'https://hospital.example.com/contact', urlDomainVerifiedRatio: null}
-        : {status: 'unavailable', reason: 'The page could not be reached.', evidenceUrl: null, urlDomainVerifiedRatio: 0.5}};
+      websiteCalls.push(JSON.parse(options.body));
+      throw new Error('The result drawer must not verify websites');
     }
     assert.equal(JSON.parse(options.body).query, 'dialysis in Lucknow');
     return {ok: true, json: async () => ({facilities: [
-      {id: 'near', name: 'Nearby Hospital', fitScore: 10, distanceKm: 1},
-      {id: 'best', name: 'Best Match Hospital', fitScore: 20, distanceKm: 5,
+      {id: 'near', name: 'Nearby Hospital', fitScore: null, distanceKm: 1,
+       websiteUrls: ['https://near.example.org/'],
+       scoreBreakdown: {authority: null, urlDomainVerifiedRatio: null, specialtyScore: 10, serviceScore: 0,
+         rawScore: 10, maxRawScore: 16, matchScore100: 62.5, specialties: [], services: []}},
+      {id: 'best', name: 'Best Match Hospital', fitScore: 45, distanceKm: 5,
        websiteUrls: ['https://hospital.example.com/', 'https://directory.example.org/listing'],
-       serviceMatch: 'text_match', scoreBreakdown: {authority: 0.2, addressPostcodeCoordinatesMismatch: true, urlDomainVerifiedRatio: null, authoritySource: 'synthetic',
+       websiteVerificationResults: {
+         'https://hospital.example.com/': {
+           status: 'verified', reason: 'The link opens successfully.', evidenceUrl: 'https://hospital.example.com/contact',
+         },
+         'https://directory.example.org/listing': {status: 'unavailable', reason: 'The page could not be reached.'},
+       },
+       serviceMatch: 'text_match', scoreBreakdown: {authority: 0.45, addressPostcodeCoordinatesMismatch: true, urlDomainVerifiedRatio: 0.5, authoritySource: 'synthetic',
        specialtyScore: 10, serviceScore: 6, rawScore: 16, maxRawScore: 16, matchScore100: 100,
        specialties: [{input: 'nephrology', matched: true}], services: [{input: 'dialysis', score: 6}]}}
     ]})};
   };
-  const { render, within, cleanup, waitFor } = await import('@testing-library/react');
+  const { render, within, cleanup } = await import('@testing-library/react');
   const screen = within(dom.window.document.body);
   const { default: userEvent } = await import('@testing-library/user-event');
   const server = await createServer({
@@ -116,26 +120,34 @@ test('live search ranks Fit Scores and shows the scoring breakdown', async () =>
     await screen.findByText('2 facilities');
     assert.match(screen.getAllByRole('button', {name: /fit score/})[0].textContent, /1\. Best Match/);
     await user.click(screen.getByRole('button', {name: /Best Match Hospital, fit score/}));
-    assert.ok(screen.getByText(/Authority: 0.20/));
+    assert.ok(screen.getByText(/Authority: 0.45/));
     assert.ok(screen.getByText('dialysis: 6/6'));
     assert.ok(screen.getByText(/Address, postcode and coordinates mismatch/));
-    assert.ok(screen.getByText(/simulated flags/));
+    assert.ok(screen.getByText(/simulated data/));
     assert.ok(screen.getByRole('region', {name: 'Score calculation'}));
     assert.ok(screen.getByRole('region', {name: 'Facility details'}));
     assert.ok(screen.getByRole('region', {name: 'NABH accreditation'}));
     const websites = within(screen.getByRole('region', {name: 'Website verification'}));
-    assert.ok(await websites.findByText('Verified'));
+    assert.ok(websites.getByText('Verified'));
     assert.equal(websites.getByRole('link', {name: /Open checked destination/}).getAttribute('href'), 'https://hospital.example.com/contact');
-    await waitFor(() => assert.deepEqual(websiteCalls, [0, 1]));
-    assert.ok(await screen.findByText('URL domain verification · 50%'));
+    assert.ok(screen.getByText('URL domain verification · 50%'));
+    assert.ok(websites.getByText('1/2 verified · 50%'));
     assert.equal(websites.queryByRole('button'), null);
     await user.click(websites.getByText('More dataset links (1)'));
     assert.ok(await websites.findByText('Unable to verify'));
     assert.equal(websites.getByRole('link', {name: /directory\.example\.org\/listing/}).getAttribute('href'), 'https://directory.example.org/listing');
     await user.click(dom.window.document.querySelector('.drawer-backdrop'));
     assert.equal(screen.queryByRole('dialog'), null);
+    await user.click(screen.getByRole('button', {name: /Best Match Hospital, fit score/}));
+    assert.ok(screen.getByText('1/2 verified · 50%'));
+    assert.deepEqual(websiteCalls, []);
+    await user.click(screen.getByRole('button', {name: 'Close facility details'}));
     await user.selectOptions(screen.getByLabelText('Sort by'), 'distance');
     assert.match(screen.getAllByRole('button', {name: /fit score/})[0].textContent, /1\. Nearby Hospital/);
+    await user.click(screen.getByRole('button', {name: /Nearby Hospital, fit score Pending/}));
+    assert.ok(screen.getByText('Authority: Pending'));
+    assert.ok(within(screen.getByRole('region', {name: 'Website verification'})).getByText('Pending'));
+    assert.deepEqual(websiteCalls, []);
   } finally {
     cleanup(); await server.close(); globalThis.fetch = previousFetch; dom.window.close();
   }

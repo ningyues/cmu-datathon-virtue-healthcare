@@ -18,7 +18,9 @@ from app.nabh_verification import verification_service
 from app.location_matching import LocationMatcher, rank_by_distance
 from app.search_output import fit_score_value
 from app.scoring_backend import PostgresScorer, ScoringUnavailable
-from app.website_verification import store_website_check, website_verification_service
+from app.website_verification import (
+    load_website_check, saved_website_result, website_verification_service,
+)
 from app.service_search import (
     SERVICES, SearchIntent, match_search_intent, parse_query, parse_query_with_agent, parse_search_intent,
 )
@@ -88,15 +90,20 @@ def search_facilities(payload, *, facilities, matcher, parse, score):
         if details is None:
             continue
         verified_url_ratio = details.get('url_domain_invalid')
+        urls = website_candidates(row)
+        saved_checks = details.get('website_verification_results') or {}
         proof = evidence.get(row['unique_id'], {})
-        nearby.append({**row, 'fit_score': float(details['final_score']),
+        nearby.append({**row, 'fit_score': fit_score_value(details['final_score']),
                        'score_details': details,
+                       'website_urls': urls,
+                       'website_checks': {url: check for url in urls
+                                          if (check := saved_website_result(url, saved_checks.get(url))) is not None},
                        'url_verified_ratio': float(verified_url_ratio) if verified_url_ratio is not None else None,
                        'service_match': 'listed_in_dataset' if proof.get('service_evidence') else (
                            'text_match' if details['service_score'] else 'related_specialty_only'),
                        'service_evidence': proof.get('service_evidence')})
     nearby = rank_by_distance(nearby)
-    nearby.sort(key=lambda row: -row['fit_score'])
+    nearby.sort(key=lambda row: -row['fit_score'] if row['fit_score'] is not None else float('inf'))
 
     return {
         "intent": {"location": {"city": request.city, "postcode": request.pincode},
@@ -117,14 +124,15 @@ def search_facilities(payload, *, facilities, matcher, parse, score):
                 "area": ", ".join(filter(None, (row["address_city"], row["address_stateOrRegion"]))) or None,
                 "postalCode": row["address_zipOrPostcode"],
                 "website": row.get("officialWebsite") or None,
-                "websiteUrls": website_candidates(row),
+                "websiteUrls": row["website_urls"],
+                "websiteVerificationResults": row["website_checks"],
                 "hasPractoLink": bool(practo_candidates(row)),
                 "latitude": float(row["latitude"]),
                 "longitude": float(row["longitude"]),
                 "distanceKm": row["distance_km"],
                 "fitScore": fit_score_value(row.get("fit_score")),
                 "scoreBreakdown": {
-                    "authority": float(row['score_details']['authority']),
+                    "authority": fit_score_value(row['score_details']['authority']),
                     "authoritySource": row['score_details']['flags_origin'],
                     "addressPostcodeCoordinatesMismatch": optional_flag(row['score_details'].get('postcode_address_cordination_unmatch')),
                     "urlDomainVerifiedRatio": row['url_verified_ratio'],
@@ -208,7 +216,8 @@ def main():
     facilities = tuple(read_facilities())
     verify = verification_service(facilities, env_file=args.env_file)
     scorer = PostgresScorer()
-    check_website = website_verification_service(facilities, store=partial(store_website_check, scorer.database_url))
+    check_website = website_verification_service(
+        facilities, load=partial(load_website_check, scorer.database_url), saved_only=True)
     search = partial(search_facilities, facilities=facilities, matcher=LocationMatcher(),
                      parse=parse, score=scorer)
     practo = practo_rating_service(facilities)

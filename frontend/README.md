@@ -192,14 +192,13 @@ results and older API responses without `intent` do not show the slider.
 ## Website verification
 
 The **Website verification** section lists links from `officialWebsite` and
-`websites` in the facility snapshot. The frontend starts checking all of those
-links when the drawer opens.
+`websites` in the facility snapshot with their saved results. The heading shows
+the number of verified links and the final percentage once all checks are recorded.
 **Verified** means the link opened successfully. **Unable to verify** shows why
 the check could not complete. The Authority section shows the verified share
-of usable, distinct dataset links once all links have been checked.
-
-Vite proxies `/api/website/verify` to the Python API. Set
-`VITE_WEBSITE_VERIFICATION_API_URL` when the frontend uses a separate API origin.
+of usable, distinct dataset links once all links have been checked. Fit Score
+shows **Pending** while the [website preparation batch](../app/README.md#facility-website-verification)
+has pending checks for the facility.
 
 ## Practo hospital ratings
 

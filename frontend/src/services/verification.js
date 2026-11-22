@@ -1,5 +1,4 @@
 const endpoint = import.meta.env?.VITE_NABH_API_URL ?? '/api/nabh/verify';
-const websiteEndpoint = import.meta.env?.VITE_WEBSITE_VERIFICATION_API_URL ?? '/api/website/verify';
 
 async function verificationRequest(url, payload, signal) {
   const response = await fetch(url, {
@@ -29,19 +28,16 @@ export async function verifyCertification(facilityId, { signal } = {}) {
     reason: typeof data.reason === 'string' ? data.reason : '' };
 }
 
-export async function verifyWebsite(facilityId, websiteIndex, { signal } = {}) {
-  const data = await verificationRequest(websiteEndpoint, { facilityId, websiteIndex }, signal);
+export function parseWebsiteVerification(data) {
+  if (!['verified', 'unverified', 'unavailable'].includes(data?.status)) return null;
   const evidenceUrl = data.status === 'verified' && safeEvidenceUrl(data.evidenceUrl, ['https:', 'http:'])
     ? data.evidenceUrl : null;
-  const ratio = data.urlDomainVerifiedRatio;
   return {
     status: evidenceUrl ? 'verified' : data.status === 'unavailable' ? 'unavailable' : 'unverified',
     evidenceUrl,
     reason: typeof data.reason === 'string' ? data.reason : '',
-    urlDomainVerifiedRatio: ratio === null || (Number.isFinite(ratio) && ratio >= 0 && ratio <= 1) ? ratio : undefined,
   };
 }
-
 
 export async function getPractoRating(facilityId, { signal } = {}) {
   const url = import.meta.env?.VITE_PRACTO_API_URL ?? '/api/practo/rating';

@@ -4,10 +4,10 @@ import unittest
 import uuid
 from concurrent.futures import ThreadPoolExecutor
 from functools import partial
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from agents.verify_website import WebsiteUnavailable, _public_address, verify_website, website_candidates
-from app.website_verification import store_website_check, website_verification_service
+from app.website_verification import load_website_check, store_website_check, website_verification_service
 
 
 FACILITY = {
@@ -58,6 +58,15 @@ class WebsiteVerificationTests(unittest.TestCase):
             unreachable = verify({'facilityId': 'facility', 'websiteIndex': 0})
             self.assertEqual((unreachable['status'], unreachable['evidenceUrl']), ('unavailable', None))
 
+    def test_saved_endpoint_skips_outbound_checks_on_a_miss(self):
+        lookup = Mock(return_value=None)
+        verify = website_verification_service([FACILITY], load=lookup, saved_only=True)
+        with patch('app.website_verification.verify_website') as checker:
+            result = verify({'facilityId': 'facility', 'websiteIndex': 0})
+            self.assertEqual(result['reason'], 'Awaiting offline website verification.')
+            lookup.assert_called_once_with('facility', URL)
+            checker.assert_not_called()
+
 
 @unittest.skipUnless(os.getenv('TEST_DATABASE_URL'), 'Set TEST_DATABASE_URL')
 class WebsiteRatioDatabaseTests(unittest.TestCase):
@@ -70,24 +79,36 @@ class WebsiteRatioDatabaseTests(unittest.TestCase):
         facility = {**FACILITY, 'unique_id': facility_id}
         expected_urls = website_candidates(facility)
         store = partial(store_website_check, database)
+        load = partial(load_website_check, database)
         with psycopg.connect(database, autocommit=True, row_factory=dict_row) as conn:
             conn.execute('''
                 INSERT INTO healthcare.facilities
-                (unique_id, "officialWebsite", "websites", postcode_address_cordination_unmatch, authority)
-                VALUES (%s, %s, %s, 0, 0.75)
-            ''', (facility_id, facility['officialWebsite'], facility['websites']))
+                (unique_id, "officialWebsite", "websites", postcode_address_cordination_unmatch,
+                 authority, website_verification_results)
+                VALUES (%s, %s, %s, 0, 0.75, jsonb_build_object(%s::text, true))
+            ''', (facility_id, facility['officialWebsite'], facility['websites'], URL))
             try:
-                verify = website_verification_service([facility], store=store)
-                with patch('app.website_verification.verify_website', side_effect=lambda url: {
-                        'status': 'verified' if url != expected_urls[1] else 'unavailable'}):
-                    self.assertIsNone(verify({'facilityId': facility_id, 'websiteIndex': 0})['urlDomainVerifiedRatio'])
+                verify = website_verification_service([facility], store=store, load=load)
+                successful = {'status': 'verified', 'reason': 'Redirect resolved.', 'evidenceUrl': URL + 'about'}
+                failed = {'status': 'unavailable', 'reason': 'Could not reach page.', 'evidenceUrl': None}
+                with patch('app.website_verification.verify_website',
+                           side_effect=lambda url: successful if url == expected_urls[2] else failed) as checker:
+                    cached = verify({'facilityId': facility_id, 'websiteIndex': 0})
+                    self.assertEqual(cached['status'], 'verified')
+                    self.assertIsNone(cached['urlDomainVerifiedRatio'])
+                    checker.assert_not_called()
                     with ThreadPoolExecutor(max_workers=2) as pool:
                         reports = list(pool.map(lambda index: verify({'facilityId': facility_id,
                                                                       'websiteIndex': index}), [1, 2]))
+                    for index, expected in [(1, failed), (2, successful)]:
+                        again = verify({'facilityId': facility_id, 'websiteIndex': index})
+                        self.assertEqual(again, {**expected, 'urlDomainVerifiedRatio': 2 / 3})
+                    self.assertEqual(checker.call_count, 2)
                 self.assertCountEqual([report['urlDomainVerifiedRatio'] for report in reports], [None, 2 / 3])
-                self.assertEqual(store(facility_id, expected_urls[1], True), 1.0)
-                row = conn.execute('''SELECT url_domain_invalid, authority
+                self.assertEqual(store(facility_id, expected_urls[1], successful), 1.0)
+                row = conn.execute('''SELECT url_domain_invalid, authority, website_verification_results
                     FROM healthcare.facilities WHERE unique_id = %s''', (facility_id,)).fetchone()
                 self.assertEqual((row['url_domain_invalid'], row['authority']), (1, 0.75))
+                self.assertEqual(row['website_verification_results'][expected_urls[2]], successful)
             finally:
                 conn.execute('DELETE FROM healthcare.facilities WHERE unique_id = %s', (facility_id,))

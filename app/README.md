@@ -158,8 +158,9 @@ a five-second admission/connect timeout and a thirty-second SQL statement timeou
 Each result contains `fitScore` (0–100), `distanceKm`, `scoreBreakdown`, location,
 and existing evidence fields. The breakdown contains authority, specialty points,
 service points, the query maximum, per-input matches, and `urlDomainVerifiedRatio`.
-`trustScore` stays null:
-synthetic authority is not a measured hospital trust rating. `text_match` denotes
+In the API, Authority is `1 - 0.3 * address_flag - 0.5 * (1 - verified_url_ratio)`.
+Authority and Fit Score are `null` until website verification is complete.
+`text_match` denotes
 scoring-only text matches and is separate from an explicit dataset claim.
 
 ```sh
@@ -214,19 +215,24 @@ agents/.venv/bin/python -m unittest app.test_nabh_verification -v
 
 ## Facility website verification
 
-Search responses include `websiteUrls` drawn from `officialWebsite` and `websites`.
-Opening facility details automatically checks each URL through
-`POST /api/website/verify` with
-`{"facilityId":"<unique_id>","websiteIndex":0}`. The index resolves against the
-loaded snapshot for that facility.
+From the repository root, prepare website scores after importing the snapshot.
 
-The verifier checks whether the public link opens and returns content. It returns
-`verified` with the resolved destination in `evidenceUrl`, or `unavailable` with
-a reason. It records each completed check and returns `urlDomainVerifiedRatio`
-once every distinct usable URL for the facility has been checked. Both the
-search response and the verification response expose that ratio from 0 to 1.
-Pending ratios are returned as `null`. Run the database `init` command to migrate
-an existing database before deploying this API.
+```bash
+python -m app.website_verification
+```
+
+Use `--city Hyderabad`, `--facility-id '<unique_id>'`, or `--limit 20` to prepare a
+subset. The batch reuses saved results and checks missing public URLs. Each
+finished facility is saved independently, so another run continues from the
+remaining facilities. Distinct URLs are fetched once per batch, and requests
+to the same hostname are sequential.
+
+Search responses include `websiteUrls`, saved checks in
+`websiteVerificationResults`, and a `urlDomainVerifiedRatio` from 0 to 1.
+The ratio is `null` when checks are incomplete or there are no usable links.
+Facility details and the website endpoint read saved results. The address flag
+in the Authority formula uses simulated data. Run the database `init` command
+to migrate an older database before deploying this API.
 
 ## Practo rating during website verification
 

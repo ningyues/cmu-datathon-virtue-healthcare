@@ -104,7 +104,8 @@ export default function ResultsPage({ facilities, illustrative, queryLocation, r
               <button type="button" disabled={currentPage === pageCount} onClick={() => { setPage(currentPage + 1); setActiveId(null); }}>Next →</button>
             </div>
           </nav>}
-          {detail && <DetailDrawer key={detail.id} facility={detail} onClose={closeDetail} illustrative={illustrative} scoreKind={scoreKind} nabhResult={nabhResults.get(detail.id)} />}
+          {detail && <DetailDrawer key={detail.id} facility={detail} onClose={closeDetail} illustrative={illustrative}
+            scoreKind={scoreKind} nabhResult={nabhResults.get(detail.id)} />}
         </main>
       </div>
     </div>

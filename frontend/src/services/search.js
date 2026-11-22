@@ -1,4 +1,5 @@
 import { sampleFacilities } from '../data/facilities.js';
+import { parseWebsiteVerification } from './verification.js';
 
 const endpoint = import.meta.env?.VITE_FACILITIES_API_URL ?? '/api/search';
 export const usesIllustrativeData = !endpoint;
@@ -52,9 +53,9 @@ export function validateFacilities(data) {
       if (ratio != null && (!Number.isFinite(ratio) || ratio < 0 || ratio > 1)) {
         throw new Error('Invalid URL verification ratio.');
       }
-      const values = ['authority', 'specialtyScore', 'serviceScore', 'rawScore', 'maxRawScore', 'matchScore100'];
+      const values = ['specialtyScore', 'serviceScore', 'rawScore', 'maxRawScore', 'matchScore100'];
       if (values.some(key => !Number.isFinite(breakdown[key])) ||
-          breakdown.authority < 0 || breakdown.authority > 1 ||
+          (breakdown.authority !== null && (!Number.isFinite(breakdown.authority) || breakdown.authority < 0 || breakdown.authority > 1)) ||
           ![0, 10].includes(breakdown.specialtyScore) || breakdown.serviceScore < 0 ||
           breakdown.maxRawScore <= 0 || breakdown.rawScore < 0 || breakdown.rawScore > breakdown.maxRawScore ||
           breakdown.matchScore100 < 0 || breakdown.matchScore100 > 100 ||
@@ -76,7 +77,7 @@ export function validateFacilities(data) {
       hasPractoLink: item.hasPractoLink === true,
       websiteLinks: Array.isArray(item.websiteUrls) ? item.websiteUrls.flatMap((value, index) => {
         const url = websiteUrl(value);
-        return url ? [{ url, index }] : [];
+        return url ? [{ url, index, verification: parseWebsiteVerification(item.websiteVerificationResults?.[value]) }] : [];
       }) : [],
       distanceKm: distance ?? null, trustScore: score ?? null, fitScore: fit ?? null,
       scoreBreakdown: breakdown ?? null,

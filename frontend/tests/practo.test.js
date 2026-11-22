@@ -19,7 +19,6 @@ test('linked Practo ratings load on cards without opening details; missing links
     const payload = JSON.parse(options.body);
     calls.push({url, ...payload});
     if (url === '/api/nabh/verify') return {ok: true, json: async () => ({status: 'unverified', certificateUrls: []})};
-    if (url === '/api/website/verify') return new Promise(() => {});
     assert.equal(url, '/api/practo/rating');
     return new Promise(resolve => pending.set(payload.facilityId, data => resolve({ok: true, json: async () => data})));
   };
@@ -31,7 +30,8 @@ test('linked Practo ratings load on cards without opening details; missing links
     const {default: ResultsPage} = await server.ssrLoadModule('/src/components/ResultsPage.jsx');
     const facilities = ['first', 'second', 'third'].map((id, index) => ({id, name: `Hospital ${index + 1}`,
       fitScore: 70 - index, hasPractoLink: index !== 1,
-      websiteLinks: index === 0 ? [{index: 0, url: 'https://hospital.example/'}] : []}));
+      websiteLinks: index === 0 ? [{index: 0, url: 'https://hospital.example/',
+        verification: {status: 'verified', evidenceUrl: 'https://hospital.example/'}}] : []}));
     const user = userEvent.setup({document: dom.window.document});
     render(React.createElement(React.StrictMode, null,
       React.createElement(ResultsPage, {facilities, illustrative: false, status: 'success'})));
@@ -46,7 +46,8 @@ test('linked Practo ratings load on cards without opening details; missing links
       sourceUrl: 'https://www.practo.com/pune/hospital/example-hospital', reason: 'Read linked Practo page.'}));
     assert.ok(within(card(1)).getByText('4.5/5'));
     await user.click(card(1));
-    await waitFor(() => assert.equal(calls.filter(call => call.url === '/api/website/verify').length, 1));
+    assert.ok(within(screen.getByRole('region', {name: 'Website verification'})).getByText('Verified'));
+    assert.equal(calls.filter(call => call.url === '/api/website/verify').length, 0);
     assert.equal(calls.filter(call => call.url === '/api/practo/rating').length, 2);
     await act(async () => pending.get('third')({status: 'unavailable', score: null, reason: 'Practo blocked access.'}));
     assert.ok(within(card(3)).getByText('Practo rating: Rating unavailable'));

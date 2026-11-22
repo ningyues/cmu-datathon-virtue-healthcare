@@ -248,6 +248,8 @@ button, a, textarea, select { -webkit-tap-highlight-color: transparent; }
 .verification-feedback.unverified, .verification-badge.unverified { background: #fff4e2; border-color: #e5c58c; color: #694512; }
 .verification-feedback.pending, .verification-badge.pending { background: #edf1fc; border-color: #d5dff4; color: #3f4d77; }
 .verification-badge { display: inline-block; width: fit-content; border: 1px solid; border-radius: 99px; padding: 3px 9px; font-size: 12px; font-weight: 700; }
+.website-verification-heading { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 12px; }
+.website-portion { color: var(--indigo); font-size: 14px; font-weight: 700; }
 .website-check { display: grid; gap: 8px; padding: 10px 0; min-width: 0; }
 .website-link, .website-status a, .verification-feedback a { color: var(--indigo); overflow-wrap: anywhere; text-decoration: underline; }
 .website-link { font-size: 14px; }

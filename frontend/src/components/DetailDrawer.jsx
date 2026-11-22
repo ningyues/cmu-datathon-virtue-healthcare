@@ -1,25 +1,24 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import NabhVerification from './NabhVerification.jsx';
 import WebsiteVerification from './WebsiteVerification.jsx';
 import { distanceLabel, facilityScore } from '../data/facilities.js';
 
 const urlRatioFormat = new Intl.NumberFormat('en', { style: 'percent', maximumFractionDigits: 1 });
+const authorityFormat = new Intl.NumberFormat('en', { minimumFractionDigits: 2, maximumFractionDigits: 4 });
 
-function ScoreCalculation({ breakdown, websiteRatio, hasWebsiteLinks }) {
-  const urlRatioLabel = websiteRatio == null
-    ? (hasWebsiteLinks ? 'Pending' : 'No listed URLs')
-    : urlRatioFormat.format(websiteRatio);
+function ScoreCalculation({ breakdown, websiteRatioLabel, hasWebsiteLinks }) {
+  const urlRatioLabel = websiteRatioLabel ?? (hasWebsiteLinks ? 'Pending' : 'No listed URLs');
   return <section className="detail-section score-breakdown" aria-labelledby="score-calculation-heading">
     <h3 id="score-calculation-heading">Score calculation</h3>
     <p className="score-formula">Fit Score = authority × match percentage</p>
     <div className="score-grid">
       <div className="score-subsection">
         <h4>Authority</h4>
-        <p className="score-metric">Authority: {breakdown.authority.toFixed(2)}</p>
+        <p className="score-metric">Authority: {breakdown.authority == null ? 'Pending' : authorityFormat.format(breakdown.authority)}</p>
         <div className="authority-reasons" aria-label="Authority score explanation">
           <p>URL domain verification · {urlRatioLabel}</p>
           {breakdown.addressPostcodeCoordinatesMismatch && <p className="authority-warning">Address, postcode and coordinates mismatch (−0.30)</p>}
-          {breakdown.authoritySource === 'synthetic' && <p className="detail-note">The imported Authority score starts from simulated flags.</p>}
+          {breakdown.authoritySource === 'synthetic' && <p className="detail-note">The address flag uses simulated data.</p>}
         </div>
       </div>
       <div className="score-subsection">
@@ -49,7 +48,8 @@ export default function DetailDrawer({ facility, onClose, illustrative, scoreKin
   const panel = useRef(null);
   const closeButton = useRef(null);
   const score = facilityScore(facility, scoreKind);
-  const [websiteRatio, setWebsiteRatio] = useState(facility.scoreBreakdown?.urlDomainVerifiedRatio ?? null);
+  const websiteRatio = facility.scoreBreakdown?.urlDomainVerifiedRatio;
+  const websiteRatioLabel = websiteRatio == null ? null : urlRatioFormat.format(websiteRatio);
   const hasNabhCertificate = nabhResult?.status === 'verified';
   useEffect(() => {
     const previousFocus = document.activeElement;
@@ -84,7 +84,7 @@ export default function DetailDrawer({ facility, onClose, illustrative, scoreKin
         </div>
         <section className="trust-display" aria-label={score.label}><h3>{score.label}</h3><strong className={score.missing ? 'score-unavailable' : ''}>{score.text}</strong></section>
         {facility.scoreBreakdown && <ScoreCalculation breakdown={facility.scoreBreakdown}
-          websiteRatio={websiteRatio} hasWebsiteLinks={Boolean(facility.websiteLinks?.length)} />}
+          websiteRatioLabel={websiteRatioLabel} hasWebsiteLinks={Boolean(facility.websiteLinks?.length)} />}
         <section className="detail-section hospital-information" aria-labelledby="facility-details-heading">
           <h3 id="facility-details-heading">Facility details</h3>
           <dl className="detail-values">
@@ -94,7 +94,7 @@ export default function DetailDrawer({ facility, onClose, illustrative, scoreKin
           </dl>
           {facility.serviceEvidence && <p className="detail-note">Dataset service claim ({facility.serviceEvidence.field}) · {facility.serviceEvidence.text}</p>}
         </section>
-        {!illustrative && <WebsiteVerification key={facility.id} facility={facility} onRatioChange={setWebsiteRatio} />}
+        {!illustrative && <WebsiteVerification facility={facility} ratioLabel={websiteRatioLabel} />}
         <section className="detail-section" aria-labelledby="nabh-heading">
           <h3 id="nabh-heading">NABH accreditation</h3>
           <NabhVerification illustrative={illustrative} result={nabhResult} />

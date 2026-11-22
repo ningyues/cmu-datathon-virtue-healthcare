@@ -31,9 +31,10 @@ The requested spelling `cordination` is retained for the synthetic postcode flag
 
 `url_domain_invalid` now stores the verified share of a facility's distinct
 dataset URLs, from 0 to 1. It is NULL until all listed URLs have been checked,
-and remains NULL when the facility has no usable URLs. The API records checks
-as they run in facility details. A higher ratio means more links opened.
-The ratio is available for future scoring changes.
+and remains NULL when the facility has no usable URLs. The website preparation
+batch saves the checks and the browser search API uses the ratio for scoring.
+A higher ratio means more links opened. The database CLI uses the stored
+Authority value.
 
 ## Start locally
 
