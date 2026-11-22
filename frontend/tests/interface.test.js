@@ -133,7 +133,7 @@ test('live search ranks Fit Scores and shows the scoring breakdown', async () =>
          },
          'https://directory.example.org/listing': {status: 'unavailable', reason: 'The page could not be reached.'},
        },
-       serviceMatch: 'text_match', scoreBreakdown: {authority: 0.45, addressPostcodeCoordinatesMismatch: true, urlDomainVerifiedRatio: 0.5, authoritySource: 'synthetic',
+       serviceMatch: 'text_match', scoreBreakdown: {authority: 0.45, geographyCheckStatus: 'mismatch', geographyCheckSource: 'geoapify', addressPostcodeCoordinatesMismatch: true, urlDomainVerifiedRatio: 0.5, authoritySource: 'synthetic',
        specialtyScore: 10, serviceScore: 6, rawScore: 16, maxRawScore: 16, matchScore100: 100,
        specialties: [{input: 'nephrology', matched: true}], services: [{input: 'dialysis', score: 6}]}}
     ]})};
@@ -157,7 +157,8 @@ test('live search ranks Fit Scores and shows the scoring breakdown', async () =>
     assert.ok(screen.getByText(/Authority: 0.45/));
     assert.ok(screen.getByText('dialysis: 6/6'));
     assert.ok(screen.getByText(/Address, postcode and coordinates mismatch/));
-    assert.ok(screen.getByText(/simulated data/));
+    assert.equal(screen.queryByText(/simulated data/), null);
+    assert.ok(screen.getByRole('link', {name: 'Geoapify'}));
     assert.ok(screen.getByRole('region', {name: 'Score calculation'}));
     assert.ok(screen.getByRole('region', {name: 'Facility details'}));
     assert.ok(screen.getByRole('region', {name: 'NABH accreditation'}));
@@ -180,6 +181,7 @@ test('live search ranks Fit Scores and shows the scoring breakdown', async () =>
     assert.match(screen.getAllByRole('button', {name: /fit score/})[0].textContent, /1\. Nearby Hospital/);
     await user.click(screen.getByRole('button', {name: /Nearby Hospital, fit score Pending/}));
     assert.ok(screen.getByText('Authority: Pending'));
+    assert.equal(screen.queryByText('The address flag uses simulated data.'), null);
     assert.ok(within(screen.getByRole('region', {name: 'Website verification'})).getByText('Pending'));
     assert.deepEqual(websiteCalls, []);
   } finally {

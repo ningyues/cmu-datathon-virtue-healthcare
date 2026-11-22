@@ -39,17 +39,14 @@ def parse_array(value):
 
 
 def allocate_flags(ids, seed=42):
-    """Reproduce the original seed inputs for new records' initial authority."""
+    """Default geography flags to zero and allocate synthetic URL flags deterministically."""
     ordered = sorted(ids)
     if len(set(ordered)) != len(ordered):
         raise ValueError('Duplicate facility IDs')
     shuffled = ordered.copy()
-    random.Random(seed).shuffle(shuffled)
-    postcode_ids = set(shuffled[:int(len(ordered) * 0.20 + 0.5)])
-    shuffled = ordered.copy()
     random.Random(seed + 1).shuffle(shuffled)
     url_ids = set(shuffled[:int(len(ordered) * 0.30 + 0.5)])
-    return {uid: (int(uid in postcode_ids), int(uid in url_ids)) for uid in ordered}
+    return {uid: (0, int(uid in url_ids)) for uid in ordered}
 
 
 def typed_value(column, value, facility=False):
@@ -69,7 +66,7 @@ def prepare_facilities(path, seed=42):
         if set(row) != set(FACILITY_COLUMNS):
             raise ValueError('Facility CSV columns do not match the schema')
         pflag, uflag = flags[row['unique_id']]
-        authority = Decimal('1') - Decimal('0.3') * pflag - Decimal('0.5') * uflag
+        authority = Decimal('1') - Decimal('0.5') * uflag
         yield tuple(typed_value(c, row[c], True) for c in FACILITY_COLUMNS) + (
             pflag, None, authority, json.dumps(row, ensure_ascii=True))
 
@@ -138,7 +135,7 @@ def set_authority(conn, facility_id, value):
     with conn.transaction():
         # Service cache entries are independent of authority and remain unchanged.
         row = conn.execute(
-            'UPDATE healthcare.facilities SET authority = %s, updated_at = now() '
+            "UPDATE healthcare.facilities SET authority = %s, authority_calculation_mode = 'manual', updated_at = now() "
             'WHERE unique_id = %s RETURNING unique_id, authority', (value, facility_id)
         ).fetchone()
         if row is None:
@@ -205,6 +202,7 @@ def main():
         if args.command == 'init':
             conn.execute((ROOT / 'db' / 'schema.sql').read_text())
             conn.execute((ROOT / 'db' / 'service_cache.sql').read_text())
+            conn.execute((ROOT / 'db' / 'geography_checks.sql').read_text())
             result = {'status': 'initialized'}
         elif args.command == 'load':
             conn.execute("SET statement_timeout = '300s'")
