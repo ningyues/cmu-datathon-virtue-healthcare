@@ -2740,6 +2740,7 @@ hospital,6,77a4e680-bf90-4cd0-b4b5-32bcdd7cf61c,capacity,275,,remove_field,scope
 hospital,6,77a4e680-bf90-4cd0-b4b5-32bcdd7cf61c,sanctioned_beds,,75,source_backfill,source_backfill,https://portal.nabh.co/Documents/AccreditedList/Hospitals/H-2015~3.PDF,,NABH H-2015-0315 certification 2025-08-03 through 2029-08-02; fill only the sanctioned-beds field
 hospital,26,31e8a095-2ba7-4ad2-8df1-44c6b2b26c5e,email,[email protected],,remove_field,masked_email,,,
 hospital,27,33af2594-ec2f-4268-a1a6-9cb47b04d798,email,[email protected],,remove_field,masked_email,,,
+hospital,31,39c6f2b8-806a-499c-9fac-a918e52cd191,websites,kasturbamultispeciality,,remove_item,unverified_malformed_website_removed,https://www.signalhire.com/companies/kasturba-hospital-tumkur,,The record mixes Tumkur and Manipal sources. The candidate domain could not be tied to the recorded branch.
 hospital,43,51179ca4-f342-4014-92d7-c2d2ef1adbb1,address_stateOrRegion,Andhra Pradesh,Telangana,source_backfill,source_backfill,https://dme.telangana.gov.in/open_record.php?ID=196,,Telangana 政府名单匹配 Netaji Chowk、TNGO’s Road；保留原 PIN 作邮政一致值。坐标在 East Godavari。
 hospital,43,51179ca4-f342-4014-92d7-c2d2ef1adbb1,latitude,16.956157684326172,,remove_field,coordinate_location_conflict,https://dme.telangana.gov.in/open_record.php?ID=196,,Telangana 政府名单匹配 Netaji Chowk、TNGO’s Road；保留原 PIN 作邮政一致值。坐标在 East Godavari。
 hospital,43,51179ca4-f342-4014-92d7-c2d2ef1adbb1,longitude,82.23306274414062,,remove_field,coordinate_location_conflict,https://dme.telangana.gov.in/open_record.php?ID=196,,Telangana 政府名单匹配 Netaji Chowk、TNGO’s Road；保留原 PIN 作邮政一致值。坐标在 East Godavari。
@@ -2769,6 +2770,7 @@ hospital,191,7e08f70c-6fc4-49f8-a1e9-fdddda2e0469,coordinates,"{""coordinates"":
 hospital,213,94cfa2e6-28a9-4597-ac9b-8769b0743955,email,[email protected],,remove_field,masked_email,,,
 hospital,223,a3ba0f20-be4a-45c6-902a-92e8b0438bd1,email,[email protected],,remove_field,masked_email,,,
 hospital,230,aa9f112c-606f-471f-9542-b3e414045573,address_zipOrPostcode,10,,remove_field,invalid_pin_format,,,
+hospital,231,ac4c39ce-8c64-4bab-a4db-1b3dca1ea817,websites,netrameeye hospital.com,https://jyotieyehospital.org/,remove_item,verified_website_duplicate_removed,https://jyotieyehospital.org/,https://happyinsurance.in/health-insurance/visnagar-gujarat/,Retain the Jyoti Eye Hospital site for Visnagar. The similarly named Netram domain is associated with a different provider.
 hospital,262,cf4addd3-053f-499a-868e-5ffb21afbafa,email,[email protected],,remove_field,masked_email,,,
 hospital,271,d525c45b-8ccf-4258-9a5a-90286e982f96,email,[email protected],,remove_field,masked_email,,,
 hospital,272,d9cca233-cf00-40cc-9417-28da0dbf0240,specialties,Gastroenterology,gastroenterology,remove_claim,specialty_case_duplicate,,,
@@ -2826,6 +2828,7 @@ hospital,572,f37e3587-88f0-4294-b234-09be3a6c4bd5,specialties,dermatology,Dermat
 hospital,584,fd2bdccc-b565-4b03-85e9-52b32de506f8,email,[email protected],,remove_field,masked_email,,,
 hospital,622,19e69f12-865d-416a-9dc0-ecf4af4b06b7,email,[email protected],,remove_field,masked_email,,,
 hospital,634,2347564a-3ee6-4c64-883f-026230735a21,email,[email protected],,remove_field,masked_email,,,
+hospital,642,2d65a95f-4842-4d1d-9ddd-fc94ddb153c3,websites,jivandeep hospital.com,,remove_item,unverified_malformed_website_removed,https://in.linkedin.com/company/jivandeephospital,,"The candidate site is associated with Dholka, while the input identifies Santrampur."
 hospital,647,2f95dcea-c825-47b8-b656-4a44d0ef7c9e,email,[email protected],,remove_field,masked_email,,,
 hospital,658,32f97788-fe6d-4a3a-8129-f8e9a3e87ef0,address_zipOrPostcode,58,700058,source_backfill,source_backfill,https://www.esic.gov.in/attachments/tenderfile/Annexure-08-ESIC-Network-Connectivity-Details.pdf,https://www.wbpcb.gov.in/files/Tu-02-2025-02-32-31ESI%20Hospital.pdf,"ESIC lists the Kamarhati ESI Hospital campus, 1 Graham Lane, West Bengal 700058. The state regulator corroborates the hospital site."
 hospital,659,335c875c-3a95-4479-b28f-d0086c0e7d4b,specialties,Dermatology,dermatology,remove_claim,specialty_case_duplicate,,,
@@ -2877,6 +2880,8 @@ hospital,1079,55c887a0-c6f7-4dbc-b01a-96720926946c,specialties,andrology,Androlo
 hospital,1092,5cfbd727-caa8-4c86-b411-4187cd95c26b,address_stateOrRegion,Dharwad,Karnataka,source_backfill,source_backfill,https://kwa.kerala.gov.in/wp-content/uploads/2024/07/PEN-LIST-OF-NETWORK-HOSPITALS_PAN-_INDIA_Ms-ORIENTAL-INSURANCE-COMPANY-LTD.pdf,https://kwa.kerala.gov.in/wp-content/uploads/2024/07/Employees-LIST-OF-NETWORKS-HOSPITALS_PAN-INDIA-_Ms-United-India-Insurance-Company.pdf,"Two insurer directories match Vivekanand General Hospital, Deshpande Nagar, Hubli 580029. The postal directory assigns the PIN to Karnataka."
 hospital,1095,5f2aa9bb-b6c9-4510-a4ef-6930b2fe9e37,email,[email protected],,remove_field,masked_email,,,
 hospital,1110,681c3935-f3e2-44b1-95ca-a27ebffcabae,address_stateOrRegion,Idukki,Kerala,source_backfill,source_backfill,https://holyfamilyhospitals.com/contact-us/,https://kwa.kerala.gov.in/wp-content/uploads/2026/05/GHIS-2026-27-Employees-Hospital-list-in-Kerala.pdf,"The hospital and published scheme directory identify Muthalakodam, Thodupuzha, Idukki, Kerala 685605."
+hospital,1131,71c0cdb6-b7a5-4c05-b8ac-b0beae74d0d9,websites,ja jaipur? ja jaipur ent hospital official site?,https://jainenthospital.org/,remove_item,verified_website_duplicate_removed,https://jainenthospital.org/contact-us/,,The contact page identifies Jain ENT Hospital in Jaipur.
+hospital,1131,71c0cdb6-b7a5-4c05-b8ac-b0beae74d0d9,websites,ja jaipur?,https://jainenthospital.org/,remove_item,verified_website_duplicate_removed,https://jainenthospital.org/contact-us/,,The contact page identifies Jain ENT Hospital in Jaipur.
 hospital,1132,72f963df-e69e-4cf5-98e0-f2b3ad6a7e5a,email,[email protected],,remove_field,masked_email,,,
 hospital,1142,78bed667-b16e-43c1-8d82-c82891f23aa8,email,[email protected],,remove_field,masked_email,,,
 hospital,1153,7df67343-efd3-4b99-93c8-3b189e08a8e0,specialties,Kayachikitsa,kayachikitsa,remove_claim,specialty_case_duplicate,,,
@@ -2904,6 +2909,7 @@ hospital,1264,bc3bb6d6-419c-4db9-94d9-63f61e1d72a1,specialties,Urology,urology,r
 hospital,1272,bf896279-341e-4134-ae56-8ff42afb68e4,email,[email protected],,remove_field,masked_email,,,
 hospital,1276,c2ad887a-5e92-4216-b3c0-b0803e56dcb7,email,[email protected],,remove_field,masked_email,,,
 hospital,1328,d855ef26-3371-4bb7-b44d-c62f819b492c,email,[email protected],,remove_field,masked_email,,,
+hospital,1334,dc97c031-cec5-48eb-a1c1-d4de6520eb63,websites,capitolhospital,https://www.capitolhospital.com/,remove_item,verified_website_duplicate_removed,https://www.capitolhospital.com/page/contact-us,,The hospital contact page identifies the matching site in Jalandhar.
 hospital,1346,e115ac66-b8e0-40a0-bec2-c14cc3558681,email,[email protected],,remove_field,masked_email,,,
 hospital,1349,e3012127-8540-4e3c-9823-7e30ea3f6df0,address_zipOrPostcode,85,,remove_field,invalid_pin_format,,,
 hospital,1368,ee655576-272d-4cd7-a334-d5ef77ea8c9e,email,[email protected],,remove_field,masked_email,,,
@@ -2947,6 +2953,7 @@ hospital,1703,70a14dce-5b73-4a4e-a15d-c94fbc02e3b6,address_zipOrPostcode,000000,
 hospital,1703,70a14dce-5b73-4a4e-a15d-c94fbc02e3b6,email,[email protected],,remove_field,masked_email,,,
 hospital,1725,79119813-c0a1-473b-8597-381606a772b2,email,[email protected],,remove_field,masked_email,,,
 hospital,1748,8354ebb1-e2c1-4060-93cd-94c84c5f2ab4,email,[email protected],,remove_field,masked_email,,,
+hospital,1752,8735c338-9b18-43d1-a4da-1e835fd1559a,officialWebsite,com forthospitals.com,,remove_field,unverified_malformed_website_removed,https://kwa.kerala.gov.in/wp-content/uploads/2024/07/PEN-LIST-OF-NETWORK-HOSPITALS_PAN-_INDIA_Ms-ORIENTAL-INSURANCE-COMPANY-LTD.pdf,,The directory supports the Bangalore facility identity. Ownership of the candidate domain could not be verified.
 hospital,1772,8f04b6fe-bd37-4942-a53a-cb29c6de2826,email,[email protected],,remove_field,masked_email,,,
 hospital,1779,93706a48-e2e7-4de1-984c-9baa926ea828,email,[email protected],,remove_field,masked_email,,,
 hospital,1786,971cf14f-ca10-49ef-a496-e2138a35bd46,email,[email protected],,remove_field,masked_email,,,
@@ -2981,6 +2988,7 @@ hospital,1993,e029321d-93c8-401b-81a7-4a708cee586e,email,[email protected],,rem
 hospital,2031,eed8db66-bbf8-4669-be2b-d4e4880f2522,email,[email protected],,remove_field,masked_email,,,
 hospital,2034,efb047fe-1b25-48a4-b51a-b5a2389625c2,address_stateOrRegion,Andhra Pradesh,Telangana,source_backfill,source_backfill,https://www.tsso.in/pdf/New%20updated%20TG%20Recognized%20Pvt.%20Hospitals%20List-2023-2025.pdf,https://www.iffcotokio.co.in/content/dam/iffcotokio/iffco-pdf/sites/default/files/Web%20LIST%20WEF_20-Dec-2019%20PDF.pdf,识别名录匹配 Plot 2 & 3、Peerzadiguda。保险方名单也给相同街区及 PIN；不以过期条款判断当前接诊。
 hospital,2049,f867fd90-bf0e-41d9-9291-c06497548886,address_zipOrPostcode,20201,,remove_field,invalid_pin_format,,,
+hospital,2053,f947f247-8b7a-4ea0-a6b6-92a18e13e025,websites,kansaldentalclinic,https://kansalorthodonticcentre.in/,remove_item,verified_website_duplicate_removed,https://kansalorthodonticcentre.in/contact/,,The clinic contact page identifies the matching practice in Meerut.
 hospital,2060,fced074a-ce12-47a8-b52e-e40d876fc122,unique_id,fced074a-ce12-47a8-b52e-e40d876fc122,,remove_row,exact_duplicate,,,Retained logical record 2059
 hospital,2076,0277b0a0-05e0-418d-9763-7b2fe78f636e,address_zipOrPostcode,2110...,211001,source_backfill,source_backfill,https://srijanhospital.com/contact.php,https://www.cbse.gov.in/cbsenew/documents/medical%20policy%202018.pdf,"Both sources match Elgin Road, Civil Lines opposite Prayag Mahila Vidyapeeth and list 211001."
 hospital,2122,0e268cbd-8d08-4d2c-8913-895f2f227f8b,email,[email protected],,remove_field,masked_email,,,
@@ -3081,6 +3089,7 @@ hospital,3341,48cf0b63-fe40-439a-b09a-6b7c8566b077,specialties,microbiology,Micr
 hospital,3341,48cf0b63-fe40-439a-b09a-6b7c8566b077,specialties,pathology,Pathology,remove_claim,specialty_case_duplicate,,,
 hospital,3341,48cf0b63-fe40-439a-b09a-6b7c8566b077,specialties,karyotyping,Karyotyping,remove_claim,specialty_case_duplicate,,,
 hospital,3378,506a18f0-7317-4a24-9353-0cffc12fb035,email,[email protected],,remove_field,masked_email,,,
+hospital,3380,50fd571f-6d38-43a7-a8a0-b9a651b25f37,websites,http://smile-n-shine.in/dental clinic,,remove_item,unverified_malformed_website_removed,https://chotu.com/local/dental-clinics-in-khardaha-kolkata-west-bengal-india/ct-18418140/,,The directory supports the Barrackpore clinic identity. A replacement website could not be verified.
 hospital,3382,51f1924b-7dcc-49ee-9328-77d039445fbf,email,[email protected],,remove_field,masked_email,,,
 hospital,3389,52bb8240-d5e4-4e6c-a1f4-9a5832d1cf08,specialties,Urology,urology,remove_claim,specialty_case_duplicate,,,
 hospital,3389,52bb8240-d5e4-4e6c-a1f4-9a5832d1cf08,specialties,Nephrology,nephrology,remove_claim,specialty_case_duplicate,,,
@@ -3092,6 +3101,7 @@ hospital,3473,629b3b35-fca4-467d-bbec-c798961705ee,email,[email protected],,rem
 hospital,3544,71913555-ed0c-4b2a-91b5-7acbe473f8ed,specialties,Nephrology,nephrology,remove_claim,specialty_case_duplicate,,,
 hospital,3544,71913555-ed0c-4b2a-91b5-7acbe473f8ed,specialties,cardiology,Cardiology,remove_claim,specialty_case_duplicate,,,
 hospital,3551,7285f2bc-13d9-42ed-adc0-d2f8ee5275e6,email,[email protected],,remove_field,masked_email,,,
+hospital,3568,76a3a7f6-d5f5-4dd8-a6c9-1fa614928e79,officialWebsite,"[""esic.nic.in""]",,remove_field,unverified_malformed_website_removed,https://ims.kerala.gov.in/en/node/28,,"The government page identifies a site in Olarikkara, Thrissur. The input mixes Perumbavoor with PIN 691536. A branch website could not be assigned."
 hospital,3575,79ab71a1-1111-4b58-b0dc-33fd73f2eaf0,specialties,Hematology,hematology,remove_claim,specialty_case_duplicate,,,
 hospital,3606,7f319de8-cfab-4922-b584-4be076471aed,address_zipOrPostcode,36,,remove_field,invalid_pin_format,,,
 hospital,3635,84315fcd-c1f4-4b8e-861b-9329edeefe9b,specialties,Sonography,sonography,remove_claim,specialty_case_duplicate,,,
@@ -3200,9 +3210,11 @@ hospital,4982,63b6685c-2c27-4c9b-8c91-e5d657137389,email,[email protected],,rem
 hospital,4992,64f5a66d-c82c-44d5-bb19-fd02e93e1fee,specialties,neurosurgery,neuroSurgery,remove_claim,specialty_case_duplicate,,,
 hospital,5015,67682495-74c1-4041-8e3d-1da545cb8fb7,email,[email protected],,remove_field,masked_email,,,
 hospital,5018,67dc110e-5e33-472b-89ad-984064802d21,email,[email protected],,remove_field,masked_email,,,
+hospital,5018,67dc110e-5e33-472b-89ad-984064802d21,websites,ethos hypnotherapyclinic?,,remove_item,unverified_malformed_website_removed,https://www.ethoshypnotherapyclinic.com/feedback/index.html,,"The indexed page matched the contact details, but the live candidate returned HTTP 502 during review."
 hospital,5076,718dd532-e3d3-4b4f-baf5-b5dd99277b84,email,[email protected],,remove_field,masked_email,,,
 hospital,5106,766e8db2-855a-4287-91ff-2b1ee93c244f,email,[email protected],,remove_field,masked_email,,,
 hospital,5106,766e8db2-855a-4287-91ff-2b1ee93c244f,specialties,neuroSurgery,neurosurgery,remove_claim,specialty_case_duplicate,,,
+hospital,5134,7b2e1044-8170-42b1-ad7f-f6501255ba7e,officialWebsite,lifelineclinicnd diagnostics.com,,remove_field,unverified_malformed_website_removed,https://lifelineclinicandiagnostics.com/,,"The old candidate could not be reached. The candidate active site lists Govind Nagar, while the input lists Pathardi Phata."
 hospital,5136,7b519ac4-4250-4b12-9554-150851aad048,email,[email protected],,remove_field,masked_email,,,
 hospital,5166,804cd688-8484-4c54-84ee-3ac6d1d27ab2,address_stateOrRegion,Bigbara,Uttarakhand,source_backfill,source_backfill,https://themedicityrudrapur.com/Packages.php,,"The hospital lists Teen Pani, Bigbara, Uttarakhand 263153."
 hospital,5200,854c3094-1ade-4c69-8dbb-8530e96e8e82,email,[email protected],,remove_field,masked_email,,,
@@ -3248,6 +3260,7 @@ hospital,5703,cb4c40f4-fa3c-4630-92f5-d3734e55ae89,email,[email protected],,rem
 hospital,5711,cc3ee61d-61f6-4958-ad6b-f5b69e8b45c1,email,[email protected],,remove_field,masked_email,,,
 hospital,5714,cc868995-7551-441c-b86d-3648e98924e7,email,[email protected],,remove_field,masked_email,,,
 hospital,5714,cc868995-7551-441c-b86d-3648e98924e7,specialties,genomics,Genomics,remove_claim,specialty_case_duplicate,,,
+hospital,5741,d0f3824e-0da4-431c-88d1-cdffb4d9e383,websites,sat yam lab?/.,https://www.satyamlab.com/,remove_item,verified_website_duplicate_removed,https://www.satyamlab.com/,,The laboratory site identifies Satyam Clinical Laboratory in Chandigarh.
 hospital,5756,d2e825bc-d0c0-4038-833d-512a7eb9724c,email,[email protected],,remove_field,masked_email,,,
 hospital,5790,d89f790f-a217-4a8a-a253-dc1991506217,email,[email protected],,remove_field,masked_email,,,
 hospital,5793,d9178b81-b6a0-4558-a977-7760e67ba8c2,address_zipOrPostcode,131031,131001,source_backfill,source_backfill,https://portal.nabh.co/Documents/AccreditedList/Hospitals/H-2020-0694_5th%20Edition.pdf,https://www.fimssonipat.com/,"NABH identifies FIMS Hospital on Sonipat–Bahalgarh Road, Sonipat, Haryana 131001. The hospital identifies the same road."
@@ -3268,6 +3281,7 @@ hospital,5977,f1ecddf3-43d1-41aa-92e6-4ef012a822ce,email,[email protected],,rem
 hospital,5992,f3d903e7-cc15-4a40-a944-25af1459e07f,address_zipOrPostcode,431027,411027,source_backfill,source_backfill,https://www.puneurologist.in/contact/,https://www.indiapost.gov.in/Financial/DOP_PDFFiles/PostOfficesOnline.pdf,"The practice address matches 201 Avenue Plaza above Reliance Digital, Pimple Saudagar, Pune 411027. India Post confirms 411027 in Maharashtra."
 hospital,6045,fa93aa0d-a544-4657-b40e-35c5972d204c,address_stateOrRegion,Mohali,Punjab,source_backfill,source_backfill,https://www.holybasilmediclinic.com/contactus.php,https://dhsr.hp.gov.in/Files/List%20of%20Empanelled%20Hospitals%20under%20ESI%20Scheme%20HP%20as%20on%2027.10.2025.pdf,"Both sources match plots 139–141, Prime City, Landran Road, Kharar, Mohali, Punjab 140301."
 hospital,6051,fc09081f-3fc0-4dc8-b314-2c5d4f07f37b,email,[email protected],,remove_field,masked_email,,,
+hospital,6058,fccc2b9a-9df1-4883-a05e-d35a6de669f7,websites,greencityhospitalbhopal.com? to be replaced,https://www.greencityhospitalbhopal.com/,remove_item,verified_website_duplicate_removed,https://www.greencityhospitalbhopal.com/contact-us/,,The contact page identifies the matching Green City Hospital in Bhopal.
 hospital,6085,00b0c116-2deb-4e9a-a77b-9ffd19e89396,email,[email protected],,remove_field,masked_email,,,
 hospital,6125,04747dd8-799d-41b9-b652-190583e03dee,specialties,Urology,urology,remove_claim,specialty_case_duplicate,,,
 hospital,6184,0ad5cc92-2e5f-4fdd-8900-dc5deadc5481,email,[email protected],,remove_field,masked_email,,,
@@ -3298,6 +3312,7 @@ hospital,6619,3db89149-4c0e-4ce0-8b6f-7584c1cf53b4,email,[email protected],,rem
 hospital,6619,3db89149-4c0e-4ce0-8b6f-7584c1cf53b4,specialties,Periodontics,periodontics,remove_claim,specialty_case_duplicate,,,
 hospital,6709,47801aef-3c25-4b81-99f7-c374775ee800,email,[email protected],,remove_field,masked_email,,,
 hospital,6812,5334786c-0bba-4260-b120-f6b78b8a3275,email,[email protected],,remove_field,masked_email,,,
+hospital,6857,56c32a1e-9110-4cc9-8061-17b807194366,websites,anu_multispeciality_hospital,https://www.anuhospital.in/,remove_item,verified_website_duplicate_removed,https://www.anuhospital.in/,,The hospital site identifies the matching Anu hospital in Thanjavur.
 hospital,6888,5a1532df-d69b-423a-9654-cac5d5e5b087,email,[email protected],,remove_field,masked_email,,,
 hospital,6892,5a6fe956-8f33-4fbe-b232-1de883afc999,address_zipOrPostcode,000000,440009,source_backfill,source_backfill_unlisted_pin,https://moil.nic.in/userfiles/NAGPUR_CITY_NETOWRK_HOSPITALS_13-07-2025%281%29.pdf,https://www.maharashtramedicalcouncil.in/Files/REGISTER_31122020.pdf,"The facility listing and medical council address match 20 Reshim Bagh, Umred Road, Nagpur. The PIN is missing from the supplied coordinate snapshot."
 hospital,6892,5a6fe956-8f33-4fbe-b232-1de883afc999,email,[email protected],,remove_field,masked_email,,,
@@ -3354,6 +3369,7 @@ hospital,7901,cea8dcc5-96bf-40ea-bb5d-9ecfd2760e6c,specialties,depression,Depres
 hospital,7905,cf033ca0-c835-4cb8-b335-1639460c1704,address_zipOrPostcode,57,,remove_field,invalid_pin_format,,,
 hospital,7926,d0c33da2-de94-4673-ae16-899ed4a8a486,address_zipOrPostcode,85,110085,source_backfill,source_backfill,https://www.vaidmishraji.in/sinusitis/,https://www.indiapost.gov.in/Financial/DOP_PDFFiles/PostOfficesOnline.pdf,"The clinic lists E-16/30, Sector 8, Rohini, Delhi with shorthand 85. India Post corroborates Rohini 110085."
 hospital,7940,d1c2100e-286b-45c2-a615-897d7e0fc541,email,[email protected],,remove_field,masked_email,,,
+hospital,7946,d25b05cb-f9f6-43d4-8506-3e872605fc2c,websites,sarojinidental hospital.com,https://www.sarojinidental.com/,remove_item,verified_website_duplicate_removed,https://www.sarojinidental.com/contact,,The contact evidence matches the Sarojini Dental site in Secunderabad.
 hospital,7950,d2acd57a-351d-4fa0-9dc5-c54f3aee6a8d,email,[email protected],,remove_field,masked_email,,,
 hospital,7977,d667d834-22c2-4a46-99a1-f24b454424c6,address_zipOrPostcode,AHMEDABAD-8,,remove_field,invalid_pin_format,,,
 hospital,7992,d7a4adc9-b1b3-40c0-b9ba-ced3c36724f8,specialties,neurocriticalCareNeurosurgery,neuroCriticalCareNeurosurgery,remove_claim,specialty_case_duplicate,,,
@@ -3373,6 +3389,7 @@ hospital,8186,eba0de3d-5d1e-41b5-95e9-41156704e1f1,email,[email protected],,rem
 hospital,8194,ec1880d6-f462-4552-87f3-e787cbde1f20,specialties,Dermatosurgery,dermatosurgery,remove_claim,specialty_case_duplicate,,,
 hospital,8267,f3ef50e3-0084-489f-af18-403c7901bad7,email,[email protected],,remove_field,masked_email,,,
 hospital,8273,f4c2d39e-cba5-4998-8ad1-f2b43c0baf95,email,[email protected],,remove_field,masked_email,,,
+hospital,8281,f5787e6a-9015-419a-b6df-65d5d0c7dcb1,websites,https://www.drvarshaliclinic.com/about-dr-varshali-mali-gynecologist-a,https://www.drvarshaliclinic.com/about-dr-varshali-mali-gynecologist-and-pregnancy-doctor,remove_item,verified_website_duplicate_removed,https://www.drvarshaliclinic.com/about-dr-varshali-mali-gynecologist-and-pregnancy-doctor,,The full provider profile identifies Dr. Varshali Mali. The malformed value ends with two control characters.
 hospital,8293,f6c2b970-82cb-4d01-9c74-9951c12fa235,email,[email protected],,remove_field,masked_email,,,
 hospital,8302,f76623ee-7dcf-4025-9cae-aaf3545569c2,email,[email protected],,remove_field,masked_email,,,
 hospital,8316,f820f89d-6ef2-44d7-bb58-ab2da0300c7b,address_stateOrRegion,Thane,Maharashtra,source_backfill,source_backfill,https://bilal-hospital.com/contact,https://kwa.kerala.gov.in/wp-content/uploads/2024/07/Employees-LIST-OF-NETWORKS-HOSPITALS_PAN-INDIA-_Ms-United-India-Insurance-Company.pdf,"Both sources match Royal Garden, A Wing near Shimla Park, Mumbra, Thane, Maharashtra 400612."
@@ -3406,6 +3423,7 @@ hospital,8719,1c958690-4e98-43c1-97cd-0e23d62805ff,email,[email protected],,rem
 hospital,8771,229caf75-5889-4ae1-804e-64811156e755,email,[email protected],,remove_field,masked_email,,,
 hospital,8790,24234b88-a333-4914-a0fb-12268fa98df9,address_zipOrPostcode,MADURAI -1,,remove_field,invalid_pin_format,,,
 hospital,8805,25432eeb-b290-4ada-8e2b-b2b313985084,email,[email protected],,remove_field,masked_email,,,
+hospital,8846,287913e3-162c-45d5-873a-eada15f8591b,websites,dr.manjari_ultrasound.center,https://drmanjariultrasound.com/,remove_item,verified_website_duplicate_removed,https://drmanjariultrasound.com/contact-us.php,,The contact page identifies the matching ultrasound centre in Noida.
 hospital,8852,287bd17c-8afa-4bae-af83-ae9bab805c07,specialties,neuroImmunology,neuroimmunology,remove_claim,specialty_case_duplicate,,,
 hospital,9000,364dae5c-b868-450a-9e4e-e6705852c229,latitude,-81.706298828125,,remove_field,coordinate_pair_unusable,,,
 hospital,9000,364dae5c-b868-450a-9e4e-e6705852c229,longitude,26.953109741210938,,remove_field,coordinate_pair_unusable,,,
@@ -3434,6 +3452,7 @@ hospital,9536,64226e26-49ab-492e-a05c-fb00bb99ede1,specialties,Genetics,genetics
 hospital,9544,649f763b-6e31-41ae-b5f3-2e82c6967c2b,email,[email protected],,remove_field,masked_email,,,
 hospital,9593,68ff4372-72f1-40ac-b2dc-3119c674c03e,email,[email protected],,remove_field,masked_email,,,
 hospital,9597,696a8ec0-b720-467f-b57b-86fc2cb80493,email,[email protected],,remove_field,masked_email,,,
+hospital,9643,6d50cfb6-89dc-438c-801f-c590c0c81335,websites,vighneshwarayurvedhospitals,,remove_item,unverified_malformed_website_removed,https://www.practo.com/sangli/clinic/vighneshwar-ayurved-hospitals-sangli-city,,The directory identifies the Sangli clinic. An official replacement site could not be verified.
 hospital,9672,6fbfdba9-e601-4162-a08a-98cd5fbef91f,email,[email protected],,remove_field,masked_email,,,
 hospital,9770,786e24b9-e66f-453a-a81e-c618e1f6801c,email,[email protected],,remove_field,masked_email,,,
 hospital,9788,7a3c361e-cab8-4564-a64e-b7bb3e5d990c,email,[email protected],,remove_field,masked_email,,,
@@ -3448,6 +3467,7 @@ hospital,9824,7d1d6e4e-43b4-44a2-a21a-60d67417d789,address_stateOrRegion,Andhra 
 hospital,9825,7d4792a6-ef68-4d44-8c98-b6166632a087,specialties,cardiothoracicSurgery,cardioThoracicSurgery,remove_claim,specialty_case_duplicate,,,
 hospital,9856,80dbf33e-7ecc-4ecb-80d2-994d7217ff9a,email,[email protected],,remove_field,masked_email,,,
 hospital,9863,823d0026-232b-4cde-bc70-2cc3d316be6d,email,[email protected],,remove_field,masked_email,,,
+hospital,9881,836a84fc-cdf2-4496-91e1-0accd20ab2d1,websites,promisehealthcareranchi,,remove_item,unverified_malformed_website_removed,https://yappe.in/jharkhand/ranchi/dr-deepak-verma/607516,,A third-party listing links the candidate to the Ranchi facility. The candidate was unavailable during review.
 hospital,9894,84257413-6cc5-4a88-99ef-2dda1148f01c,address_stateOrRegion,Andhra Pradesh,Telangana,source_backfill,source_backfill,https://punjabandsindbank.co.in/system/uploads/document/2150_2023032413224150735.pdf,,公开保险清单匹配 9-4-87/5/2、Tolichowki；当地门牌与 PIN 相符，旧点仍需另核。
 hospital,9902,851a4aba-ea01-4016-8f8f-f972ca4d448d,address_stateOrRegion,Palghar,Maharashtra,source_backfill,source_backfill,https://radianthospitalvirar.com/contact-us.html,https://www.bharatibiz.com/en/radiant-hospital_228-083292-32790,"The hospital matches Sheetal Anjali Building near D Mart, Manvelpada, Virar East 401305. The independent listing and postal reference place it in Maharashtra."
 hospital,9945,889a158d-74e2-4d43-a081-cb2c3851aded,address_zipOrPostcode,64,,remove_field,invalid_pin_format,,,

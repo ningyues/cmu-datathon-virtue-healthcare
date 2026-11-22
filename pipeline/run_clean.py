@@ -130,6 +130,14 @@ def build(zip_path, csv_path, dest):
                 raise ValueError(f"Duplicate hospital source decision: {key}")
             seen_fields.add(key)
             decisions[decision["id"]].append(decision)
+    website_decisions = defaultdict(list)
+    seen_websites = set()
+    for decision in json.loads((ROOT/"website_decisions.json").read_text(encoding="utf-8")):
+        key = (decision["id"], decision["field"], decision["original_value"])
+        if key in seen_websites:
+            raise ValueError(f"Duplicate website decision: {key}")
+        seen_websites.add(key)
+        website_decisions[decision["id"]].append(decision)
     by_id = defaultdict(list)
     counts, field_actions, pin_checks, claim_checks = Counter(), Counter(), Counter(), Counter()
     evidence_rows, services, queue = [], [], []
@@ -297,6 +305,29 @@ def build(zip_path, csv_path, dest):
                         field_actions["specialty_records_deduplicated"] += 1
                     kept = list(unique_specialties.values())
                 row[field] = json.dumps(kept, ensure_ascii=False) if kept else ""
+            for decision in website_decisions.pop(uid, ()):
+                field = decision["field"]
+                bad_url = decision["original_value"]
+                retained_url = decision.get("retained_value", "")
+                source_url = decision["source_url"]
+                second_url = decision.get("corroborating_url", "")
+                note = decision["note"]
+                reason = "verified_website_duplicate_removed" if retained_url else "unverified_malformed_website_removed"
+                if field == "officialWebsite" and not retained_url:
+                    if row[field] != bad_url:
+                        raise ValueError(f"Official website decision failed to match {uid}: {bad_url!r}")
+                    change(field, "", reason, source_url, second_url, note)
+                elif field == "websites":
+                    urls = json.loads(row[field] or "[]")
+                    if bad_url not in urls or (retained_url and (retained_url == bad_url or retained_url not in urls)):
+                        raise ValueError(f"Website decision failed to match {uid}: {bad_url!r}, {retained_url!r}")
+                    urls.remove(bad_url)
+                    row[field] = json.dumps(urls, ensure_ascii=False) if urls else ""
+                    field_actions[reason] += 1
+                    removed.append(("hospital", number, uid, field, bad_url, retained_url,
+                                    "remove_item", reason, source_url, second_url, note))
+                else:
+                    raise ValueError(f"Invalid website decision for {uid}: {field!r}")
             pin = row["address_zipOrPostcode"]
             p = reference.get(pin)
             st = state(row["address_stateOrRegion"])
@@ -329,6 +360,8 @@ def build(zip_path, csv_path, dest):
                                        round(distance, 1) if distance is not None else "", geo, "|".join(repaired)])
             count_output += 1
     assert applied_ids == set(decisions)
+    if website_decisions:
+        raise ValueError(f"Website decisions did not match facilities: {list(website_decisions)}")
     assert len(records) == count_output + sum(counts.values())
     assert sum(pin_checks.values()) == count_output
     log_cols = ("table", "source_record", "unique_id", "field", "original_value", "cleaned_value",

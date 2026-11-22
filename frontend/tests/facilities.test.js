@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { sampleFacilities, sortFacilities } from '../src/data/facilities.js';
+import { facilityScore, sampleFacilities, sortFacilities } from '../src/data/facilities.js';
 import { validateFacilities } from '../src/services/search.js';
 
 test('sorts the Figma sample by trust and distance without mutating the input', () => {
@@ -25,4 +25,20 @@ test('rejects invalid API records instead of displaying invalid scores', () => {
   assert.equal(record.trustScore, null);
   assert.equal(record.distanceKm, null);
   assert.equal(record.marker, undefined);
+});
+
+test('keeps Fit Score separate from trust and accepts geographic coordinates', () => {
+  const facilities = validateFacilities([
+    { id: 'far', name: 'Farther', fitScore: 125, distanceKm: 7, latitude: 17.4, longitude: 78.5, website: 'example.org' },
+    { id: 'pending', name: 'Pending', distanceKm: 1, latitude: 170, longitude: 78, website: 'javascript:alert(1)' },
+    { id: 'near', name: 'Nearer', fitScore: 125, distanceKm: 3 },
+  ]);
+  assert.deepEqual(sortFacilities(facilities, 'fit').map(row => row.id), ['near', 'far', 'pending']);
+  assert.deepEqual(sortFacilities(facilities, 'distance').map(row => row.id), ['pending', 'near', 'far']);
+  assert.equal(facilityScore(facilities[0], 'fit').text, '125.00');
+  assert.equal(facilityScore(facilities[0], 'trust').text, 'Unavailable');
+  assert.deepEqual(facilities[0].coordinates, { latitude: 17.4, longitude: 78.5 });
+  assert.equal(facilities[0].website, 'https://example.org/');
+  assert.equal(facilities[1].coordinates, null);
+  assert.equal(facilities[1].website, null);
 });

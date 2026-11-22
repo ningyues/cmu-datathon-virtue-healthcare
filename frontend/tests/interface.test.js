@@ -14,7 +14,11 @@ test('search validation, results, distance sorting, drawer keyboard controls, an
   globalThis.ResizeObserver = class { observe() {} disconnect() {} };
   const { render, screen, cleanup } = await import('@testing-library/react');
   const { default: userEvent } = await import('@testing-library/user-event');
-  const server = await createServer({ server: { middlewareMode: true }, appType: 'custom' });
+  const server = await createServer({
+    define: { 'import.meta.env.VITE_FACILITIES_API_URL': JSON.stringify('') },
+    server: { middlewareMode: true, ws: false },
+    appType: 'custom',
+  });
   try {
     const { default: App } = await server.ssrLoadModule('/src/App.jsx');
     const user = userEvent.setup({ document: dom.window.document });
@@ -40,6 +44,11 @@ test('search validation, results, distance sorting, drawer keyboard controls, an
     await user.click(screen.getByRole('button', { name: 'Open Asha Multispeciality Centre' }));
     assert.ok(screen.getByRole('dialog', { name: 'Asha Multispeciality Centre' }));
     await user.click(screen.getByRole('button', { name: 'Close facility details' }));
+    await user.click(screen.getByRole('button', { name: 'Back to search' }));
+    assert.equal(screen.getByLabelText('How can I help you?').value, 'I need to find a nursing service in 800001');
+    assert.equal(screen.queryByRole('heading', { name: 'Search results' }), null);
+    await user.click(screen.getByRole('button', { name: 'Send ↑' }));
+    await screen.findByRole('heading', { name: 'Search results' });
     await user.click(screen.getByRole('button', { name: 'CareLens — start a new search' }));
     assert.equal(screen.getByLabelText('How can I help you?').value, 'I need to find a nursing service in 800001');
   } finally { cleanup(); await server.close(); dom.window.close(); }

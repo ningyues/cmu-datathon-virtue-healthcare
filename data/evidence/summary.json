@@ -27,11 +27,13 @@
     "source_conflict": 1,
     "source_backfill": 109,
     "scope_conflict": 1,
+    "unverified_malformed_website_removed": 9,
     "coordinate_location_conflict": 9,
     "coordinate_locations_withdrawn": 3,
     "specialty_case_duplicates_removed": 153,
     "specialty_records_deduplicated": 81,
     "invalid_pin_format": 62,
+    "verified_website_duplicate_removed": 11,
     "source_backfill_unlisted_pin": 2,
     "coordinate_pair_unusable": 15,
     "invalid_establishment_year": 3

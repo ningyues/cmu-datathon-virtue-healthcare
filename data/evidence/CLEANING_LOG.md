@@ -73,6 +73,18 @@ The review covered 136 specialty-matched records blocked by PIN, state, or missi
 
 For Veda Hospital & Kidney Centre, the original and current branch sources agree on Patamata, the Sonovision landmark, and the public telephone. The hospital and D&B both give door number `57-7-23/1`. D&B supplies PIN `520010`, and the original facility point is 2.7 km from the nearest same-PIN postal office in the snapshot. [Hospital contact details](https://www.vedakidneyhospital.in/about.html) · [D&B listing](https://www.dnb.com/business-directory/company-profiles/veda-hospital--kidney-centre%C2%A0.3b24e8d89fb3f867a3f3cf1195ec4c65)
 
+## Malformed website values
+
+On November 21, 2026, the website review resolved 20 malformed values across 19 facility records.
+
+| Review outcome | Count | Pipeline action |
+|---|---:|---|
+| Same-facility link already present | 11 | Removed the malformed item from `websites` and retained the existing link supported by branch-specific evidence. |
+| Replacement could not be confirmed | 6 | Removed the malformed item from `websites` and preserved the other entries. |
+| Official branch website could not be confirmed | 3 | Cleared the malformed `officialWebsite` field. |
+
+The [website decisions](../../pipeline/website_decisions.json) record each facility, original value, retained link where applicable, evidence URL, and reason. The [removal log](removal_log.csv) records the applied actions and source record numbers. All 9,989 facility records were retained.
+
 ## Evidence status for service claims
 
 - **17 claims were attributed to the wrong facility.** In 16 cases, the original entry explicitly named a different institution. A source check confirmed the attribution error in the other entry. [Reviewed claim evidence](reviewed_claim_evidence.csv)
