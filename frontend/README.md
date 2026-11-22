@@ -6,10 +6,13 @@ React JSX and plain CSS implementation of the supplied **CareLens / Aurora Glass
 
 Use Node.js 22.12+ (or Node.js 24).
 
-Start the Python API from the repository root.
+Configure `agents/.env` and initialize the PostgreSQL database following [the app setup](../app/README.md#run-the-complete-query-workflow). Start the Python API from the repository root.
 
 ```bash
-python3 -m app.api
+source agents/.venv/bin/activate
+python -m pip install -r app/requirements.txt
+export DATABASE_URL='postgresql://healthcare:local-development-only@localhost:5432/healthcare'
+python -m app.api
 ```
 
 In a second terminal, start Vite.
@@ -122,7 +125,7 @@ The live endpoint uses these backend fields.
 
 `fitScore` displays as `Pending` when the dataset has no score. `trustScore` is a separate optional 0–100 value. When Fit Scores are pending, the frontend keeps the API's order, which prioritizes dataset service claims and uses straight-line distance within each group. Service availability remains unverified.
 
-The API uses the local service-catalog parser for free-text queries. To use the existing OpenAI parser, start it with `python3 -m app.api --agent` and configure `OPENAI_API_KEY` in the Python process. The API sends free-text queries to OpenAI in this mode. Live map points use the dataset coordinates and open the same detail drawer as the facility cards. The point plot uses a coordinate grid without a street basemap.
+The API defaults to the project's Ark intention agent in `agents/intent_agent.py`, loading `agents/.env`. Its output supplies the location, expanded specialty labels and services to the facility query and PostgreSQL scorer. Missing location or ambiguous requests return a clarification question in the query form, with the original input preserved. Edit the full request and submit again. Use `--local-parser` to opt into the offline service-catalog parser. To use the existing OpenAI parser, start it with `python3 -m app.api --agent` and configure `OPENAI_API_KEY` in the Python process. The API sends free-text queries to OpenAI in this mode. Live map points use the dataset coordinates and open the same detail drawer as the facility cards. The point plot uses a coordinate grid without a street basemap.
 
 ## Design and validation notes
 
@@ -138,8 +141,8 @@ Production build and automated data/component tests were run. Tests cover rankin
 
 Start the repository-root API with `DATABASE_URL` configured (see `app/README.md`),
 then run `npm ci` and `npm run dev` here. Vite proxies `/api/search` to port 8000.
-Use `python -m app.api --intent-agent` for the project's expanded specialty parser.
-The default local parser supports its small service catalog only.
+`python -m app.api` uses the project's expanded specialty intention agent by default.
+`--intent-agent` remains an explicit alias; `--local-parser` selects the small offline catalog.
 
 Live results default to highest Fit Score, with nearest distance breaking ties.
 Scores display on a 0–100 scale. The map uses the same ordering as the list, and

@@ -340,7 +340,8 @@ ID 不随输入排序变化；修改原文会生成新的 `source_id`，修改�
 `intent_agent.py` 是独立的英文意图解析应用，可通过命令行或 Python 函数调用。
 它使用火山方舟模型读取用户请求和汇总表，选择一个最适合主要医疗需求的分类 ID，
 再由 Python 从映射表取出该 ID 下的全部原始 specialties。模型不会读取完整映射表。
-本功能不进行医院搜索、认证验证、数据库导入或查询。
+独立脚本只输出意图 JSON；整个应用通过 `app/api.py` 自动将这个输出传给医院查询和 PostgreSQL 评分，
+详见 [完整应用启动说明](../app/README.md#run-the-complete-query-workflow)。意图解析本身不执行认证验证或数据库查询。
 
 ### 运行
 

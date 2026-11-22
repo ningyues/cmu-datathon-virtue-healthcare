@@ -66,19 +66,73 @@ matches through the older service prefilter. PostgreSQL supplies the persisted
 hospital authority and per-service cache. All candidates are scored before ordering
 by Fit Score descending, then distance ascending. There is no early top-20 truncation.
 
-From the repository root (Python 3.10+):
+### Run the complete query workflow
+
+The default flow is now:
+
+```text
+Frontend query box → POST /api/search {query}
+→ agents.intent_agent.parse_intent (Ark)
+→ {location, specialities, service}
+→ parse_search_intent → LocationMatcher (30 km)
+→ PostgreSQL scoring → facility cards and map
+```
+
+The agent's entire expanded `specialities` array and all requested `service` values
+are passed to the existing scorer. No intermediate JSON file or manual copy is needed.
+Each free-text submission makes one model request. Structured `intent` requests
+still bypass the model. This integrates the user intention agent; NABH `verify.py`
+is a separate verification command and is not called for every search result.
+
+Run commands from the **repository root**, using Python 3.10+:
 
 ```sh
-python -m pip install -r virtue-healthcare/requirements.txt
+# Reuse the environment created for the agents.
+source agents/.venv/bin/activate
+python -m pip install -r app/requirements.txt
+# First-time setup only; edit agents/.env with your actual ARK_API_KEY and ARK_MODEL.
+cp -n agents/.env.example agents/.env
+```
+
+Initialize and load PostgreSQL once using [the database instructions](../virtue-healthcare/db/README.md).
+Then, in the same terminal, start the API with your database connection:
+
+```sh
 export DATABASE_URL='postgresql://healthcare:local-development-only@localhost:5432/healthcare'
 python -m app.api --port 8000
 ```
 
-For the expanded specialty intent agent in `agents/intent_agent.py`, configure
-`agents/.env` as documented there, then run `python -m app.api --intent-agent`.
-The existing `--agent` option retains the older OpenAI catalog parser. Without
-an agent, the local parser still accepts only its documented service catalog.
-Structured intent requests bypass both parsers:
+`python -m app.api` defaults to the project's Ark intention agent. It reads
+`agents/.env` regardless of the working directory; file values override shell
+variables. To select another file, use `--env-file /path/to/custom.env`.
+`DATABASE_URL` must be exported before starting the API; the agent config is read
+when parsing a query. `--intent-agent` remains a compatible explicit alias.
+Use `--local-parser` for the offline, small service catalog, or `--agent` for the
+older OpenAI parser with `OPENAI_API_KEY`.
+
+Start the UI in a **second terminal**, from the repository root:
+
+```sh
+cd frontend
+npm ci
+npm run dev
+```
+
+Open the URL printed by Vite. Enter, for example,
+`Which hospital near Lucknow can handle an emergency C-section?`.
+Vite proxies `/api/search` to port 8000. Remove any `VITE_FACILITIES_API_URL=` setting
+in `frontend/.env.local` to use the default live API instead of sample records.
+The Ark key stays in the Python process; do not put it in frontend configuration.
+
+If location or the main medical need is missing or ambiguous, the API returns
+HTTP 422 with an `error` object containing `code`, `message`, and
+`clarification_question`. The UI returns to the editable query box, preserves the
+input and shows the question. Refine the full request and send it again; this is
+one-query-at-a-time search rather than a conversation with stored chat history.
+Configuration/catalog failures return 503, model failures return 502; neither is
+presented as an empty search result.
+
+Structured intent requests bypass the parser:
 
 ```sh
 curl -X POST http://127.0.0.1:8000/api/search -H 'Content-Type: application/json' \
@@ -100,3 +154,20 @@ scoring-only text matches and is separate from an explicit dataset claim.
 ```sh
 TEST_DATABASE_URL="$DATABASE_URL" python -m unittest app.test_api_scoring -v
 ```
+
+## Workflow regression checks
+
+Run from the repository root:
+
+```sh
+agents/.venv/bin/python -m unittest app.test_intent_workflow app.test_api_scoring -v
+agents/.venv/bin/python -m unittest discover -s agents -v
+cd frontend
+npm test
+npm run build
+```
+
+The HTTP workflow tests use the real intent expansion and location matcher, with
+model and database scoring substituted for deterministic offline checks. Set
+`TEST_DATABASE_URL` to a populated test database to also run the actual database
+integration test. A live Ark request requires valid credentials and model access.

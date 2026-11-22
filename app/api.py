@@ -7,6 +7,9 @@ from functools import partial
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
+from pathlib import Path
+
+from agents.env_config import DEFAULT_ENV_FILE
 from app.facility_data import read_facilities
 from app.location_matching import LocationMatcher, rank_by_distance
 from app.search_output import fit_score_value
@@ -16,15 +19,32 @@ from app.service_search import (
 )
 
 
-def intent_agent_parser():
+class IntentParsingError(ValueError):
+    """Preserve actionable agent errors across the HTTP boundary."""
+
+    def __init__(self, error):
+        self.details = error.as_dict()["error"]
+        self.code = error.code
+        super().__init__(error.clarification_question or str(error))
+
+    @property
+    def status(self):
+        if self.code in {"configuration_error", "catalog_error"}:
+            return HTTPStatus.SERVICE_UNAVAILABLE
+        if self.code in {"model_error", "invalid_model_output"}:
+            return HTTPStatus.BAD_GATEWAY
+        return HTTPStatus.UNPROCESSABLE_ENTITY
+
+
+def intent_agent_parser(env_file=DEFAULT_ENV_FILE):
     from agents.intent_agent import IntentError, SpecialityCatalog, parse_intent
     catalog = SpecialityCatalog()
 
     def parse(text):
         try:
-            return parse_search_intent(parse_intent(text, catalog=catalog))
+            return parse_search_intent(parse_intent(text, catalog=catalog, env_file=env_file))
         except IntentError as error:
-            raise ValueError(error.clarification_question or str(error)) from error
+            raise IntentParsingError(error) from error
     return parse
 
 
@@ -125,6 +145,9 @@ class SearchHandler(BaseHTTPRequestHandler):
             return
         try:
             result = self.search(payload)
+        except IntentParsingError as error:
+            self.respond(error.status, {"error": error.details})
+            return
         except ValueError as error:
             self.respond(HTTPStatus.BAD_REQUEST, {"error": str(error)})
             return
@@ -151,9 +174,13 @@ def main():
     parser.add_argument("--port", type=int, default=8000)
     parsers = parser.add_mutually_exclusive_group()
     parsers.add_argument("--agent", action="store_true", help="Use the OpenAI API to parse free-text queries")
-    parsers.add_argument("--intent-agent", action="store_true", help="Use the project's expanded specialty intent agent")
+    parsers.add_argument("--intent-agent", action="store_true", help="Use the project's intent agent (default)")
+    parsers.add_argument("--local-parser", action="store_true", help="Use the offline service-catalog parser")
+    parser.add_argument("--env-file", type=Path, default=DEFAULT_ENV_FILE,
+                        help="Intent agent configuration file (default: agents/.env)")
     args = parser.parse_args()
-    parse = intent_agent_parser() if args.intent_agent else parse_query_with_agent if args.agent else parse_query
+    parse = (parse_query if args.local_parser else parse_query_with_agent if args.agent
+             else intent_agent_parser(args.env_file))
     search = partial(search_facilities, facilities=tuple(read_facilities()), matcher=LocationMatcher(),
                      parse=parse, score=PostgresScorer())
     with ThreadingHTTPServer(("127.0.0.1", args.port), partial(SearchHandler, search)) as server:
