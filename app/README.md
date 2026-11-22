@@ -227,3 +227,41 @@ once every distinct usable URL for the facility has been checked. Both the
 search response and the verification response expose that ratio from 0 to 1.
 Pending ratios are returned as `null`. Run the database `init` command to migrate
 an existing database before deploying this API.
+
+## Practo rating during website verification
+
+Search results include `hasPractoLink`, derived only from hospital/clinic Practo
+URLs in the snapshot record's `websites` and `source_urls`. Cards with a usable
+link start `/api/practo/rating` automatically when search results load, with two
+requests at a time. Cards without a link immediately show **Rating unavailable**
+and do not issue a Practo request. Opening details does not start another lookup.
+
+The endpoint resolves the snapshot-bound `facilityId` and calls `PractoAgent`
+from `agents/practo.py`. It reads only the stored links, preferring institution
+JSON-LD and falling back to the profile heading. Institution names are checked
+because some records contain unrelated links; branch/address/PIN verification
+is deferred. Doctor scores are never substituted for hospital ratings.
+
+Practo lookup no longer uses Ark, web search, guessed URLs or a separate profile
+map. The `--practo-profiles` option has been removed. `--env-file` still configures
+other agents, but Practo itself needs no model credentials or search activation.
+
+```sh
+agents/.venv/bin/python -m app.api --port 8000
+```
+
+Scores appear below Fit Score in hospital list entries; Practo ratings are not
+displayed in the detail drawer. Missing links, blocked access or an unreadable/missing
+score all display **Rating unavailable**. The API retains the reason, source link
+and optional rating/patient-story counts. Successful reads use
+`sourceType="live_page"`, and `checkedAt` records the lookup time.
+
+Available ratings are cached for six hours, other outcomes for five minutes, with
+at most 256 cached facilities. Concurrent requests for one facility share a single
+lookup and at most two different facilities are fetched at once. Restart the
+backend after updating code to clear earlier cached results. No database migration
+is required. Practo remains independent of Fit Score, website checks and NABH.
+
+```sh
+agents/.venv/bin/python -m unittest agents.test_practo app.test_practo_rating -v
+```

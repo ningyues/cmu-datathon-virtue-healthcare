@@ -25,6 +25,9 @@ test('rejects invalid API records instead of displaying invalid scores', () => {
   assert.equal(record.trustScore, null);
   assert.equal(record.distanceKm, null);
   assert.equal(record.marker, undefined);
+  assert.equal(record.hasPractoLink, false);
+  assert.equal(validateFacilities([{...valid, hasPractoLink: true}])[0].hasPractoLink, true);
+  assert.throws(() => validateFacilities([{...valid, hasPractoLink: 'true'}]));
 });
 
 test('keeps Fit Score separate from trust and accepts geographic coordinates', () => {

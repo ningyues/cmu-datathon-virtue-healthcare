@@ -200,3 +200,21 @@ of usable, distinct dataset links once all links have been checked.
 
 Vite proxies `/api/website/verify` to the Python API. Set
 `VITE_WEBSITE_VERIFICATION_API_URL` when the frontend uses a separate API origin.
+
+## Practo hospital ratings
+
+Hospital cards automatically request Practo ratings for records whose backend
+`hasPractoLink` flag is true, with two concurrent requests. Cards without a stored
+hospital/clinic Practo link immediately show **Rating unavailable**, without a
+Practo network request. Opening details does not start another rating request.
+The flag includes `websites` and `source_urls`; it is independent of website checks.
+
+The backend only reads the dataset-linked profiles. Successful results show a
+Practo star score directly below Fit Score in each list entry. Practo ratings
+are not displayed in the facility detail drawer. Missing links, unreadable pages
+and absent scores all show **Rating unavailable** below Fit Score. No zero is fabricated.
+Ratings remain separate from Fit Score and NABH accreditation.
+
+`VITE_PRACTO_API_URL` optionally overrides `/api/practo/rating`; the default is
+proxied to the Python API. No model or search service is used for Practo ratings.
+See [backend behavior](../app/README.md#practo-rating-during-website-verification).

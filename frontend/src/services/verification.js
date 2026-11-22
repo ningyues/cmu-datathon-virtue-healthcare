@@ -41,3 +41,36 @@ export async function verifyWebsite(facilityId, websiteIndex, { signal } = {}) {
     urlDomainVerifiedRatio: ratio === null || (Number.isFinite(ratio) && ratio >= 0 && ratio <= 1) ? ratio : undefined,
   };
 }
+
+
+export async function getPractoRating(facilityId, { signal } = {}) {
+  const url = import.meta.env?.VITE_PRACTO_API_URL ?? '/api/practo/rating';
+  const response = await fetch(url, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ facilityId }), signal,
+  });
+  const data = await response.json().catch(() => null);
+  const statuses = ['available', 'not_found', 'no_rating', 'needs_review', 'unavailable'];
+  if (!response.ok || !statuses.includes(data?.status)) throw new Error('Practo rating is unavailable.');
+  let sourceUrl = null;
+  if (typeof data.sourceUrl === 'string') {
+    try {
+      const source = new URL(data.sourceUrl);
+      if (source.protocol === 'https:' && ['www.practo.com', 'practo.com'].includes(source.hostname)
+        && !source.username && !source.password && !source.port
+        && /^\/[^/]+\/(hospital|clinic)\/[^/]+(?:\/[^/]+)*\/?$/.test(source.pathname)) sourceUrl = source.href;
+    } catch { /* Ignore invalid source URLs. */ }
+  }
+  const available = data.status === 'available' && sourceUrl && Number.isFinite(data.score)
+    && data.score >= 0 && data.score <= 5 && data.scale === 5
+    && (data.ratingCount == null || (Number.isInteger(data.ratingCount) && data.ratingCount > 0))
+    && (data.patientStoryCount == null || (Number.isInteger(data.patientStoryCount) && data.patientStoryCount > 0));
+  return { status: available ? 'available' : data.status === 'available' ? 'unavailable' : data.status,
+    score: available ? data.score : null, ratingCount: available ? data.ratingCount ?? null : null,
+    patientStoryCount: available ? data.patientStoryCount ?? null : null,
+    sourceType: data.sourceType === 'live_page' ? 'live_page' : null,
+    branchVerified: data.branchVerified === true,
+    evidenceText: typeof data.evidenceText === 'string' ? data.evidenceText : null,
+    scale: 5, sourceUrl, checkedAt: typeof data.checkedAt === 'string' ? data.checkedAt : null,
+    reason: typeof data.reason === 'string' ? data.reason : '' };
+}

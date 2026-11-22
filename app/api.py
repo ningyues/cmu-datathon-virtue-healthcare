@@ -12,6 +12,8 @@ from pathlib import Path
 from agents.env_config import DEFAULT_ENV_FILE
 from agents.verify_website import website_candidates
 from app.facility_data import read_facilities
+from agents.practo import practo_candidates
+from app.practo_rating import practo_rating_service
 from app.nabh_verification import verification_service
 from app.location_matching import LocationMatcher, rank_by_distance
 from app.search_output import fit_score_value
@@ -116,6 +118,7 @@ def search_facilities(payload, *, facilities, matcher, parse, score):
                 "postalCode": row["address_zipOrPostcode"],
                 "website": row.get("officialWebsite") or None,
                 "websiteUrls": website_candidates(row),
+                "hasPractoLink": bool(practo_candidates(row)),
                 "latitude": float(row["latitude"]),
                 "longitude": float(row["longitude"]),
                 "distanceKm": row["distance_km"],
@@ -143,9 +146,9 @@ def search_facilities(payload, *, facilities, matcher, parse, score):
 
 
 class SearchHandler(BaseHTTPRequestHandler):
-    def __init__(self, search, *args, verify=None, verify_website=None, **kwargs):
+    def __init__(self, search, *args, verify=None, verify_website=None, practo_rating=None, **kwargs):
         self.routes = {"/api/search": search, "/api/nabh/verify": verify,
-                       "/api/website/verify": verify_website}
+                       "/api/website/verify": verify_website, "/api/practo/rating": practo_rating}
         super().__init__(*args, **kwargs)
 
     def do_POST(self):
@@ -208,7 +211,8 @@ def main():
     check_website = website_verification_service(facilities, store=partial(store_website_check, scorer.database_url))
     search = partial(search_facilities, facilities=facilities, matcher=LocationMatcher(),
                      parse=parse, score=scorer)
-    handler = partial(SearchHandler, search, verify=verify, verify_website=check_website)
+    practo = practo_rating_service(facilities)
+    handler = partial(SearchHandler, search, verify=verify, verify_website=check_website, practo_rating=practo)
     with ThreadingHTTPServer(("127.0.0.1", args.port), handler) as server:
         print(f"Facility search API listening on http://127.0.0.1:{server.server_port}/api/search", flush=True)
         try:

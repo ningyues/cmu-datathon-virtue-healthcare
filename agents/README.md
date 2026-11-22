@@ -451,3 +451,38 @@ except IntentError as exc:
 ```bash
 python3 -m unittest -v test_intent_agent
 ```
+
+## Practo establishment rating agent
+
+`practo.py` is the default reader behind `/api/practo/rating`. It only uses
+Practo hospital/clinic links already present in the dataset's `websites` or
+`source_urls` fields. JSON arrays, list values and single URL strings are accepted.
+Profile subpages are normalized to their establishment profile and duplicates
+are removed. HTTP and schemeless Practo links are upgraded to HTTPS.
+
+No city/name web search, guessed URL, external profile map, model request or Ark
+API key is used. `officialWebsite` alone does not supply a rating source.
+Doctor pages and generic listings are ignored. Because some dataset entries
+contain links to unrelated institutions, the reader checks the institution name;
+branch, street, locality and PIN verification remain deferred.
+
+Linked profiles are prioritized by name overlap, with at most three profiles
+attempted per lookup. The reader checks robots rules, limits response size and
+only follows redirects within supported Practo pages. It reads establishment
+JSON-LD first, then the institution heading area. It never uses doctor ratings,
+recommendation percentages or other institutions' scores.
+
+```sh
+agents/.venv/bin/python -m agents.practo --facility-json /path/to/facility.json
+agents/.venv/bin/python -m unittest agents.test_practo app.test_practo_rating -v
+```
+
+The result has `status` (`available` or `unavailable`), `score`, `scale`, optional
+`ratingCount` and `patientStoryCount`, `sourceUrl`, `reason` and `checkedAt`.
+Successful reads include `sourceType="live_page"`, `branchVerified=false`,
+`matchedName` and `evidenceText`. Patient-story counts are kept separate from
+rating counts. Missing links, blocked access, absent scores or unrelated names
+return an unavailable result with a null score, never a fabricated zero.
+
+`practo_search.py` is retained as an experimental standalone web-search script;
+it is not imported or called by the application rating workflow.

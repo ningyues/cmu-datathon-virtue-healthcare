@@ -32,6 +32,7 @@ export function validateFacilities(data) {
       throw new Error('The server returned an invalid facility record.');
     }
     ids.add(item.id);
+    if (item.hasPractoLink != null && typeof item.hasPractoLink !== 'boolean') throw new Error('Invalid Practo link flag.');
     for (const key of ['area', 'postalCode', 'type', 'operatorType', 'address']) {
       if (item[key] != null && typeof item[key] !== 'string') throw new Error(`Invalid ${key} in facility data.`);
     }
@@ -72,6 +73,7 @@ export function validateFacilities(data) {
       area: item.area ?? 'Address unavailable', postalCode: item.postalCode ?? '',
       operatorType: item.operatorType ?? null, address: item.address ?? null,
       website: websiteUrl(item.website), coordinates: coordinates(item),
+      hasPractoLink: item.hasPractoLink === true,
       websiteLinks: Array.isArray(item.websiteUrls) ? item.websiteUrls.flatMap((value, index) => {
         const url = websiteUrl(value);
         return url ? [{ url, index }] : [];

@@ -23,6 +23,7 @@ def facility(uid, distance=1):
 class ApiTests(unittest.TestCase):
     def test_geo_candidates_only_and_response_serialization(self):
         inside, outside = facility('inside'), facility('outside')
+        inside['source_urls'] = '["https://www.practo.com/lucknow/hospital/hospital-inside"]'
         matcher = Mock()
         matcher.resolve.return_value = QueryLocation('resolved', latitude=26.85, longitude=80.95)
         matcher.match.return_value = {'candidates': [inside], 'radius_km': 30}
@@ -37,6 +38,7 @@ class ApiTests(unittest.TestCase):
                        'specialities': ['dentistry'], 'service': ['x-ray']}},
                        facilities=[inside, outside], matcher=matcher, parse=parse_query, score=score)
         self.assertEqual(result['facilities'][0]['fitScore'], 56.25)
+        self.assertTrue(result['facilities'][0]['hasPractoLink'])
         self.assertEqual(result['facilities'][0]['serviceMatch'], 'text_match')
         self.assertEqual(result['facilities'][0]['scoreBreakdown']['authoritySource'], 'synthetic')
         self.assertTrue(result['facilities'][0]['scoreBreakdown']['addressPostcodeCoordinatesMismatch'])

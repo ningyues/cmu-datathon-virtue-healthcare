@@ -6,7 +6,7 @@ import FacilityMap from './FacilityMap.jsx';
 import DetailDrawer from './DetailDrawer.jsx';
 import { sortFacilities } from '../data/facilities.js';
 import useVerificationQueue from '../hooks/useVerificationQueue.js';
-import { verifyCertification } from '../services/verification.js';
+import { getPractoRating, verifyCertification } from '../services/verification.js';
 
 export default function ResultsPage({ facilities, illustrative, queryLocation, radiusKm, intent, status, error, onHome, onRetry, onRangeChange }) {
   const [showPagination, setShowPagination] = useState(false);
@@ -16,6 +16,13 @@ export default function ResultsPage({ facilities, illustrative, queryLocation, r
   const [sortChoice, setSortChoice] = useState(null);
   const [activeId, setActiveId] = useState(null);
   const [detail, setDetail] = useState(null);
+  const practoIds = useMemo(() => status === 'success' && !illustrative
+    ? facilities.filter(facility => facility.hasPractoLink).map(facility => facility.id) : null,
+  [facilities, illustrative, status]);
+  const practoResults = useVerificationQueue(practoIds, getPractoRating, 2);
+  const practoResult = facility => illustrative ? undefined : !facility.hasPractoLink
+    ? {status: 'unavailable', reason: 'No Practo hospital or clinic link is present in the dataset.'}
+    : practoResults.get(facility.id) ?? {status: 'loading'};
   const nabhIds = useMemo(() => status === 'success' && !illustrative
     ? facilities.map(facility => facility.id) : null, [facilities, illustrative, status]);
   const nabhResults = useVerificationQueue(nabhIds, verifyCertification, 2);
@@ -79,7 +86,7 @@ export default function ResultsPage({ facilities, illustrative, queryLocation, r
                 {status === 'loading' && <div className="state-card" role="status"><h2>Finding facilities…</h2><p>Please wait while information is retrieved.</p><div className="loading-line" /></div>}
                 {status === 'error' && <div className="state-card" role="alert"><h2>Unable to load results</h2><p>{error || 'Try another service or enter your location manually.'}</p><button className="primary-button" type="button" onClick={onRetry}>Try again</button></div>}
                 {status === 'success' && sorted.length === 0 && <div className="state-card"><h2>No matching facilities</h2><p>Try another service or enter your location manually.</p><button type="button" className="primary-button" onClick={onHome}>New search</button></div>}
-                {status === 'success' && visible.map((facility, index) => <FacilityCard key={facility.id} facility={facility} rank={offset + index + 1} selected={selectedId === facility.id} onSelect={selectFacility} scoreKind={scoreKind} hasNabhCertificate={nabhResults.get(facility.id)?.status === 'verified'} />)}
+                {status === 'success' && visible.map((facility, index) => <FacilityCard key={facility.id} facility={facility} rank={offset + index + 1} selected={selectedId === facility.id} onSelect={selectFacility} scoreKind={scoreKind} hasNabhCertificate={nabhResults.get(facility.id)?.status === 'verified'} practoResult={practoResult(facility)} />)}
               </div>
             </section>
             <div className={`map-column${status === 'success' && visible.length > 0 ? ' map-column-aligned' : ''}`}>
