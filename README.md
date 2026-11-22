@@ -6,6 +6,10 @@ CareLens is a healthcare facility search and comparison tool for India. It helps
 - **Stack** · React, Vite, Leaflet, Python, PostgreSQL 16, and Volcengine Ark
 - **Example search** · `Find dialysis near Hyderabad 500003`
 
+## Video presentation
+
+[Watch the CareLens presentation on Google Drive](https://drive.google.com/file/d/1hJMr_YhD9mqv4xZTJsiFpm0t4JqIXmg_/view?usp=sharing)
+
 ## Why we built it
 
 Facility names, addresses, specialty tags, and service descriptions often come from different sources. They can be incomplete or describe different branches of the same hospital. A person looking for dialysis needs to know which facilities are nearby and what supports the claim that a specific branch offers it.
