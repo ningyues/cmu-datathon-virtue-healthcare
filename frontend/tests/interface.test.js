@@ -66,9 +66,9 @@ test('live search ranks Fit Scores and shows the scoring breakdown', async () =>
   globalThis.fetch = async (_url, options) => {
     assert.equal(JSON.parse(options.body).query, 'dialysis in Lucknow');
     return {ok: true, json: async () => ({facilities: [
-      {id: 'near', name: 'Nearby Hospital', fitScore: 40, distanceKm: 1},
-      {id: 'best', name: 'Best Match Hospital', fitScore: 70, distanceKm: 5,
-       serviceMatch: 'text_match', scoreBreakdown: {authority: 0.7, authoritySource: 'synthetic',
+      {id: 'near', name: 'Nearby Hospital', fitScore: 10, distanceKm: 1},
+      {id: 'best', name: 'Best Match Hospital', fitScore: 20, distanceKm: 5,
+       serviceMatch: 'text_match', scoreBreakdown: {authority: 0.2, addressPostcodeCoordinatesMismatch: true, urlDomainSuspicious: true, authoritySource: 'synthetic',
        specialtyScore: 10, serviceScore: 6, rawScore: 16, maxRawScore: 16, matchScore100: 100,
        specialties: [{input: 'nephrology', matched: true}], services: [{input: 'dialysis', score: 6}]}}
     ]})};
@@ -89,8 +89,11 @@ test('live search ranks Fit Scores and shows the scoring breakdown', async () =>
     await screen.findByText('2 facilities');
     assert.match(screen.getAllByRole('button', {name: /fit score/})[0].textContent, /1\. Best Match/);
     await user.click(screen.getByRole('button', {name: /Best Match Hospital, fit score/}));
-    assert.ok(screen.getByText(/Authority: 0.70/));
+    assert.ok(screen.getByText(/Authority: 0.20/));
     assert.ok(screen.getByText('dialysis: 6/6'));
+    assert.ok(screen.getByText(/Address, postcode and coordinates mismatch/));
+    assert.ok(screen.getByText(/URL domain suspicious/));
+    assert.ok(screen.getByText('Flag-based score: 0.20'));
     assert.equal(screen.queryByText(/Simulated data/), null);
     await user.click(screen.getByRole('button', {name: 'Close facility details'}));
     await user.selectOptions(screen.getByLabelText('Sort by'), 'distance');

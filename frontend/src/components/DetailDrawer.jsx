@@ -7,6 +7,12 @@ export default function DetailDrawer({ facility, onClose, illustrative, scoreKin
   const closeButton = useRef(null);
   const [expanded, setExpanded] = useState(false);
   const score = facilityScore(facility, scoreKind);
+  const breakdown = facility.scoreBreakdown;
+  const hasAuthorityFlags = typeof breakdown?.addressPostcodeCoordinatesMismatch === 'boolean' &&
+    typeof breakdown?.urlDomainSuspicious === 'boolean';
+  const flagAuthority = hasAuthorityFlags
+    ? 1 - (breakdown.addressPostcodeCoordinatesMismatch ? 0.3 : 0) - (breakdown.urlDomainSuspicious ? 0.5 : 0)
+    : null;
   useEffect(() => {
     const previousFocus = document.activeElement;
     closeButton.current?.focus();
@@ -32,6 +38,13 @@ export default function DetailDrawer({ facility, onClose, illustrative, scoreKin
         <div className="trust-display"><h3>{score.label}</h3><strong className={score.missing ? 'score-unavailable' : ''}>{score.text}</strong></div>
         {facility.scoreBreakdown && <div className="score-breakdown" aria-label="Fit Score breakdown">
           <p>Authority: {facility.scoreBreakdown.authority.toFixed(2)}</p>
+          {hasAuthorityFlags && <div className="authority-reasons" aria-label="Authority score explanation">
+            <p>Base score: 1.00</p>
+            {breakdown.addressPostcodeCoordinatesMismatch && <p className="authority-warning">⚠️ Address, postcode and coordinates mismatch (−0.30)</p>}
+            {breakdown.urlDomainSuspicious && <p className="authority-warning">⚠️ URL domain suspicious (−0.50)</p>}
+            <p>Flag-based score: {flagAuthority.toFixed(2)}</p>
+            {Math.abs(breakdown.authority - flagAuthority) > 0.00005 && <p>The stored authority was adjusted separately from these flags.</p>}
+          </div>}
           <p>Specialty match: {facility.scoreBreakdown.specialtyScore}/10</p>
           <p>Services: {facility.scoreBreakdown.serviceScore} points</p>
           <ul>{facility.scoreBreakdown.services.map(service => <li key={service.input}>{service.input}: {service.score}/6</li>)}</ul>
