@@ -26,5 +26,5 @@ export function facilityScore(facility, kind) {
   if (kind === 'fit') {
     return { label: 'Fit Score', text: facility.fitScore == null ? 'Pending' : `${facility.fitScore.toFixed(2)}/100`, missing: facility.fitScore == null };
   }
-  return { label: 'Trust score', text: facility.trustScore == null ? 'Unavailable' : `${facility.trustScore}/100`, missing: facility.trustScore == null };
+  return { label: 'Trust score', text: facility.trustScore == null ? 'Unavailable' : `${Number(facility.trustScore.toFixed(2))}/100`, missing: facility.trustScore == null };
 }

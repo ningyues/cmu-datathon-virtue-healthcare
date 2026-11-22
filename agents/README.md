@@ -370,13 +370,14 @@ stdout 保持为一个 JSON 对象。成功退出码为 0；请求需要补充�
 
 ### 输出约定
 
-成功输出恰好包含三个顶层字段：
+成功输出恰好包含四个顶层字段：
 
 | 字段 | 类型与规则 |
 | --- | --- |
 | `location.postcode` | 字符串或 JSON `null`；仅从用户明确给出的邮编提取，保留前导零；不根据城市推测 |
 | `location.city` | 字符串或 JSON `null`；从请求中明确提到的城市提取；不根据邮编推测 |
 | `specialities` | 字符串数组；选定分类 ID 下的全部原始条目 |
+| `range` | 正数，查询距离半径，单位 km；未指定距离时默认 `30`，支持小数，例如 `5`、`12.5` |
 | `service` | 1–3 个简短英文服务名称组成的数组，例如 `["dialysis"]` 或 `["emergency C-section"]` |
 
 `specialities` 和 `service` 使用数组，以容纳多个值。`null` 是 JSON 空值，不是字符串 `"null"`。
@@ -385,6 +386,10 @@ stdout 保持为一个 JSON 对象。成功退出码为 0；请求需要补充�
 例如，用户的紧急剖宫产请求会选择 `SP_OBGYN`，返回 `city: "Lucknow"`、`postcode: null`、
 `service: ["emergency C-section"]`，以及此 ID 下完整的妇产科条目数组。
 这个类别由主要医疗服务决定，不能仅因出现 “emergency” 就选择通用急诊类别。
+未指定距离时同时返回 `"range": 30`。例如请求
+`Find dialysis within 5 km of Lucknow` 时返回 `"range": 5`；明确指定英里时换算为 km。
+`range` 必须是有限正数，不接受字符串、布尔值、零或负数。后续 API 和命令行查询
+使用它筛选距离范围，API 通过 `radiusKm` 将实际查询半径返回前端。
 
 按本次“返回 ID 下全部条目”的要求，Agent 的 `specialities` 数组保留映射表中该 ID 的所有原文，
 包括其待复核条目，不自动删减，也不额外筛选某项手术或年龄。
@@ -406,7 +411,7 @@ stdout 保持为一个 JSON 对象。成功退出码为 0；请求需要补充�
 
 多个候选地点或多个无明确优先级的医疗需求会返回 `clarification_required`。
 其他错误包括 `invalid_input`、`speciality_required`、`configuration_error`、`catalog_error`、
-`model_error` 和 `invalid_model_output`。错误输出与成功的三字段结构分开。
+`model_error` 和 `invalid_model_output`。错误输出与成功的四字段结构分开。
 
 ### Python 调用与配置
 
@@ -446,3 +451,38 @@ except IntentError as exc:
 ```bash
 python3 -m unittest -v test_intent_agent
 ```
+
+## Practo establishment rating agent
+
+`practo.py` is the default reader behind `/api/practo/rating`. It only uses
+Practo hospital/clinic links already present in the dataset's `websites` or
+`source_urls` fields. JSON arrays, list values and single URL strings are accepted.
+Profile subpages are normalized to their establishment profile and duplicates
+are removed. HTTP and schemeless Practo links are upgraded to HTTPS.
+
+No city/name web search, guessed URL, external profile map, model request or Ark
+API key is used. `officialWebsite` alone does not supply a rating source.
+Doctor pages and generic listings are ignored. Because some dataset entries
+contain links to unrelated institutions, the reader checks the institution name;
+branch, street, locality and PIN verification remain deferred.
+
+Linked profiles are prioritized by name overlap, with at most three profiles
+attempted per lookup. The reader checks robots rules, limits response size and
+only follows redirects within supported Practo pages. It reads establishment
+JSON-LD first, then the institution heading area. It never uses doctor ratings,
+recommendation percentages or other institutions' scores.
+
+```sh
+agents/.venv/bin/python -m agents.practo --facility-json /path/to/facility.json
+agents/.venv/bin/python -m unittest agents.test_practo app.test_practo_rating -v
+```
+
+The result has `status` (`available` or `unavailable`), `score`, `scale`, optional
+`ratingCount` and `patientStoryCount`, `sourceUrl`, `reason` and `checkedAt`.
+Successful reads include `sourceType="live_page"`, `branchVerified=false`,
+`matchedName` and `evidenceText`. Patient-story counts are kept separate from
+rating counts. Missing links, blocked access, absent scores or unrelated names
+return an unavailable result with a null score, never a fabricated zero.
+
+`practo_search.py` is retained as an experimental standalone web-search script;
+it is not imported or called by the application rating workflow.

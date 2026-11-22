@@ -33,9 +33,19 @@ python3 -m app.demo_location_search --intent search-intent.json
 {
   "location": {"postcode": null, "city": "Lucknow"},
   "specialities": ["dentistry", "General Dentistry"],
-  "service": ["toothache consultation", "dental care"]
+  "service": ["toothache consultation", "dental care"],
+  "range": 30
 }
 ```
+
+`range` is the search radius in kilometers, defaults to 30 when omitted, and accepts
+finite positive numbers including decimals. The API and `--intent` demo both pass
+this value to geographic filtering before ranking. For example, `"range": 5`
+limits results to 5 km; invalid values are rejected. API responses report the
+applied radius in `radiusKm`, which the frontend uses in its summary and map.
+The API also returns the normalized `intent` (`location`, `specialities`, `service`,
+`range`). The results-page radius slider resubmits this intent with the selected
+`range`; it does not parse the original query again or make another model call.
 
 With a null postcode, the demo uses the city as the approximate origin. It matches `specialities` against dataset specialty labels and `service` against exact normalized claim text. Use `--intent -` to read JSON from stdin.
 
@@ -73,16 +83,16 @@ The default flow is now:
 ```text
 Frontend query box → POST /api/search {query}
 → agents.intent_agent.parse_intent (Ark)
-→ {location, specialities, service}
-→ parse_search_intent → LocationMatcher (30 km)
+→ {location, specialities, service, range}
+→ parse_search_intent → LocationMatcher (range km, default 30)
 → PostgreSQL scoring → facility cards and map
 ```
 
 The agent's entire expanded `specialities` array and all requested `service` values
 are passed to the existing scorer. No intermediate JSON file or manual copy is needed.
-Each free-text submission makes one model request. Structured `intent` requests
-still bypass the model. This integrates the user intention agent; NABH `verify.py`
-is a separate verification command and is not called for every search result.
+Each free-text search makes one request to the intention model. Structured
+`intent` requests bypass that model. The frontend starts separate NABH checks
+after a live search response arrives.
 
 Run commands from the **repository root**, using Python 3.10+:
 
@@ -147,8 +157,10 @@ a five-second admission/connect timeout and a thirty-second SQL statement timeou
 
 Each result contains `fitScore` (0–100), `distanceKm`, `scoreBreakdown`, location,
 and existing evidence fields. The breakdown contains authority, specialty points,
-service points, the query maximum and per-input matches. `trustScore` stays null:
-synthetic authority is not a measured hospital trust rating. `text_match` denotes
+service points, the query maximum, per-input matches, and `urlDomainVerifiedRatio`.
+In the API, Authority is `1 - 0.3 * address_flag - 0.5 * (1 - verified_url_ratio)`.
+Authority and Fit Score are `null` until website verification is complete.
+`text_match` denotes
 scoring-only text matches and is separate from an explicit dataset claim.
 
 ```sh
@@ -174,8 +186,8 @@ integration test. A live Ark request requires valid credentials and model access
 
 ## NABH verification from facility details
 
-After selecting a live facility card, click **NABH certification verify** in its
-detail panel. The frontend calls `POST /api/nabh/verify` with
+After a live search returns facilities, the frontend calls
+`POST /api/nabh/verify` for each facility with
 `{"facilityId":"<unique_id>"}`. The server looks up that record in the loaded
 snapshot and passes its display name and full street/city/state/PIN address to
 `agents.verify.verify_facility`. Client-supplied names and addresses are ignored.
@@ -183,21 +195,79 @@ snapshot and passes its display name and full street/city/state/PIN address to
 Both agents use `agents/.env`, or the API's `--env-file` override. Configure
 `ARK_API_KEY` and `ARK_MODEL` there and restart the API and Vite after this update.
 NABH verification queries the official directory and PDFs and may make a paid Ark
-model call. It runs only after a button click, with no automatic retry; the button
-is disabled while waiting. Two verification operations can run concurrently per
-API process. Closing the panel cancels the browser request; work already running
-on the server may finish.
+model call. The frontend checks up to two facilities concurrently, including
+facilities on later results pages. Leaving search results cancels pending
+browser requests. Work already running on the server may finish.
 
-Only an overall `verified` result with an approved certificate URL produces
-`successfully verified!` and PDF links. Missing, expired, ambiguous, or insufficient
-proof produces `can't be verified`, with no certificate link. Configuration,
-source, or model failures also display `can't be verified` with an availability
-explanation; this is not a finding that the hospital lacks accreditation. Returned
-fields are `status` (`verified`, `unverified`, `unavailable`), `message`, `reason`,
-and `certificateUrls`. Illustrative facilities cannot be verified.
+An overall `verified` result with an approved certificate URL displays
+**Verified** and PDF links in facility details and adds a star beside the
+facility name in search results. Missing, expired, ambiguous, or insufficient
+proof displays **Unable to verify** with a reason. Configuration, source, and
+model failures display the same status with an availability explanation.
+Returned fields are `status` (`verified`, `unverified`, `unavailable`),
+`message`, `reason`, and `certificateUrls`. Illustrative facilities skip verification.
 
 Run offline endpoint tests from the repository root:
 
 ```sh
 agents/.venv/bin/python -m unittest app.test_nabh_verification -v
+```
+
+## Facility website verification
+
+From the repository root, prepare website scores after importing the snapshot.
+
+```bash
+python -m app.website_verification
+```
+
+Use `--city Hyderabad`, `--facility-id '<unique_id>'`, or `--limit 20` to prepare a
+subset. The batch reuses saved results and checks missing public URLs. Each
+finished facility is saved independently, so another run continues from the
+remaining facilities. Distinct URLs are fetched once per batch, and requests
+to the same hostname are sequential.
+
+Search responses include `websiteUrls`, saved checks in
+`websiteVerificationResults`, and a `urlDomainVerifiedRatio` from 0 to 1.
+The ratio is `null` when checks are incomplete or there are no usable links.
+Facility details and the website endpoint read saved results. The address flag
+in the Authority formula uses simulated data. Run the database `init` command
+to migrate an older database before deploying this API.
+
+## Practo rating during website verification
+
+Search results include `hasPractoLink`, derived only from hospital/clinic Practo
+URLs in the snapshot record's `websites` and `source_urls`. Cards with a usable
+link start `/api/practo/rating` automatically when search results load, with two
+requests at a time. Cards without a link immediately show **Rating unavailable**
+and do not issue a Practo request. Opening details does not start another lookup.
+
+The endpoint resolves the snapshot-bound `facilityId` and calls `PractoAgent`
+from `agents/practo.py`. It reads only the stored links, preferring institution
+JSON-LD and falling back to the profile heading. Institution names are checked
+because some records contain unrelated links; branch/address/PIN verification
+is deferred. Doctor scores are never substituted for hospital ratings.
+
+Practo lookup no longer uses Ark, web search, guessed URLs or a separate profile
+map. The `--practo-profiles` option has been removed. `--env-file` still configures
+other agents, but Practo itself needs no model credentials or search activation.
+
+```sh
+agents/.venv/bin/python -m app.api --port 8000
+```
+
+Scores appear below Fit Score in hospital list entries; Practo ratings are not
+displayed in the detail drawer. Missing links, blocked access or an unreadable/missing
+score all display **Rating unavailable**. The API retains the reason, source link
+and optional rating/patient-story counts. Successful reads use
+`sourceType="live_page"`, and `checkedAt` records the lookup time.
+
+Available ratings are cached for six hours, other outcomes for five minutes, with
+at most 256 cached facilities. Concurrent requests for one facility share a single
+lookup and at most two different facilities are fetched at once. Restart the
+backend after updating code to clear earlier cached results. No database migration
+is required. Practo remains independent of Fit Score, website checks and NABH.
+
+```sh
+agents/.venv/bin/python -m unittest agents.test_practo app.test_practo_rating -v
 ```

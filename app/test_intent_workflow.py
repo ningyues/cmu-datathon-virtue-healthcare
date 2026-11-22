@@ -51,7 +51,8 @@ class IntentWorkflowTests(unittest.TestCase):
     @staticmethod
     def scored_rows(rows, intent):
         return [dict(unique_id=row['unique_id'], final_score=70, authority=0.7,
-                     flags_origin='synthetic', specialty_score=10, service_score=6,
+                     flags_origin='synthetic', postcode_address_cordination_unmatch=0,
+                     url_domain_invalid=0, specialty_score=10, service_score=6,
                      raw_score=16, max_raw_score=16, match_score_100=100,
                      specialty_details=[], service_details=[]) for row in rows]
 
@@ -85,6 +86,50 @@ class IntentWorkflowTests(unittest.TestCase):
     def parse_catalog_members():
         from agents.intent_agent import SpecialityCatalog
         return SpecialityCatalog().members['SP_DIALYSIS']
+
+    def test_agent_radius_controls_candidates_and_response(self):
+        origin = self.matcher.resolve('Lucknow')
+        self.rows[:] = [dict(row, latitude=origin.latitude + offset, longitude=origin.longitude)
+                        for row, offset in zip(self.rows, (0, 0.1))]
+        for radius, expected in [(5, ['near']), (20, ['near', 'far'])]:
+            proposal = {'location': {'city': 'Lucknow', 'postcode': None},
+                        'speciality_id': 'SP_DIALYSIS', 'service': ['dialysis'],
+                        'range': radius, 'clarification_question': None}
+            with self.subTest(radius=radius), patch('agents.intent_agent.ark_extract', return_value=proposal):
+                status, result = self.post({'query': f'I need dialysis within {radius} km of Lucknow'})
+            self.assertEqual(status, 200)
+            self.assertEqual(result['radiusKm'], radius)
+            self.assertEqual([row['id'] for row in result['facilities']], expected)
+            self.assertEqual(self.score.call_args.args[1].range, radius)
+
+    def test_returned_intent_can_change_radius_without_another_model_call(self):
+        proposal = {'location': {'city': 'Lucknow', 'postcode': None},
+                    'speciality_id': 'SP_DIALYSIS', 'service': ['dialysis'],
+                    'range': 30, 'clarification_question': None}
+        with patch('agents.intent_agent.ark_extract', return_value=proposal) as model:
+            status, first = self.post({'query': 'I need dialysis in Lucknow'})
+            self.assertEqual(status, 200)
+            changed = dict(first['intent'], range=5)
+            status, second = self.post({'intent': changed})
+        self.assertEqual(status, 200)
+        model.assert_called_once()
+        self.assertEqual(second['radiusKm'], 5)
+        self.assertEqual(second['intent'], changed)
+        self.assertEqual(first['intent']['specialities'], list(self.parse_catalog_members()))
+
+    def test_structured_radius_defaults_and_rejects_invalid_values_before_scoring(self):
+        intent = {'location': {'city': 'Lucknow', 'postcode': None},
+                  'specialities': ['nephrology'], 'service': ['dialysis']}
+        status, result = self.post({'intent': intent})
+        self.assertEqual(status, 200)
+        self.assertEqual(result['radiusKm'], 30)
+        self.score.reset_mock()
+        for radius in (None, True, 0, -1, '5', float('inf')):
+            with self.subTest(radius=radius):
+                status, result = self.post({'intent': dict(intent, range=radius)})
+                self.assertEqual(status, 400)
+                self.assertIn('range', result['error'])
+        self.score.assert_not_called()
 
     def test_clarification_stops_before_scoring(self):
         proposal = {'location': {'city': None, 'postcode': None},

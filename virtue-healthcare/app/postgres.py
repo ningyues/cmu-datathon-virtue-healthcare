@@ -9,6 +9,7 @@ from pathlib import Path
 import random
 from decimal import Decimal
 from app.scoring import search_facilities, normalize_query
+from app.website_snapshot import WEBSITE_CHECKS_FILENAME, export_website_checks, load_website_checks
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = (ROOT / 'data' / 'processed' if (ROOT / 'data' / 'processed').exists()
@@ -38,7 +39,7 @@ def parse_array(value):
 
 
 def allocate_flags(ids, seed=42):
-    """Allocate independently shuffled flags with nearest-integer proportions."""
+    """Reproduce the original seed inputs for new records' initial authority."""
     ordered = sorted(ids)
     if len(set(ordered)) != len(ordered):
         raise ValueError('Duplicate facility IDs')
@@ -70,7 +71,7 @@ def prepare_facilities(path, seed=42):
         pflag, uflag = flags[row['unique_id']]
         authority = Decimal('1') - Decimal('0.3') * pflag - Decimal('0.5') * uflag
         yield tuple(typed_value(c, row[c], True) for c in FACILITY_COLUMNS) + (
-            pflag, uflag, authority, json.dumps(row, ensure_ascii=True))
+            pflag, None, authority, json.dumps(row, ensure_ascii=True))
 
 
 def prepare_postal(path):
@@ -93,6 +94,13 @@ def upsert_rows(conn, table, columns, rows, key, preserve=()):
     updates = [sql.SQL('{} = excluded.{}').format(sql.Identifier(c), sql.Identifier(c))
                for c in columns if c != key and c not in preserve]
     if table == 'facilities':
+        website_changes = ('(facilities."officialWebsite", facilities."websites") '
+                           'IS DISTINCT FROM (excluded."officialWebsite", excluded."websites")')
+        updates.extend([
+            sql.SQL(f'url_domain_invalid = CASE WHEN {website_changes} THEN NULL ELSE facilities.url_domain_invalid END'),
+            sql.SQL(f'website_verification_results = CASE WHEN {website_changes} THEN \'{{}}\'::jsonb '
+                    'ELSE facilities.website_verification_results END'),
+        ])
         updates.append(sql.SQL('updated_at = now()'))
     conn.execute(sql.SQL('INSERT INTO {} ({}) SELECT {} FROM {} ORDER BY {} '
                          'ON CONFLICT ({}) DO UPDATE SET {}').format(
@@ -102,13 +110,17 @@ def upsert_rows(conn, table, columns, rows, key, preserve=()):
 def load_snapshot(conn, data_dir, seed):
     rows = list(prepare_facilities(facility_snapshot(data_dir), seed))
     postal = list(prepare_postal(data_dir / 'pincode_offices_clean.csv.gz'))
+    result = {'facilities_loaded': len(rows), 'postal_offices_loaded': len(postal)}
+    website_checks = data_dir / WEBSITE_CHECKS_FILENAME
     with conn.transaction():
-        # Serialize importers; existing authority overrides remain untouched.
+        # Serialize importers and preserve existing authority overrides.
         conn.execute('SELECT pg_advisory_xact_lock(72610419)')
         upsert_rows(conn, 'facilities', FACILITY_COLUMNS + FLAG_COLUMNS + ['raw_record'],
                     rows, 'unique_id', preserve=FLAG_COLUMNS)
         upsert_rows(conn, 'pincode_offices', POSTAL_COLUMNS, postal, 'source_record')
-    return {'facilities_loaded': len(rows), 'postal_offices_loaded': len(postal)}
+        if website_checks.is_file():
+            result['website_checks_loaded'] = load_website_checks(conn, website_checks)
+    return result
 
 
 def facility_snapshot(data_dir=DATA_DIR):
@@ -141,6 +153,8 @@ def main():
     load = sub.add_parser('load')
     load.add_argument('--data-dir', type=Path, default=DATA_DIR)
     load.add_argument('--seed', type=int, default=42)
+    export = sub.add_parser('export-website-checks')
+    export.add_argument('--output', type=Path, default=DATA_DIR / WEBSITE_CHECKS_FILENAME)
     search = sub.add_parser('search')
     search.add_argument('--postcode')
     search.add_argument('--city')
@@ -195,6 +209,9 @@ def main():
         elif args.command == 'load':
             conn.execute("SET statement_timeout = '300s'")
             result = load_snapshot(conn, args.data_dir, args.seed)
+        elif args.command == 'export-website-checks':
+            export_website_checks(conn, args.output)
+            result = {'website_checks_exported': str(args.output)}
         elif args.command == 'set-authority':
             result = set_authority(conn, args.facility_id, args.value)
         else:

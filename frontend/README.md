@@ -4,7 +4,7 @@ React JSX and plain CSS implementation of the supplied **CareLens / Aurora Glass
 
 ## Run locally
 
-Use Node.js 22.12+ (or Node.js 24).
+Use Node.js 22.13+ (or Node.js 24).
 
 Configure `agents/.env` and initialize the PostgreSQL database following [the app setup](../app/README.md#run-the-complete-query-workflow). Start the Python API from the repository root.
 
@@ -87,7 +87,8 @@ An upstream agent can send a parsed intent to the same endpoint.
   "intent": {
     "location": {"postcode": null, "city": "Lucknow"},
     "specialities": ["dentistry", "General Dentistry"],
-    "service": ["toothache consultation", "dental care"]
+    "service": ["toothache consultation", "dental care"],
+    "range": 30
   }
 }
 ```
@@ -153,14 +154,66 @@ also send a structured intent object instead of free text.
 
 ## NABH certificate verification
 
-Select a live facility card and click **NABH certification verify** in its detail
-panel. A loading message appears while the backend checks the institution's name
-and full address against official NABH records and certificate PDFs. Success shows
-`successfully verified!` and **View certificate PDF** links; other outcomes show
-`can't be verified` with an explanation. Sample facilities have this action disabled.
-No verification runs merely from opening a card.
+When live search results arrive, the frontend starts checking every returned
+facility against official NABH records and certificate PDFs. The results page
+shows progress across all pages. As each check succeeds, a star appears before
+the facility's rank. Its detail panel shows the first page of each certificate
+alongside the **View certificate PDF** link. The link also works when preview
+rendering is unavailable.
+Other outcomes show **Unable to verify** with an explanation. Sample facilities
+skip verification.
 
 Vite proxies both search and verification under `/api` to port 8000. For another
 backend origin, set `VITE_NABH_API_URL` to its `/api/nabh/verify` endpoint in addition
 to the search URL. Keep Ark credentials in `agents/.env` on the backend. See
 [backend verification setup](../app/README.md#nabh-verification-from-facility-details).
+
+## Adjust the search radius
+
+The intent agent extracts an optional distance radius from the query (for example,
+`Find dialysis within 5 km of Lucknow`). Its `range` output defaults to 30 km.
+The API uses that radius to filter candidates and returns it as `radiusKm` for
+the result summary and map. Structured intent requests may also supply `range`.
+
+Live results include a **Search radius** slider initialized from the agent's
+`range` (30 km by default). Drag to preview a value, then release to apply it;
+keyboard adjustment and leaving the control also commit changes. The usual span
+is 1–200 km and expands to accommodate an initial radius outside that span.
+The current result summary continues to show the applied radius until the new
+request completes.
+
+The API returns the normalized `intent` with each search response. Radius changes
+submit that same location, specialties and services with an updated `range`,
+bypassing another model call. Results, counts and map markers refresh together,
+and pagination resets to the first page. New requests cancel previous browser
+requests. If a search fails, **Try again** retries the selected radius. Sample
+results and older API responses without `intent` do not show the slider.
+
+## Website verification
+
+The **Website verification** section lists links from `officialWebsite` and
+`websites` in the facility snapshot with their saved results. The heading shows
+the number of verified links and the final percentage once all checks are recorded.
+**Verified** means the link opened successfully. **Unable to verify** shows why
+the check could not complete. The Authority section shows the verified share
+of usable, distinct dataset links once all links have been checked. Fit Score
+shows **Pending** while the [website preparation batch](../app/README.md#facility-website-verification)
+has pending checks for the facility.
+
+## Practo hospital ratings
+
+Hospital cards automatically request Practo ratings for records whose backend
+`hasPractoLink` flag is true, with two concurrent requests. Cards without a stored
+hospital/clinic Practo link immediately show **Rating unavailable**, without a
+Practo network request. Opening details does not start another rating request.
+The flag includes `websites` and `source_urls`; it is independent of website checks.
+
+The backend only reads the dataset-linked profiles. Successful results show a
+Practo star score directly below Fit Score in each list entry. Practo ratings
+are not displayed in the facility detail drawer. Missing links, unreadable pages
+and absent scores all show **Rating unavailable** below Fit Score. No zero is fabricated.
+Ratings remain separate from Fit Score and NABH accreditation.
+
+`VITE_PRACTO_API_URL` optionally overrides `/api/practo/rating`; the default is
+proxied to the Python API. No model or search service is used for Practo ratings.
+See [backend behavior](../app/README.md#practo-rating-during-website-verification).

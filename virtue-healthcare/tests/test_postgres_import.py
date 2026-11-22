@@ -33,12 +33,15 @@ class ImportTests(unittest.TestCase):
         rows = list(prepare_facilities(path))
         self.assertEqual(len(rows), 9989)
         self.assertEqual(sum(r[60] for r in rows), 1998)
-        self.assertEqual(sum(r[61] for r in rows), 2997)
+        self.assertTrue(all(row[61] is None for row in rows))
         self.assertTrue(all(len(r) == 64 for r in rows))
 
         self.assertEqual(len(FACILITY_COLUMNS), 60)
+        id_column = FACILITY_COLUMNS.index('unique_id')
+        flags = allocate_flags([row[id_column] for row in rows])
         for row in rows:
-            self.assertEqual(row[62], Decimal('1') - Decimal('0.3') * row[60] - Decimal('0.5') * row[61])
+            postcode_flag, legacy_url_flag = flags[row[id_column]]
+            self.assertEqual(row[62], Decimal('1') - Decimal('0.3') * postcode_flag - Decimal('0.5') * legacy_url_flag)
             for value in row:
                 for text in (value if isinstance(value, list) else [value]):
                     if isinstance(text, str):

@@ -10,11 +10,17 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 from agents.env_config import DEFAULT_ENV_FILE
+from agents.verify_website import website_candidates
 from app.facility_data import read_facilities
+from agents.practo import practo_candidates
+from app.practo_rating import practo_rating_service
 from app.nabh_verification import verification_service
 from app.location_matching import LocationMatcher, rank_by_distance
 from app.search_output import fit_score_value
 from app.scoring_backend import PostgresScorer, ScoringUnavailable
+from app.website_verification import (
+    load_website_check, saved_website_result, website_verification_service,
+)
 from app.service_search import (
     SERVICES, SearchIntent, match_search_intent, parse_query, parse_query_with_agent, parse_search_intent,
 )
@@ -49,6 +55,10 @@ def intent_agent_parser(env_file=DEFAULT_ENV_FILE):
     return parse
 
 
+def optional_flag(value):
+    return None if value is None else bool(value)
+
+
 def search_facilities(payload, *, facilities, matcher, parse, score):
     if not isinstance(payload, dict) or ("query" in payload) == ("intent" in payload):
         raise ValueError("Send one query string or one search intent object.")
@@ -69,7 +79,8 @@ def search_facilities(payload, *, facilities, matcher, parse, score):
     location = matcher.resolve(address)
     if location.status != "resolved":
         raise ValueError(f"Could not resolve the location ({location.status}). Check the city, state, and PIN.")
-    result = matcher.match(facilities, latitude=location.latitude, longitude=location.longitude)
+    result = matcher.match(facilities, latitude=location.latitude, longitude=location.longitude,
+                           radius_km=request.range)
     candidates = list(result['candidates'])
     scores = {row['unique_id']: row for row in score(candidates, request)}
     evidence = {row['unique_id']: row for row in match_search_intent(candidates, request)}
@@ -78,16 +89,26 @@ def search_facilities(payload, *, facilities, matcher, parse, score):
         details = scores.get(row['unique_id'])
         if details is None:
             continue
+        verified_url_ratio = details.get('url_domain_invalid')
+        urls = website_candidates(row)
+        saved_checks = details.get('website_verification_results') or {}
         proof = evidence.get(row['unique_id'], {})
-        nearby.append({**row, 'fit_score': float(details['final_score']),
+        nearby.append({**row, 'fit_score': fit_score_value(details['final_score']),
                        'score_details': details,
+                       'website_urls': urls,
+                       'website_checks': {url: check for url in urls
+                                          if (check := saved_website_result(url, saved_checks.get(url))) is not None},
+                       'url_verified_ratio': float(verified_url_ratio) if verified_url_ratio is not None else None,
                        'service_match': 'listed_in_dataset' if proof.get('service_evidence') else (
                            'text_match' if details['service_score'] else 'related_specialty_only'),
                        'service_evidence': proof.get('service_evidence')})
     nearby = rank_by_distance(nearby)
-    nearby.sort(key=lambda row: -row['fit_score'])
+    nearby.sort(key=lambda row: -row['fit_score'] if row['fit_score'] is not None else float('inf'))
 
     return {
+        "intent": {"location": {"city": request.city, "postcode": request.pincode},
+                   "specialities": list(request.specialities), "service": list(request.service),
+                   "range": request.range},
         "queryLocation": asdict(location),
         "radiusKm": result["radius_km"],
         "facilities": [
@@ -103,15 +124,18 @@ def search_facilities(payload, *, facilities, matcher, parse, score):
                 "area": ", ".join(filter(None, (row["address_city"], row["address_stateOrRegion"]))) or None,
                 "postalCode": row["address_zipOrPostcode"],
                 "website": row.get("officialWebsite") or None,
+                "websiteUrls": row["website_urls"],
+                "websiteVerificationResults": row["website_checks"],
+                "hasPractoLink": bool(practo_candidates(row)),
                 "latitude": float(row["latitude"]),
                 "longitude": float(row["longitude"]),
                 "distanceKm": row["distance_km"],
                 "fitScore": fit_score_value(row.get("fit_score")),
                 "scoreBreakdown": {
-                    "authority": float(row['score_details']['authority']),
+                    "authority": fit_score_value(row['score_details']['authority']),
                     "authoritySource": row['score_details']['flags_origin'],
-                    "addressPostcodeCoordinatesMismatch": bool(row['score_details']['postcode_address_cordination_unmatch']),
-                    "urlDomainSuspicious": bool(row['score_details']['url_domain_invalid']),
+                    "addressPostcodeCoordinatesMismatch": optional_flag(row['score_details'].get('postcode_address_cordination_unmatch')),
+                    "urlDomainVerifiedRatio": row['url_verified_ratio'],
                     "specialtyScore": row['score_details']['specialty_score'],
                     "serviceScore": row['score_details']['service_score'],
                     "rawScore": row['score_details']['raw_score'],
@@ -130,14 +154,14 @@ def search_facilities(payload, *, facilities, matcher, parse, score):
 
 
 class SearchHandler(BaseHTTPRequestHandler):
-    def __init__(self, search, *args, verify=None, **kwargs):
-        self.search = search
-        self.verify = verify
+    def __init__(self, search, *args, verify=None, verify_website=None, practo_rating=None, **kwargs):
+        self.routes = {"/api/search": search, "/api/nabh/verify": verify,
+                       "/api/website/verify": verify_website, "/api/practo/rating": practo_rating}
         super().__init__(*args, **kwargs)
 
     def do_POST(self):
-        if self.path not in {"/api/search", "/api/nabh/verify"}:
-            self.respond(HTTPStatus.NOT_FOUND, {"error": "Search endpoint not found."})
+        if self.path not in self.routes:
+            self.respond(HTTPStatus.NOT_FOUND, {"error": "Endpoint not found."})
             return
         try:
             length = int(self.headers.get("Content-Length", "0"))
@@ -148,13 +172,11 @@ class SearchHandler(BaseHTTPRequestHandler):
             self.respond(HTTPStatus.BAD_REQUEST, {"error": "Send a valid JSON request body of up to 64 KiB."})
             return
         try:
-            if self.path == "/api/nabh/verify":
-                if self.verify is None:
-                    self.respond(HTTPStatus.SERVICE_UNAVAILABLE, {"error": "Verification is unavailable."})
-                    return
-                result = self.verify(payload)
-            else:
-                result = self.search(payload)
+            operation = self.routes[self.path]
+            if operation is None:
+                self.respond(HTTPStatus.SERVICE_UNAVAILABLE, {"error": "Verification is unavailable."})
+                return
+            result = operation(payload)
         except IntentParsingError as error:
             self.respond(error.status, {"error": error.details})
             return
@@ -193,9 +215,14 @@ def main():
              else intent_agent_parser(args.env_file))
     facilities = tuple(read_facilities())
     verify = verification_service(facilities, env_file=args.env_file)
+    scorer = PostgresScorer()
+    check_website = website_verification_service(
+        facilities, load=partial(load_website_check, scorer.database_url), saved_only=True)
     search = partial(search_facilities, facilities=facilities, matcher=LocationMatcher(),
-                     parse=parse, score=PostgresScorer())
-    with ThreadingHTTPServer(("127.0.0.1", args.port), partial(SearchHandler, search, verify=verify)) as server:
+                     parse=parse, score=scorer)
+    practo = practo_rating_service(facilities)
+    handler = partial(SearchHandler, search, verify=verify, verify_website=check_website, practo_rating=practo)
+    with ThreadingHTTPServer(("127.0.0.1", args.port), handler) as server:
         print(f"Facility search API listening on http://127.0.0.1:{server.server_port}/api/search", flush=True)
         try:
             server.serve_forever()
