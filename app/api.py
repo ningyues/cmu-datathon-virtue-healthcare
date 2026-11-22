@@ -2,6 +2,9 @@
 
 import argparse
 import json
+import os
+import mimetypes
+from urllib.parse import unquote, urlsplit
 from dataclasses import asdict
 from functools import partial
 from http import HTTPStatus
@@ -159,6 +162,28 @@ class SearchHandler(BaseHTTPRequestHandler):
                        "/api/website/verify": verify_website, "/api/practo/rating": practo_rating}
         super().__init__(*args, **kwargs)
 
+    def do_GET(self):
+        path = unquote(urlsplit(self.path).path)
+        if path == '/health':
+            self.respond(HTTPStatus.OK, {'status': 'ok'})
+            return
+        root = (Path(__file__).resolve().parents[1] / 'frontend/dist').resolve()
+        target = (root / path.lstrip('/')).resolve()
+        if not target.is_relative_to(root) or path.startswith('/api/'):
+            self.respond(HTTPStatus.NOT_FOUND, {'error': 'Not found.'})
+            return
+        if path == '/':
+            target = root / 'index.html'
+        if not target.is_file():
+            self.respond(HTTPStatus.NOT_FOUND, {'error': 'Not found. Build the frontend first.'})
+            return
+        body = target.read_bytes()
+        self.send_response(HTTPStatus.OK)
+        self.send_header('Content-Type', mimetypes.guess_type(target)[0] or 'application/octet-stream')
+        self.send_header('Content-Length', str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
     def do_POST(self):
         if self.path not in self.routes:
             self.respond(HTTPStatus.NOT_FOUND, {"error": "Endpoint not found."})
@@ -203,7 +228,8 @@ class SearchHandler(BaseHTTPRequestHandler):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--port", type=int, default=8000)
+    parser.add_argument("--port", type=int, default=int(os.environ.get("DATABRICKS_APP_PORT", os.environ.get("PORT", "8000"))))
+    parser.add_argument("--host", default="127.0.0.1")
     parsers = parser.add_mutually_exclusive_group()
     parsers.add_argument("--agent", action="store_true", help="Use the OpenAI API to parse free-text queries")
     parsers.add_argument("--intent-agent", action="store_true", help="Use the project's intent agent (default)")
@@ -222,8 +248,8 @@ def main():
                      parse=parse, score=scorer)
     practo = practo_rating_service(facilities)
     handler = partial(SearchHandler, search, verify=verify, verify_website=check_website, practo_rating=practo)
-    with ThreadingHTTPServer(("127.0.0.1", args.port), handler) as server:
-        print(f"Facility search API listening on http://127.0.0.1:{server.server_port}/api/search", flush=True)
+    with ThreadingHTTPServer((args.host, args.port), handler) as server:
+        print(f"Facility search API listening on http://{args.host}:{server.server_port}/api/search", flush=True)
         try:
             server.serve_forever()
         except KeyboardInterrupt:

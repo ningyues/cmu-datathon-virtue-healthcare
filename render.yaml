@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: carelens-public
+    runtime: docker
+    plan: free
+    branch: frontend
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: ARK_API_KEY
+        sync: false
+      - key: ARK_MODEL
+        sync: false
+      - key: DATABRICKS_HOST
+        value: https://dbc-6dd8b941-d971.cloud.databricks.com
+      - key: DATABRICKS_AUTH_TYPE
+        value: oauth-m2m
+      - key: DATABRICKS_CLIENT_ID
+        sync: false
+      - key: DATABRICKS_CLIENT_SECRET
+        sync: false
+      - key: LAKEBASE_ENDPOINT
+        value: projects/carelens/branches/production/endpoints/primary
+      - key: PGHOST
+        value: ep-restless-field-d8zb9rbl.database.us-east-2.cloud.databricks.com
+      - key: PGDATABASE
+        value: databricks_postgres
+      - key: PGUSER
+        sync: false

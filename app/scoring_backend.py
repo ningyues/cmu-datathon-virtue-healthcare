@@ -3,6 +3,7 @@ import importlib.util
 import os
 from pathlib import Path
 from threading import BoundedSemaphore
+from app.database import connect
 
 MODULE_PATH = Path(__file__).resolve().parents[1] / 'virtue-healthcare/app/scoring.py'
 spec = importlib.util.spec_from_file_location('carelens_scoring', MODULE_PATH)
@@ -17,7 +18,7 @@ class ScoringUnavailable(RuntimeError):
 class PostgresScorer:
     def __init__(self, database_url=None, max_connections=8):
         self.database_url = database_url or os.environ.get('DATABASE_URL')
-        if not self.database_url:
+        if not self.database_url and not os.environ.get('LAKEBASE_ENDPOINT'):
             raise ValueError('Set DATABASE_URL before starting the search API.')
         self.slots = BoundedSemaphore(max_connections)
 
@@ -29,7 +30,7 @@ class PostgresScorer:
         try:
             import psycopg
             from psycopg.rows import dict_row
-            with psycopg.connect(self.database_url, autocommit=True, row_factory=dict_row,
+            with connect(self.database_url, autocommit=True, row_factory=dict_row,
                                  connect_timeout=5) as conn:
                 conn.execute("SET statement_timeout = '30s'")
                 return scoring.search_facilities(

@@ -7,6 +7,9 @@ export default function LiveFacilityMap({ facilities, selectedId, onSelect, quer
   const container = useRef(null);
   const map = useRef(null);
   const markers = useRef(new Map());
+  const searchBounds = useRef(null);
+  const focusedLocation = useRef(null);
+  const previousSelection = useRef(selectedId);
   const select = useRef(onSelect);
   select.current = onSelect;
   const [tileError, setTileError] = useState(false);
@@ -19,8 +22,15 @@ export default function LiveFacilityMap({ facilities, selectedId, onSelect, quer
       maxBoundsViscosity: 1,
     }).fitBounds(indiaBounds);
     const updateSize = () => {
-      instance.invalidateSize();
-      if (instance.getSize().x && instance.getSize().y) instance.setMinZoom(instance.getBoundsZoom(indiaBounds));
+      instance.invalidateSize({ pan: false });
+      if (instance.getSize().x && instance.getSize().y) {
+        instance.setMinZoom(instance.getBoundsZoom(indiaBounds));
+        // The initial result render may precede the final grid dimensions.
+        if (searchBounds.current) {
+          instance.stop();
+          instance.fitBounds(searchBounds.current, { padding: [40, 40], maxZoom: 14, animate: false });
+        }
+      }
     };
     updateSize();
     map.current = instance;
@@ -40,7 +50,7 @@ export default function LiveFacilityMap({ facilities, selectedId, onSelect, quer
     const group = L.layerGroup().addTo(instance);
     markers.current.clear();
     const bounds = [];
-    if (center) {
+    if (center && validCoordinates(center.latitude, center.longitude)) {
       const point = [center.latitude, center.longitude];
       bounds.push(point);
       const icon = L.divIcon({ className: 'search-origin', iconSize: [18, 18], iconAnchor: [9, 9] });
@@ -62,7 +72,15 @@ export default function LiveFacilityMap({ facilities, selectedId, onSelect, quer
       marker.on('click', () => select.current(facility));
       markers.current.set(facility.id, marker);
     });
-    if (bounds.length) instance.fitBounds(bounds, { padding: [40, 40], maxZoom: 14 });
+    searchBounds.current = bounds.length ? bounds : null;
+    // Verification updates and sorting should not restart a zoom or undo a user's pan.
+    const locationKey = JSON.stringify([...bounds].sort((a, b) => a[0] - b[0] || a[1] - b[1]));
+    if (bounds.length && focusedLocation.current !== locationKey) {
+      instance.stop();
+      instance.invalidateSize({ pan: false });
+      instance.fitBounds(bounds, { padding: [40, 40], maxZoom: 14, animate: false });
+    }
+    focusedLocation.current = locationKey;
     return () => group.remove();
   }, [facilities, center]);
   useEffect(() => {
@@ -71,6 +89,20 @@ export default function LiveFacilityMap({ facilities, selectedId, onSelect, quer
       marker.setZIndexOffset(id === selectedId ? 1000 : 0);
     });
   }, [selectedId, facilities]);
+  useEffect(() => {
+    const changed = previousSelection.current !== selectedId;
+    previousSelection.current = selectedId;
+    if (!changed) return;
+    const instance = map.current;
+    const marker = markers.current.get(selectedId);
+    if (!instance || !marker) return;
+    const point = marker.getLatLng();
+    if (!instance.getBounds().contains(point)) {
+      instance.stop();
+      // Pan to the new page's first result without changing the user's zoom.
+      instance.panTo(point, { animate: false });
+    }
+  }, [selectedId]);
   const missing = facilities.filter(f => !validCoordinates(f.coordinates?.latitude, f.coordinates?.longitude)).length;
   return <section className="facility-map" aria-label="Healthcare facility map of India">
     <div ref={container} className="live-map" />

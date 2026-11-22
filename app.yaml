@@ -1,0 +1,11 @@
+command: ['python', '-m', 'app.api', '--host', '0.0.0.0']
+health_check:
+  path: /health
+  timeout_seconds: 300
+env:
+  - name: LAKEBASE_ENDPOINT
+    value: projects/carelens/branches/production/endpoints/primary
+  - name: ARK_API_KEY
+    valueFrom: ark-api-key
+  - name: ARK_MODEL
+    valueFrom: ark-model

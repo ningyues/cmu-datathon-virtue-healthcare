@@ -12,6 +12,7 @@ from urllib.parse import urlsplit
 
 from agents.verify_website import verify_website, website_candidates
 from app.scoring_backend import ScoringUnavailable
+from app.database import connect
 
 LOGGER = logging.getLogger(__name__)
 
@@ -31,7 +32,7 @@ def load_website_check(database_url, facility_id, url):
     from psycopg.rows import dict_row
 
     try:
-        with psycopg.connect(database_url, row_factory=dict_row, connect_timeout=5) as conn:
+        with connect(database_url, row_factory=dict_row, connect_timeout=5) as conn:
             conn.execute("SET LOCAL statement_timeout = '5s'")
             row = conn.execute('''
                 SELECT website_verification_results -> %s::text AS result, url_domain_invalid
@@ -57,7 +58,7 @@ def store_website_results(database_url, facility_id, results):
     from psycopg.types.json import Jsonb
 
     try:
-        with psycopg.connect(database_url, row_factory=dict_row, connect_timeout=5) as conn:
+        with connect(database_url, row_factory=dict_row, connect_timeout=5) as conn:
             conn.execute("SET LOCAL statement_timeout = '5s'")
             row = conn.execute('''
                 SELECT "officialWebsite", "websites", website_verification_results
@@ -143,7 +144,7 @@ def prepare_website_scores(database_url, *, city=None, facility_id=None, limit=N
     import psycopg
     from psycopg.rows import dict_row
 
-    with psycopg.connect(database_url, row_factory=dict_row, connect_timeout=5) as conn:
+    with connect(database_url, row_factory=dict_row, connect_timeout=5) as conn:
         facilities = conn.execute('''
             SELECT unique_id, "officialWebsite", "websites", website_verification_results, url_domain_invalid
             FROM healthcare.facilities
