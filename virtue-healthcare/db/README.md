@@ -61,6 +61,28 @@ The database uses a named Docker volume. `docker compose down` retains it;
 the database beyond localhost. For an existing PostgreSQL server, set DATABASE_URL
 and skip Docker. Password changes in `.env` do not rotate an existing database password.
 
+## Bundled website scores
+
+`load` automatically imports [website_reachability.csv.gz](../../data/processed/website_reachability.csv.gz)
+when it is present in the processed data directory. The data includes the saved
+reachable URL share and an outcome for each checked dataset link. The importer
+matches the facility ID and a hash of its website fields. It fills missing scores,
+preserves completed local scores, and uses any local per-link outcomes when
+completing a partial check. Run `load` again after pulling the bundle into an
+existing checkout. No network requests are needed to import these results.
+
+To regenerate the bundle from an already checked database, run this from
+`virtue-healthcare/` with `DATABASE_URL` set.
+
+```bash
+python -m app.postgres export-website-checks
+```
+
+The export replaces `data/processed/website_reachability.csv.gz` with complete
+reachability results. It contains facility IDs, website-input hashes, scores,
+and booleans keyed by the original dataset URLs. Redirect targets, hospital
+identity evidence, and database credentials are outside this snapshot.
+
 ## Legacy SQL usage
 
 The function below is a legacy 0-to-16 scoring interface retained for compatibility.
