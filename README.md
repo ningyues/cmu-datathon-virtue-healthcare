@@ -66,6 +66,21 @@ The default intent parser uses Volcengine Ark to extract the location, specialti
 
 The repository includes **9,989 facility records**, **165,625 India Post office records**, and **19,586 unique PINs**. The cleaning pipeline normalizes list fields, removes duplicate specialty labels within a record, screens coordinates, and records source-backed corrections and open issues. [Cleaning log](data/evidence/CLEANING_LOG.md) · [Evidence and review queue](data/evidence/)
 
+### Cleaning logic
+
+| Stage | How it works |
+| --- | --- |
+| Bronze | Read the original facility CSV and saved audit evidence from the Datathon workspace export. Keep source row numbers and record fingerprints for both input files. |
+| Silver | Clean and index the India Post directory. Remove exact duplicate records and quarantine invalid or conflicting facility IDs. Normalize dates, URLs, and list fields, including case variants of the same specialty. Apply reviewed address, website, service-claim, and display-name corrections when the record and expected source value match. |
+| Gold | Reconcile row counts and compare data quality before and after cleaning against the same postal reference. Export the search-ready tables, reviewed claim evidence, backfills, removal log, and review queue. |
+
+The postal pipeline keeps distinct candidate states and districts for each PIN. Facility records are checked for valid coordinates and PIN and state agreement. Locations more than 50 km from the nearest same-PIN post office are flagged for review. The quality comparison measures valid coordinates, valid PINs, PIN and state agreement, and completeness across seven core fields.
+
+### Run the notebooks
+
+- **Replay the cleaning pipeline.** Supply the original Datathon workspace ZIP and India Post CSV. In Databricks, set the `datathon_zip`, `postal_csv`, and `output_directory` widgets. In a local Python notebook, use the corresponding uppercase environment variables. Each run writes its results and audit files to a timestamped folder. [Datathon_Data_Cleaning.ipynb](notebooks/Datathon_Data_Cleaning.ipynb)
+- **Explore the published snapshot offline.** Run the project notebook with Python 3.10 or later to reproduce the search and score walkthrough using the bundled source and data from revision `a522036`. The default example uses saved URL reachability results and runs without PostgreSQL or API credentials. [CareLens_Project.ipynb](notebooks/CareLens_Project.ipynb) · [Download notebook](https://raw.githubusercontent.com/ningyues/cmu-datathon-virtue-healthcare/main/notebooks/CareLens_Project.ipynb)
+
 To rebuild the snapshots from the original inputs, run the pipeline from the repository root. The output goes to `build/` for review.
 
 ```bash
@@ -204,6 +219,7 @@ npm --prefix frontend run build
 | `agents/` | Search intent extraction, NABH accreditation, website and service checks, and Practo lookups |
 | `virtue-healthcare/` | Docker Compose, PostgreSQL schema, snapshot import, and scoring code |
 | `pipeline/` | Data cleaning and source-backed correction rules |
+| `notebooks/` | Databricks cleaning replay and an offline CareLens walkthrough |
 | `data/processed/` | Bundled facility and postal snapshots and PIN lookup |
 | `data/evidence/` | Cleaning log, reviewed claims, backfills, and outstanding data-quality issues |
 
