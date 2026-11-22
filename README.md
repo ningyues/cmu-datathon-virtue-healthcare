@@ -2,7 +2,7 @@
 
 CareLens is a healthcare facility search and comparison tool for India. It helps people find nearby care, understand why a facility matched their search, and check the evidence attached to a result. The project uses the Virtue Foundation facility dataset from the Databricks Apps & Agents for Good Hackathon. [Hackathon dataset](https://dais-for-good-2026.devpost.com/resources)
 
-- **Try CareLens** · [Open the public app](https://carelens-public.onrender.com/) — no Databricks account required.
+- **Try CareLens** · [Open the public app](https://carelens-public.onrender.com/).
 - **Repository** · [cmu-datathon-virtue-healthcare](https://github.com/ningyues/cmu-datathon-virtue-healthcare)
 - **Stack** · React, Vite, Leaflet, Python, PostgreSQL 16, and Volcengine Ark
 - **Example search** · `Find dialysis near Hyderabad 500003`
