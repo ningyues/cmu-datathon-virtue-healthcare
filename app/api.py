@@ -69,7 +69,8 @@ def search_facilities(payload, *, facilities, matcher, parse, score):
     location = matcher.resolve(address)
     if location.status != "resolved":
         raise ValueError(f"Could not resolve the location ({location.status}). Check the city, state, and PIN.")
-    result = matcher.match(facilities, latitude=location.latitude, longitude=location.longitude)
+    result = matcher.match(facilities, latitude=location.latitude, longitude=location.longitude,
+                           radius_km=request.range)
     candidates = list(result['candidates'])
     scores = {row['unique_id']: row for row in score(candidates, request)}
     evidence = {row['unique_id']: row for row in match_search_intent(candidates, request)}
@@ -88,6 +89,9 @@ def search_facilities(payload, *, facilities, matcher, parse, score):
     nearby.sort(key=lambda row: -row['fit_score'])
 
     return {
+        "intent": {"location": {"city": request.city, "postcode": request.pincode},
+                   "specialities": list(request.specialities), "service": list(request.service),
+                   "range": request.range},
         "queryLocation": asdict(location),
         "radiusKm": result["radius_km"],
         "facilities": [

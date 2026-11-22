@@ -93,9 +93,16 @@ export async function searchFacilities(query, { signal } = {}) {
     error.clarification = typeof details?.clarification_question === 'string' ? details.clarification_question : null;
     throw error;
   }
+  const intent = data?.intent;
+  const validIntent = intent && typeof intent === 'object' && intent.location
+    && ['city', 'postcode'].every(key => intent.location[key] == null || typeof intent.location[key] === 'string')
+    && (intent.location.city || intent.location.postcode)
+    && ['specialities', 'service'].every(key => Array.isArray(intent[key]) && intent[key].every(value => typeof value === 'string'))
+    && Number.isFinite(intent.range) && intent.range > 0;
   const location = coordinates(data?.queryLocation);
   return {
     facilities: validateFacilities(data?.facilities), illustrative: false,
+    intent: validIntent ? intent : null,
     radiusKm: Number.isFinite(data?.radiusKm) && data.radiusKm > 0 ? data.radiusKm : null,
     queryLocation: location && {
       ...location,

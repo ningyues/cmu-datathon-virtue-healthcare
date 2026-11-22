@@ -36,7 +36,7 @@ class IntentTests(unittest.TestCase):
     def test_emergency_c_section_contract_and_full_local_expansion(self):
         text = "Which hospital near Lucknow can handle an emergency C-section?"
         result = self.parse(text, proposal())
-        self.assertEqual(set(result), {"location", "specialities", "service"})
+        self.assertEqual(set(result), {"location", "specialities", "service", "range"})
         self.assertEqual(result["location"], {"postcode": None, "city": "Lucknow"})
         self.assertEqual(result["service"], ["C-section"])
         expected = [r["raw_speciality"] for r in json.loads(
@@ -45,6 +45,18 @@ class IntentTests(unittest.TestCase):
         self.assertEqual(result["specialities"], expected)
         self.assertIn("obstetrics", result["specialities"])
         self.assertNotIn("emergencyMedicine", result["specialities"])
+
+    def test_radius_defaults_to_30_and_preserves_explicit_fractional_km(self):
+        self.assertEqual(self.parse("C-section in Lucknow", proposal())["range"], 30)
+        for radius in (5, 12.5, 80):
+            with self.subTest(radius=radius):
+                result = self.parse(f"C-section within {radius} km of Lucknow", dict(proposal(), range=radius))
+                self.assertEqual(result["range"], radius)
+
+    def test_invalid_radius_is_rejected(self):
+        for radius in (None, True, False, 0, -1, "5", "5 km", [], float("nan"), float("inf"), 10 ** 400):
+            with self.subTest(radius=radius):
+                self.assert_error("invalid_model_output", "C-section in Lucknow", dict(proposal(), range=radius))
 
     def test_explicit_postcode_and_city_and_postcode_only(self):
         for text, city, code in (

@@ -87,7 +87,8 @@ An upstream agent can send a parsed intent to the same endpoint.
   "intent": {
     "location": {"postcode": null, "city": "Lucknow"},
     "specialities": ["dentistry", "General Dentistry"],
-    "service": ["toothache consultation", "dental care"]
+    "service": ["toothache consultation", "dental care"],
+    "range": 30
   }
 }
 ```
@@ -164,3 +165,24 @@ Vite proxies both search and verification under `/api` to port 8000. For another
 backend origin, set `VITE_NABH_API_URL` to its `/api/nabh/verify` endpoint in addition
 to the search URL. Keep Ark credentials in `agents/.env` on the backend. See
 [backend verification setup](../app/README.md#nabh-verification-from-facility-details).
+
+The intent agent extracts an optional distance radius from the query (for example,
+`Find dialysis within 5 km of Lucknow`). Its `range` output defaults to 30 km.
+The API uses that radius to filter candidates and returns it as `radiusKm` for
+the result summary and map. Structured intent requests may also supply `range`.
+
+## Adjust the search radius
+
+Live results include a **Search radius** slider initialized from the agent's
+`range` (30 km by default). Drag to preview a value, then release to apply it;
+keyboard adjustment and leaving the control also commit changes. The usual span
+is 1–200 km and expands to accommodate an initial radius outside that span.
+The current result summary continues to show the applied radius until the new
+request completes.
+
+The API returns the normalized `intent` with each search response. Radius changes
+submit that same location, specialties and services with an updated `range`,
+bypassing another model call. Results, counts and map markers refresh together,
+and pagination resets to the first page. New requests cancel previous browser
+requests. If a search fails, **Try again** retries the selected radius. Sample
+results and older API responses without `intent` do not show the slider.

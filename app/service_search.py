@@ -2,12 +2,13 @@
 
 from dataclasses import dataclass
 import json
+from math import isfinite
 import os
 import re
 from urllib.error import URLError
 from urllib.request import Request, urlopen
 
-from app.location_matching import PIN_PATTERN
+from app.location_matching import DEFAULT_RADIUS_KM, PIN_PATTERN
 
 
 @dataclass(frozen=True)
@@ -63,6 +64,7 @@ class SearchIntent:
     pincode: str | None
     specialities: tuple[str, ...]
     service: tuple[str, ...]
+    range: float = DEFAULT_RADIUS_KM
 
 
 def parse_search_intent(payload: object) -> SearchIntent:
@@ -90,7 +92,15 @@ def parse_search_intent(payload: object) -> SearchIntent:
     if not (terms["specialities"] or terms["service"]):
         raise ValueError("Search intent must include at least one speciality or service.")
 
-    return SearchIntent(city, postcode, terms["specialities"], terms["service"])
+    radius = payload.get("range", DEFAULT_RADIUS_KM)
+    try:
+        valid_radius = (not isinstance(radius, bool) and isinstance(radius, (int, float))
+                        and radius > 0 and isfinite(radius))
+    except OverflowError:
+        valid_radius = False
+    if not valid_radius:
+        raise ValueError("range must be a positive finite number in kilometers.")
+    return SearchIntent(city, postcode, terms["specialities"], terms["service"], radius)
 
 
 def _contains(text, term):
