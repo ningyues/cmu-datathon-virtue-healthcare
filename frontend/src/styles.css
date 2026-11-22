@@ -197,3 +197,12 @@ button, a, textarea, select { -webkit-tap-highlight-color: transparent; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+.nabh-verification { border-top: 1px solid #dce5e0; padding-top: 18px; }
+.nabh-verification > button { width: 100%; }
+.nabh-verification p { font-size: 13px; line-height: 1.5; overflow-wrap: anywhere; }
+.nabh-verification .nabh-success { color: #176146; font-weight: 700; }
+.nabh-verification .nabh-unverified { color: #795125; font-weight: 700; }
+.nabh-verification a { color: #145d52; text-decoration: underline; }
+
+.nabh-verification > button:disabled { opacity: .6; cursor: not-allowed; }

@@ -150,3 +150,17 @@ facility details show authority, specialty points and each service's contributio
 Missing services and API failures
 never fall back to illustrative hospital records. `searchFacilities(intent)` can
 also send a structured intent object instead of free text.
+
+## NABH certificate verification
+
+Select a live facility card and click **NABH certification verify** in its detail
+panel. A loading message appears while the backend checks the institution's name
+and full address against official NABH records and certificate PDFs. Success shows
+`successfully verified!` and **View certificate PDF** links; other outcomes show
+`can't be verified` with an explanation. Sample facilities have this action disabled.
+No verification runs merely from opening a card.
+
+Vite proxies both search and verification under `/api` to port 8000. For another
+backend origin, set `VITE_NABH_API_URL` to its `/api/nabh/verify` endpoint in addition
+to the search URL. Keep Ark credentials in `agents/.env` on the backend. See
+[backend verification setup](../app/README.md#nabh-verification-from-facility-details).

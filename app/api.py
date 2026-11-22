@@ -11,6 +11,7 @@ from pathlib import Path
 
 from agents.env_config import DEFAULT_ENV_FILE
 from app.facility_data import read_facilities
+from app.nabh_verification import verification_service
 from app.location_matching import LocationMatcher, rank_by_distance
 from app.search_output import fit_score_value
 from app.scoring_backend import PostgresScorer, ScoringUnavailable
@@ -127,12 +128,13 @@ def search_facilities(payload, *, facilities, matcher, parse, score):
 
 
 class SearchHandler(BaseHTTPRequestHandler):
-    def __init__(self, search, *args, **kwargs):
+    def __init__(self, search, *args, verify=None, **kwargs):
         self.search = search
+        self.verify = verify
         super().__init__(*args, **kwargs)
 
     def do_POST(self):
-        if self.path != "/api/search":
+        if self.path not in {"/api/search", "/api/nabh/verify"}:
             self.respond(HTTPStatus.NOT_FOUND, {"error": "Search endpoint not found."})
             return
         try:
@@ -144,7 +146,13 @@ class SearchHandler(BaseHTTPRequestHandler):
             self.respond(HTTPStatus.BAD_REQUEST, {"error": "Send a valid JSON request body of up to 64 KiB."})
             return
         try:
-            result = self.search(payload)
+            if self.path == "/api/nabh/verify":
+                if self.verify is None:
+                    self.respond(HTTPStatus.SERVICE_UNAVAILABLE, {"error": "Verification is unavailable."})
+                    return
+                result = self.verify(payload)
+            else:
+                result = self.search(payload)
         except IntentParsingError as error:
             self.respond(error.status, {"error": error.details})
             return
@@ -177,13 +185,15 @@ def main():
     parsers.add_argument("--intent-agent", action="store_true", help="Use the project's intent agent (default)")
     parsers.add_argument("--local-parser", action="store_true", help="Use the offline service-catalog parser")
     parser.add_argument("--env-file", type=Path, default=DEFAULT_ENV_FILE,
-                        help="Intent agent configuration file (default: agents/.env)")
+                        help="Agent configuration file (default: agents/.env)")
     args = parser.parse_args()
     parse = (parse_query if args.local_parser else parse_query_with_agent if args.agent
              else intent_agent_parser(args.env_file))
-    search = partial(search_facilities, facilities=tuple(read_facilities()), matcher=LocationMatcher(),
+    facilities = tuple(read_facilities())
+    verify = verification_service(facilities, env_file=args.env_file)
+    search = partial(search_facilities, facilities=facilities, matcher=LocationMatcher(),
                      parse=parse, score=PostgresScorer())
-    with ThreadingHTTPServer(("127.0.0.1", args.port), partial(SearchHandler, search)) as server:
+    with ThreadingHTTPServer(("127.0.0.1", args.port), partial(SearchHandler, search, verify=verify)) as server:
         print(f"Facility search API listening on http://127.0.0.1:{server.server_port}/api/search", flush=True)
         try:
             server.serve_forever()

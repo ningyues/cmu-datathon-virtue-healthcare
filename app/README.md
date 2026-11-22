@@ -171,3 +171,33 @@ The HTTP workflow tests use the real intent expansion and location matcher, with
 model and database scoring substituted for deterministic offline checks. Set
 `TEST_DATABASE_URL` to a populated test database to also run the actual database
 integration test. A live Ark request requires valid credentials and model access.
+
+## NABH verification from facility details
+
+After selecting a live facility card, click **NABH certification verify** in its
+detail panel. The frontend calls `POST /api/nabh/verify` with
+`{"facilityId":"<unique_id>"}`. The server looks up that record in the loaded
+snapshot and passes its display name and full street/city/state/PIN address to
+`agents.verify.verify_facility`. Client-supplied names and addresses are ignored.
+
+Both agents use `agents/.env`, or the API's `--env-file` override. Configure
+`ARK_API_KEY` and `ARK_MODEL` there and restart the API and Vite after this update.
+NABH verification queries the official directory and PDFs and may make a paid Ark
+model call. It runs only after a button click, with no automatic retry; the button
+is disabled while waiting. Two verification operations can run concurrently per
+API process. Closing the panel cancels the browser request; work already running
+on the server may finish.
+
+Only an overall `verified` result with an approved certificate URL produces
+`successfully verified!` and PDF links. Missing, expired, ambiguous, or insufficient
+proof produces `can't be verified`, with no certificate link. Configuration,
+source, or model failures also display `can't be verified` with an availability
+explanation; this is not a finding that the hospital lacks accreditation. Returned
+fields are `status` (`verified`, `unverified`, `unavailable`), `message`, `reason`,
+and `certificateUrls`. Illustrative facilities cannot be verified.
+
+Run offline endpoint tests from the repository root:
+
+```sh
+agents/.venv/bin/python -m unittest app.test_nabh_verification -v
+```
