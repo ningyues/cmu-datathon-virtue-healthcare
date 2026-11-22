@@ -73,6 +73,12 @@ The review covered 136 specialty-matched records blocked by PIN, state, or missi
 
 For Veda Hospital & Kidney Centre, the original and current branch sources agree on Patamata, the Sonovision landmark, and the public telephone. The hospital and D&B both give door number `57-7-23/1`. D&B supplies PIN `520010`, and the original facility point is 2.7 km from the nearest same-PIN postal office in the snapshot. [Hospital contact details](https://www.vedakidneyhospital.in/about.html) · [D&B listing](https://www.dnb.com/business-directory/company-profiles/veda-hospital--kidney-centre%C2%A0.3b24e8d89fb3f867a3f3cf1195ec4c65)
 
+## Address text in facility display names
+
+Cleaned **46 display names** where the text after ` - ` repeated both the structured street address and PIN. The review preserved branch labels such as Main Centre and meaningful locations for chains. One affected name was enclosed in a JSON object and needed to be extracted before removing the address suffix.
+
+The search loader applies the [reviewed name decisions](../../pipeline/facility_name_decisions.csv) to `name_standardized` when it reads the published snapshot. A pipeline rebuild writes the same display names into the generated CSV and records each change in the generated `removal_log.csv`. Both paths match the facility UUID and its previous display name. The decision file records the previous and corrected title for each facility. Sparsh Hospital displays as **Sparsh Hospital Panvel**. [Sparsh Hospital contact page](https://sparshhospital.in/contact-sparsh-hospital-panvel/)
+
 ## Malformed website values
 
 On November 21, 2026, the website review resolved 20 malformed values across 19 facility records.
