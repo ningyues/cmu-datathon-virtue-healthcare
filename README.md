@@ -39,7 +39,7 @@ Authority = 1 − 0.30 × address flag − 0.50 × (1 − reachable URL share)
 Fit Score = Authority × match percentage
 ```
 
-The address flag is simulated in the current prototype. Fit Score displays **Pending** when the reachable URL share is unavailable. The live service check, hospital-link match, NABH status, and Practo rating appear as supporting evidence alongside the score. [Scoring and API details](app/README.md#search-api-with-postgresql-scoring)
+The address flag comes from persisted geographic checks. Fit Score displays **Pending** when the reachable URL share is unavailable. The live service check, hospital-link match, NABH status, and Practo rating appear as supporting evidence alongside the score. [Scoring and API details](app/README.md#search-api-with-postgresql-scoring)
 
 ## Architecture
 
@@ -92,9 +92,9 @@ export DATABASE_URL='postgresql://healthcare:local-development-only@localhost:54
 )
 ```
 
-`init` also upgrades an existing schema. `load` imports the facility and postal records along with the [bundled website scores](data/processed/website_reachability.csv.gz). If you already imported the data, run `load` again after pulling the latest code to pick up the bundled results. For an existing PostgreSQL server, set `DATABASE_URL` to its connection string and run the same import commands.
+`init` also upgrades an existing schema. `load` imports the facility and postal records along with the bundled website scores and hospital-link evidence. After pulling a new bundle, run `init` and `load` against the database used by your API. [URL scores](data/processed/website_reachability.csv.gz) · [Hospital-link evidence](data/processed/website_facility_matches.csv.gz)
 
-The bundled scores cover all 9,989 records in the current facility snapshot. The import fills missing scores for records with the same listed websites and preserves completed local scores. Website reachability imports run entirely offline. [Website score import and export](virtue-healthcare/db/README.md#bundled-website-scores)
+The bundled scores cover all 9,989 facility records. Hospital-link evidence covers 36,330 reachable links, including 5,109 confirmed matches. The import fills missing results for matching records and preserves completed local results. Both imports run entirely offline. [Website score import and export](virtue-healthcare/db/README.md#bundled-website-scores)
 
 ### 2. Start the API
 

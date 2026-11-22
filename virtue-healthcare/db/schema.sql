@@ -65,6 +65,7 @@ CREATE TABLE IF NOT EXISTS healthcare.facilities (
     postcode_address_cordination_unmatch smallint NOT NULL CHECK (postcode_address_cordination_unmatch IN (0, 1)),
     url_domain_invalid numeric,
     website_verification_results jsonb NOT NULL DEFAULT '{}',
+    website_facility_matches jsonb NOT NULL DEFAULT '{}',
     authority numeric(5,4) NOT NULL CHECK (authority BETWEEN 0 AND 1),
     flags_origin text NOT NULL DEFAULT 'synthetic',
     raw_record jsonb NOT NULL DEFAULT '{}',
@@ -144,6 +145,7 @@ END $$;
 ALTER TABLE healthcare.facilities ALTER COLUMN raw_record SET DEFAULT '{}';
 ALTER TABLE healthcare.facilities ADD COLUMN IF NOT EXISTS url_domain_invalid numeric;
 ALTER TABLE healthcare.facilities ADD COLUMN IF NOT EXISTS website_verification_results jsonb NOT NULL DEFAULT '{}';
+ALTER TABLE healthcare.facilities ADD COLUMN IF NOT EXISTS website_facility_matches jsonb NOT NULL DEFAULT '{}';
 DO $$ BEGIN
     IF EXISTS (SELECT 1 FROM pg_attribute
                WHERE attrelid = 'healthcare.facilities'::regclass

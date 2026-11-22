@@ -16,7 +16,7 @@ function ScoreCalculation({ breakdown, websiteRatioLabel, hasWebsiteLinks }) {
         <h4>Authority</h4>
         <p className="score-metric">Authority: {breakdown.authority == null ? 'Pending' : authorityFormat.format(breakdown.authority)}</p>
         <div className="authority-reasons" aria-label="Authority score explanation">
-          <p>URL domain verification · {urlRatioLabel}</p>
+          <p>Reachable URL share · {urlRatioLabel}</p>
           {breakdown.addressPostcodeCoordinatesMismatch && <p className="authority-warning">Address, postcode and coordinates mismatch (−0.30)</p>}
           {['unknown', 'not_checked'].includes(breakdown.geographyCheckStatus) && <p className="detail-note">Location consistency: {breakdown.geographyCheckStatus === 'unknown' ? 'Insufficient evidence' : 'Not yet checked'} (no location deduction).</p>}
           {breakdown.geographyCheckSource === 'geoapify' && <p className="detail-note">Location evidence: <a href="https://www.geoapify.com/" target="_blank" rel="noopener noreferrer">Geoapify</a> · <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a></p>}
@@ -95,7 +95,7 @@ export default function DetailDrawer({ facility, onClose, illustrative, scoreKin
           </dl>
           {facility.serviceEvidence && <p className="detail-note">Dataset service claim ({facility.serviceEvidence.field}) · {facility.serviceEvidence.text}</p>}
         </section>
-        {!illustrative && <WebsiteVerification facility={facility} ratioLabel={websiteRatioLabel} />}
+        {!illustrative && <WebsiteVerification facility={facility} />}
         <section className="detail-section" aria-labelledby="nabh-heading">
           <h3 id="nabh-heading">NABH accreditation</h3>
           <NabhVerification illustrative={illustrative} result={nabhResult} />

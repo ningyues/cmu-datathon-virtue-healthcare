@@ -31,7 +31,10 @@ test('linked Practo ratings load on cards without opening details; missing links
     const facilities = ['first', 'second', 'third'].map((id, index) => ({id, name: `Hospital ${index + 1}`,
       fitScore: 70 - index, hasPractoLink: index !== 1,
       websiteLinks: index === 0 ? [{index: 0, url: 'https://hospital.example/',
-        verification: {status: 'verified', evidenceUrl: 'https://hospital.example/'}}] : []}));
+        verification: {status: 'verified', evidenceUrl: 'https://hospital.example/', facilityMatch: {
+          status: 'verified', evidenceUrl: 'https://hospital.example/',
+          nameEvidence: 'Hospital 1', addressEvidence: '12 Main Road, Lucknow',
+        }}}] : []}));
     const user = userEvent.setup({document: dom.window.document});
     render(React.createElement(React.StrictMode, null,
       React.createElement(ResultsPage, {facilities, illustrative: false, status: 'success'})));
@@ -46,7 +49,7 @@ test('linked Practo ratings load on cards without opening details; missing links
       sourceUrl: 'https://www.practo.com/pune/hospital/example-hospital', reason: 'Read linked Practo page.'}));
     assert.ok(within(card(1)).getByText('4.5/5'));
     await user.click(card(1));
-    assert.ok(within(screen.getByRole('region', {name: 'Website verification'})).getByText('Verified'));
+    assert.ok(within(screen.getByRole('region', {name: 'Website verification'})).getByText('Verified · Hospital match'));
     assert.equal(calls.filter(call => call.url === '/api/website/verify').length, 0);
     assert.equal(calls.filter(call => call.url === '/api/practo/rating').length, 2);
     await act(async () => pending.get('third')({status: 'unavailable', score: null, reason: 'Practo blocked access.'}));

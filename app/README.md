@@ -215,7 +215,9 @@ agents/.venv/bin/python -m unittest app.test_nabh_verification -v
 
 ## Facility website verification
 
-From the repository root, prepare website scores after importing the snapshot.
+The database `load` command imports the bundled website scores and hospital-link
+evidence. To refresh website scores from public pages, run the following from
+the repository root after importing the facility snapshot.
 
 ```bash
 python -m app.website_verification
@@ -229,10 +231,22 @@ to the same hostname are sequential.
 
 Search responses include `websiteUrls`, saved checks in
 `websiteVerificationResults`, and a `urlDomainVerifiedRatio` from 0 to 1.
-The ratio is `null` when checks are incomplete or there are no usable links.
-Facility details and the website endpoint read saved results. The address flag
-in the Authority formula uses persisted Geoapify checks. Run the database `init` command
-to migrate an older database before deploying this API.
+This ratio measures reachability and is `null` while checks are incomplete or
+when there are no usable links. Facility details and the website endpoint read
+saved results. The address flag in the Authority formula uses persisted
+Geoapify checks. Run database `init` to upgrade an older schema.
+
+Run the identity check offline after the reachability batch. The job stores a
+status, timestamp and any name/address evidence per link in PostgreSQL
+`website_facility_matches`. Search reads those results in `facilityMatch`.
+
+```bash
+python -m app.website_facility_matching 2>&1 | tee website-facility-matching.log
+```
+
+Use `--city Hyderabad` or `--facility-id '<unique_id>'` for a subset. Rerunning
+continues with unchecked links. `--retry-unavailable` retries pages that could
+not be inspected.
 
 ## Practo rating during website verification
 

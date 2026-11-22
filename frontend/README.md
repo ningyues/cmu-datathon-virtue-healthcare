@@ -124,7 +124,7 @@ The live endpoint uses these backend fields.
 | `distance_km`, `fit_score` | `distanceKm` and `fitScore` support nearest-distance and Fit Score sorting. |
 | `service_match`, `service_evidence` | `serviceMatch` labels each card, and `serviceEvidence` supplies the original claim in the drawer. |
 
-`fitScore` displays as `Pending` when the dataset has no score. `trustScore` is a separate optional 0–100 value. When Fit Scores are pending, the frontend keeps the API's order, which prioritizes dataset service claims and uses straight-line distance within each group. Service availability remains unverified.
+`fitScore` displays as `Pending` when the dataset has no score. `trustScore` is a separate optional 0–100 value. When Fit Scores are pending, the frontend keeps the API's order, which prioritizes dataset service claims and uses straight-line distance within each group.
 
 The API defaults to the project's Ark intention agent in `agents/intent_agent.py`, loading `agents/.env`. Its output supplies the location, expanded specialty labels and services to the facility query and PostgreSQL scorer. Missing location or ambiguous requests return a clarification question in the query form, with the original input preserved. Edit the full request and submit again. Use `--local-parser` to opt into the offline service-catalog parser. To use the existing OpenAI parser, start it with `python3 -m app.api --agent` and configure `OPENAI_API_KEY` in the Python process. The API sends free-text queries to OpenAI in this mode. Live map points use the dataset coordinates and open the same detail drawer as the facility cards. The interactive Leaflet map uses OpenStreetMap street tiles, starts on India, and zooms to the backend search origin and facility coordinates. Gold marks the origin; numbered markers match the sorted cards and open their details. Internet access is required for map tiles.
 
@@ -192,13 +192,10 @@ results and older API responses without `intent` do not show the slider.
 ## Website verification
 
 The **Website verification** section lists links from `officialWebsite` and
-`websites` in the facility snapshot with their saved results. The heading shows
-the number of verified links and the final percentage once all checks are recorded.
-**Verified** means the link opened successfully. **Unable to verify** shows why
-the check could not complete. The Authority section shows the verified share
-of usable, distinct dataset links once all links have been checked. Fit Score
-shows **Pending** while the [website preparation batch](../app/README.md#facility-website-verification)
-has pending checks for the facility.
+`websites` with their saved results. **Verified · Hospital match** shows the
+name and address evidence from the page. The heading counts links with this
+evidence. The Authority section shows the reachable share used in Fit Score.
+See [the offline jobs](../app/README.md#facility-website-verification).
 
 ## Practo hospital ratings
 
