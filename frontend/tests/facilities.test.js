@@ -55,3 +55,13 @@ test('validates the percentage scale and preserves score details', () => {
   assert.throws(() => validateFacilities([{...record, fitScore: 101}]));
   assert.throws(() => validateFacilities([{...record, scoreBreakdown: {...record.scoreBreakdown, authority: 2}}]));
 });
+
+
+test('authority flags are optional booleans and preserve false values', () => {
+  const scoreBreakdown = {authority: 1, specialtyScore: 10, serviceScore: 0, rawScore: 10,
+    maxRawScore: 10, matchScore100: 100, services: [], specialties: [],
+    addressPostcodeCoordinatesMismatch: false, urlDomainSuspicious: false};
+  const record = {id: 'flags', name: 'Flags', fitScore: 100, scoreBreakdown};
+  assert.equal(validateFacilities([record])[0].scoreBreakdown.urlDomainSuspicious, false);
+  assert.throws(() => validateFacilities([{...record, scoreBreakdown: {...scoreBreakdown, urlDomainSuspicious: 'false'}}]));
+});
