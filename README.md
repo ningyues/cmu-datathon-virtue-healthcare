@@ -6,6 +6,7 @@ Datathon project for cleaning India healthcare facility and postal data, trackin
 
 | Path | Contents |
 | --- | --- |
+| `agents/` | NABH verification and hospital-search intent agents; see [setup and tests](agents/README.md) |
 | `app/` | Application workspace and data loading notes |
 | `pipeline/` | Python cleaning pipeline and source-backed correction rules |
 | `data/processed/` | Cleaned facility and postal snapshots, plus a one-row-per-PIN lookup |

@@ -1,0 +1,9 @@
+# Local Python environments and generated files
+.venv/
+__pycache__/
+*.py[cod]
+
+# Local credentials (keep examples versioned)
+.env
+.env.*
+!.env.example

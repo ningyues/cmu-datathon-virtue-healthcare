@@ -12,6 +12,7 @@ import io
 import json
 import logging
 import os
+from pathlib import Path
 import re
 import sys
 from datetime import date, datetime, timezone
@@ -22,6 +23,11 @@ from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 from bs4 import BeautifulSoup
 from pypdf import PdfReader
+
+if __package__:
+    from .env_config import DEFAULT_ENV_FILE, EnvConfigError, load_env_file
+else:
+    from env_config import DEFAULT_ENV_FILE, EnvConfigError, load_env_file
 
 DIRECTORY = "https://nabh.co/find-a-healthcare-organisation/"
 SEARCH = "https://nabh.co/wp-admin/admin-ajax.php"
@@ -307,7 +313,7 @@ def judge(candidate: dict, assessment: dict, input_address: str, today: date) ->
 
 
 def verify_facility(name: str, address: str, *, directory_only: bool = False,
-                    today: date | None = None) -> dict:
+                    today: date | None = None, env_file: Path = DEFAULT_ENV_FILE) -> dict:
     if not isinstance(name, str) or not 2 <= len(name.strip()) <= 300:
         raise ValueError("name must contain 2-300 characters")
     if not isinstance(address, str) or not 5 <= len(address.strip()) <= 1000:
@@ -319,6 +325,11 @@ def verify_facility(name: str, address: str, *, directory_only: bool = False,
         "as_of_date": today.isoformat(), "source": DIRECTORY,
         "status": "needs_review", "candidates": [], "warnings": [],
     }
+    try:
+        load_env_file(env_file)
+    except EnvConfigError as exc:
+        result.update(status="configuration_error", error=str(exc))
+        return result
     if not directory_only and not (os.environ.get("ARK_API_KEY") and os.environ.get("ARK_MODEL")):
         result.update(status="configuration_error", error="Set ARK_API_KEY and ARK_MODEL")
         return result
@@ -384,12 +395,14 @@ def main() -> int:
     parser.add_argument("--name", required=True)
     parser.add_argument("--address", required=True)
     parser.add_argument("--directory-only", action="store_true", help="Live source smoke test; no Ark call or verification")
+    parser.add_argument("--env-file", type=Path, default=DEFAULT_ENV_FILE,
+                        help="Env file to load (default: agents/.env); file values take priority")
     parser.add_argument("--verbose", action="store_true", help="Print progress to stderr; stdout remains JSON")
     args = parser.parse_args()
     if args.verbose:
         logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s", datefmt="%H:%M:%S")
     try:
-        result = verify_facility(args.name, args.address, directory_only=args.directory_only)
+        result = verify_facility(args.name, args.address, directory_only=args.directory_only, env_file=args.env_file)
     except ValueError as exc:
         parser.error(str(exc))
     print(json.dumps(result, ensure_ascii=False, indent=2))
