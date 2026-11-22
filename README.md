@@ -8,8 +8,9 @@ CareLens is a healthcare facility search and comparison tool for India. It helps
 
 ## Video presentation
 
-[Watch the CareLens presentation on Google Drive](https://drive.google.com/file/d/1hJMr_YhD9mqv4xZTJsiFpm0t4JqIXmg_/view?usp=sharing)
+[Watch the CareLens live demo on Google Drive](https://drive.google.com/file/d/1IZL8A6J02tdDjT6skSbMARxwAA_fqeJc/view?usp=drive_link)
 
+[Watch the CareLens presentation on Google Drive](https://drive.google.com/file/d/1YRKJs_y5BEh4WebLYI3Ig7qO5PefJuCi/view?usp=drive_link)
 ## Why we built it
 
 Facility names, addresses, specialty tags, and service descriptions often come from different sources. They can be incomplete or describe different branches of the same hospital. A person looking for dialysis needs to know which facilities are nearby and what supports the claim that a specific branch offers it.
