@@ -90,9 +90,9 @@ Frontend query box → POST /api/search {query}
 
 The agent's entire expanded `specialities` array and all requested `service` values
 are passed to the existing scorer. No intermediate JSON file or manual copy is needed.
-Each free-text submission makes one model request. Structured `intent` requests
-still bypass the model. This integrates the user intention agent; NABH `verify.py`
-is a separate verification command and is not called for every search result.
+Each free-text search makes one request to the intention model. Structured
+`intent` requests bypass that model. The frontend starts separate NABH checks
+after a live search response arrives.
 
 Run commands from the **repository root**, using Python 3.10+:
 
@@ -157,7 +157,8 @@ a five-second admission/connect timeout and a thirty-second SQL statement timeou
 
 Each result contains `fitScore` (0–100), `distanceKm`, `scoreBreakdown`, location,
 and existing evidence fields. The breakdown contains authority, specialty points,
-service points, the query maximum and per-input matches. `trustScore` stays null:
+service points, the query maximum, per-input matches, and `urlDomainVerifiedRatio`.
+`trustScore` stays null:
 synthetic authority is not a measured hospital trust rating. `text_match` denotes
 scoring-only text matches and is separate from an explicit dataset claim.
 
@@ -184,8 +185,8 @@ integration test. A live Ark request requires valid credentials and model access
 
 ## NABH verification from facility details
 
-After selecting a live facility card, click **NABH certification verify** in its
-detail panel. The frontend calls `POST /api/nabh/verify` with
+After a live search returns facilities, the frontend calls
+`POST /api/nabh/verify` for each facility with
 `{"facilityId":"<unique_id>"}`. The server looks up that record in the loaded
 snapshot and passes its display name and full street/city/state/PIN address to
 `agents.verify.verify_facility`. Client-supplied names and addresses are ignored.
@@ -193,21 +194,36 @@ snapshot and passes its display name and full street/city/state/PIN address to
 Both agents use `agents/.env`, or the API's `--env-file` override. Configure
 `ARK_API_KEY` and `ARK_MODEL` there and restart the API and Vite after this update.
 NABH verification queries the official directory and PDFs and may make a paid Ark
-model call. It runs only after a button click, with no automatic retry; the button
-is disabled while waiting. Two verification operations can run concurrently per
-API process. Closing the panel cancels the browser request; work already running
-on the server may finish.
+model call. The frontend checks up to two facilities concurrently, including
+facilities on later results pages. Leaving search results cancels pending
+browser requests. Work already running on the server may finish.
 
-Only an overall `verified` result with an approved certificate URL produces
-`successfully verified!` and PDF links. Missing, expired, ambiguous, or insufficient
-proof produces `can't be verified`, with no certificate link. Configuration,
-source, or model failures also display `can't be verified` with an availability
-explanation; this is not a finding that the hospital lacks accreditation. Returned
-fields are `status` (`verified`, `unverified`, `unavailable`), `message`, `reason`,
-and `certificateUrls`. Illustrative facilities cannot be verified.
+An overall `verified` result with an approved certificate URL displays
+**Verified** and PDF links in facility details and adds a star beside the
+facility name in search results. Missing, expired, ambiguous, or insufficient
+proof displays **Unable to verify** with a reason. Configuration, source, and
+model failures display the same status with an availability explanation.
+Returned fields are `status` (`verified`, `unverified`, `unavailable`),
+`message`, `reason`, and `certificateUrls`. Illustrative facilities skip verification.
 
 Run offline endpoint tests from the repository root:
 
 ```sh
 agents/.venv/bin/python -m unittest app.test_nabh_verification -v
 ```
+
+## Facility website verification
+
+Search responses include `websiteUrls` drawn from `officialWebsite` and `websites`.
+Opening facility details automatically checks each URL through
+`POST /api/website/verify` with
+`{"facilityId":"<unique_id>","websiteIndex":0}`. The index resolves against the
+loaded snapshot for that facility.
+
+The verifier checks whether the public link opens and returns content. It returns
+`verified` with the resolved destination in `evidenceUrl`, or `unavailable` with
+a reason. It records each completed check and returns `urlDomainVerifiedRatio`
+once every distinct usable URL for the facility has been checked. Both the
+search response and the verification response expose that ratio from 0 to 1.
+Pending ratios are returned as `null`. Run the database `init` command to migrate
+an existing database before deploying this API.

@@ -15,7 +15,8 @@ test('radius slider reuses intent, commits on release or keyboard, and retries t
   const previousFetch = globalThis.fetch;
   const requests = [];
   const intent = {location: {city: 'Lucknow', postcode: null}, specialities: ['nephrology'], service: ['dialysis'], range: 30};
-  globalThis.fetch = async (_url, options) => {
+  globalThis.fetch = async (url, options) => {
+    if (url === '/api/nabh/verify') return {ok: true, json: async () => ({status: 'unverified'})};
     const payload = JSON.parse(options.body);
     requests.push(payload);
     if (requests.length === 2) return {ok: false, status: 503, json: async () => ({error: 'Search temporarily unavailable.'})};

@@ -43,7 +43,7 @@ export default function LiveFacilityMap({ facilities, selectedId, onSelect, quer
     if (center) {
       const point = [center.latitude, center.longitude];
       bounds.push(point);
-      const icon = L.divIcon({ className: 'search-origin', html: '<span aria-hidden="true">◎</span>', iconSize: [28, 28] });
+      const icon = L.divIcon({ className: 'search-origin', iconSize: [18, 18], iconAnchor: [9, 9] });
       const label = document.createElement('span');
       label.textContent = `Search location: ${center.label}`;
       L.marker(point, { icon, title: 'Search location' }).bindTooltip(label).addTo(group);

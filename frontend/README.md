@@ -4,7 +4,7 @@ React JSX and plain CSS implementation of the supplied **CareLens / Aurora Glass
 
 ## Run locally
 
-Use Node.js 22.12+ (or Node.js 24).
+Use Node.js 22.13+ (or Node.js 24).
 
 Configure `agents/.env` and initialize the PostgreSQL database following [the app setup](../app/README.md#run-the-complete-query-workflow). Start the Python API from the repository root.
 
@@ -154,24 +154,26 @@ also send a structured intent object instead of free text.
 
 ## NABH certificate verification
 
-Select a live facility card and click **NABH certification verify** in its detail
-panel. A loading message appears while the backend checks the institution's name
-and full address against official NABH records and certificate PDFs. Success shows
-`successfully verified!` and **View certificate PDF** links; other outcomes show
-`can't be verified` with an explanation. Sample facilities have this action disabled.
-No verification runs merely from opening a card.
+When live search results arrive, the frontend starts checking every returned
+facility against official NABH records and certificate PDFs. The results page
+shows progress across all pages. As each check succeeds, a star appears before
+the facility's rank. Its detail panel shows the first page of each certificate
+alongside the **View certificate PDF** link. The link also works when preview
+rendering is unavailable.
+Other outcomes show **Unable to verify** with an explanation. Sample facilities
+skip verification.
 
 Vite proxies both search and verification under `/api` to port 8000. For another
 backend origin, set `VITE_NABH_API_URL` to its `/api/nabh/verify` endpoint in addition
 to the search URL. Keep Ark credentials in `agents/.env` on the backend. See
 [backend verification setup](../app/README.md#nabh-verification-from-facility-details).
 
+## Adjust the search radius
+
 The intent agent extracts an optional distance radius from the query (for example,
 `Find dialysis within 5 km of Lucknow`). Its `range` output defaults to 30 km.
 The API uses that radius to filter candidates and returns it as `radiusKm` for
 the result summary and map. Structured intent requests may also supply `range`.
-
-## Adjust the search radius
 
 Live results include a **Search radius** slider initialized from the agent's
 `range` (30 km by default). Drag to preview a value, then release to apply it;
@@ -186,3 +188,15 @@ bypassing another model call. Results, counts and map markers refresh together,
 and pagination resets to the first page. New requests cancel previous browser
 requests. If a search fails, **Try again** retries the selected radius. Sample
 results and older API responses without `intent` do not show the slider.
+
+## Website verification
+
+The **Website verification** section lists links from `officialWebsite` and
+`websites` in the facility snapshot. The frontend starts checking all of those
+links when the drawer opens.
+**Verified** means the link opened successfully. **Unable to verify** shows why
+the check could not complete. The Authority section shows the verified share
+of usable, distinct dataset links once all links have been checked.
+
+Vite proxies `/api/website/verify` to the Python API. Set
+`VITE_WEBSITE_VERIFICATION_API_URL` when the frontend uses a separate API origin.

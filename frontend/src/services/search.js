@@ -43,8 +43,13 @@ export function validateFacilities(data) {
     if (fit != null && (!Number.isFinite(fit) || fit < 0 || fit > 100)) throw new Error('Invalid Fit Score.');
     const breakdown = item.scoreBreakdown;
     if (breakdown != null) {
-      for (const key of ['addressPostcodeCoordinatesMismatch', 'urlDomainSuspicious']) {
-        if (breakdown[key] != null && typeof breakdown[key] !== 'boolean') throw new Error('Invalid authority flag.');
+      if (breakdown.addressPostcodeCoordinatesMismatch != null &&
+          typeof breakdown.addressPostcodeCoordinatesMismatch !== 'boolean') {
+        throw new Error('Invalid authority flag.');
+      }
+      const ratio = breakdown.urlDomainVerifiedRatio;
+      if (ratio != null && (!Number.isFinite(ratio) || ratio < 0 || ratio > 1)) {
+        throw new Error('Invalid URL verification ratio.');
       }
       const values = ['authority', 'specialtyScore', 'serviceScore', 'rawScore', 'maxRawScore', 'matchScore100'];
       if (values.some(key => !Number.isFinite(breakdown[key])) ||
@@ -67,6 +72,10 @@ export function validateFacilities(data) {
       area: item.area ?? 'Address unavailable', postalCode: item.postalCode ?? '',
       operatorType: item.operatorType ?? null, address: item.address ?? null,
       website: websiteUrl(item.website), coordinates: coordinates(item),
+      websiteLinks: Array.isArray(item.websiteUrls) ? item.websiteUrls.flatMap((value, index) => {
+        const url = websiteUrl(value);
+        return url ? [{ url, index }] : [];
+      }) : [],
       distanceKm: distance ?? null, trustScore: score ?? null, fitScore: fit ?? null,
       scoreBreakdown: breakdown ?? null,
       featured: item.featured === true, serviceEvidence: evidence ?? null,

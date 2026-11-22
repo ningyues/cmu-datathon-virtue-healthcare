@@ -39,10 +39,12 @@ BEGIN
     IF r.final_score IS DISTINCT FROM 14::numeric THEN
         RAISE EXCEPTION 'Persisted authority override was not used';
     END IF;
-    UPDATE healthcare.facilities SET url_domain_invalid = 0 WHERE unique_id = 'test:penalty';
-    SELECT authority INTO r FROM healthcare.facilities WHERE unique_id = 'test:penalty';
-    IF r.authority IS DISTINCT FROM 0.875::numeric THEN
-        RAISE EXCEPTION 'Authority must not auto-update when flags change';
+    UPDATE healthcare.facilities SET url_domain_invalid = 0.75 WHERE unique_id = 'test:penalty';
+    SELECT * INTO r FROM healthcare.search_facilities(
+        'TEST_PIN', 'nephrology', ARRAY['dialysis'])
+    WHERE unique_id = 'test:penalty';
+    IF r.final_score IS DISTINCT FROM 14::numeric OR r.url_domain_invalid IS DISTINCT FROM 0.75::numeric THEN
+        RAISE EXCEPTION 'The verified URL ratio must round trip without changing the score';
     END IF;
     BEGIN
         UPDATE healthcare.facilities SET authority = 1.1 WHERE unique_id = 'test:penalty';

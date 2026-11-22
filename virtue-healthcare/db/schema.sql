@@ -63,7 +63,8 @@ CREATE TABLE IF NOT EXISTS healthcare.facilities (
     "geography_status" text,
     "source_backfill_fields" text,
     postcode_address_cordination_unmatch smallint NOT NULL CHECK (postcode_address_cordination_unmatch IN (0, 1)),
-    url_domain_invalid smallint NOT NULL CHECK (url_domain_invalid IN (0, 1)),
+    url_domain_invalid numeric,
+    website_verification_results jsonb NOT NULL DEFAULT '{}',
     authority numeric(5,4) NOT NULL CHECK (authority BETWEEN 0 AND 1),
     flags_origin text NOT NULL DEFAULT 'synthetic',
     raw_record jsonb NOT NULL DEFAULT '{}',
@@ -141,6 +142,26 @@ DO $$ BEGIN
     END IF;
 END $$;
 ALTER TABLE healthcare.facilities ALTER COLUMN raw_record SET DEFAULT '{}';
+ALTER TABLE healthcare.facilities ADD COLUMN IF NOT EXISTS url_domain_invalid numeric;
+ALTER TABLE healthcare.facilities ADD COLUMN IF NOT EXISTS website_verification_results jsonb NOT NULL DEFAULT '{}';
+DO $$ BEGIN
+    IF EXISTS (SELECT 1 FROM pg_attribute
+               WHERE attrelid = 'healthcare.facilities'::regclass
+                 AND attname = 'url_domain_invalid' AND atttypid = 'smallint'::regtype) THEN
+        DROP FUNCTION IF EXISTS healthcare.search_facilities(text, text, text[], integer, integer);
+        -- The old seeded 0/1 values contain no website evidence.
+        ALTER TABLE healthcare.facilities
+            DROP CONSTRAINT IF EXISTS facilities_url_domain_invalid_check,
+            ALTER COLUMN url_domain_invalid DROP DEFAULT,
+            ALTER COLUMN url_domain_invalid DROP NOT NULL,
+            ALTER COLUMN url_domain_invalid TYPE numeric USING NULL::numeric;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conrelid = 'healthcare.facilities'::regclass
+                   AND conname = 'url_verified_ratio_range') THEN
+        ALTER TABLE healthcare.facilities ADD CONSTRAINT url_verified_ratio_range
+            CHECK (url_domain_invalid BETWEEN 0 AND 1);
+    END IF;
+END $$;
 DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conrelid = 'healthcare.facilities'::regclass
                    AND conname = 'authority_range') THEN
@@ -203,7 +224,7 @@ RETURNS TABLE (
     equipment_match boolean, procedure_match boolean,
     service_score integer, authority numeric, final_score numeric,
     postcode_address_cordination_unmatch smallint,
-    url_domain_invalid smallint, flags_origin text
+    url_domain_invalid numeric, flags_origin text
 )
 LANGUAGE sql STABLE AS $$
     WITH matches AS (

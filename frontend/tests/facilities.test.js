@@ -37,6 +37,7 @@ test('keeps Fit Score separate from trust and accepts geographic coordinates', (
   assert.deepEqual(sortFacilities(facilities, 'distance').map(row => row.id), ['pending', 'near', 'far']);
   assert.equal(facilityScore(facilities[0], 'fit').text, '85.00/100');
   assert.equal(facilityScore(facilities[0], 'trust').text, 'Unavailable');
+  assert.equal(facilityScore({ trustScore: 85.12345 }, 'trust').text, '85.12/100');
   assert.deepEqual(facilities[0].coordinates, { latitude: 17.4, longitude: 78.5 });
   assert.equal(facilities[0].website, 'https://example.org/');
   assert.equal(facilities[1].coordinates, null);
@@ -57,11 +58,14 @@ test('validates the percentage scale and preserves score details', () => {
 });
 
 
-test('authority flags are optional booleans and preserve false values', () => {
+test('validates the postcode flag and URL verification ratio', () => {
   const scoreBreakdown = {authority: 1, specialtyScore: 10, serviceScore: 0, rawScore: 10,
     maxRawScore: 10, matchScore100: 100, services: [], specialties: [],
-    addressPostcodeCoordinatesMismatch: false, urlDomainSuspicious: false};
+    addressPostcodeCoordinatesMismatch: false, urlDomainVerifiedRatio: 0};
   const record = {id: 'flags', name: 'Flags', fitScore: 100, scoreBreakdown};
-  assert.equal(validateFacilities([record])[0].scoreBreakdown.urlDomainSuspicious, false);
-  assert.throws(() => validateFacilities([{...record, scoreBreakdown: {...scoreBreakdown, urlDomainSuspicious: 'false'}}]));
+  assert.equal(validateFacilities([record])[0].scoreBreakdown.urlDomainVerifiedRatio, 0);
+  assert.throws(() => validateFacilities([{...record, scoreBreakdown: {...scoreBreakdown, addressPostcodeCoordinatesMismatch: 'false'}}]));
+  for (const ratio of [-0.1, 1.1, true, '0.5']) {
+    assert.throws(() => validateFacilities([{...record, scoreBreakdown: {...scoreBreakdown, urlDomainVerifiedRatio: ratio}}]));
+  }
 });

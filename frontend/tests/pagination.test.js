@@ -22,6 +22,8 @@ test('four cards per page retain global ranks, sorting, and all map markers', as
     const props = { facilities, illustrative: true, status: 'success', onHome() {}, onRetry() {} };
     const view = render(React.createElement(ResultsPage, props));
     const user = userEvent.setup({ document: dom.window.document });
+    const rankAndName = name => screen.getByRole('button', { name: new RegExp(`^${name}, trust score`) })
+      .querySelector('.facility-name').textContent;
     assert.equal(screen.getAllByRole('button', { name: /trust score/ }).length, 4);
     assert.equal(screen.getAllByRole('button', { name: /^Open Hospital/ }).length, 9);
     assert.equal(screen.queryByRole('navigation', { name: 'Results pages' }), null);
@@ -29,19 +31,19 @@ test('four cards per page retain global ranks, sorting, and all map markers', as
     fireEvent.scroll(dom.window);
     assert.ok(screen.getByRole('button', { name: '← Previous' }).disabled);
     await user.click(screen.getByRole('button', { name: 'Next →' }));
-    assert.ok(screen.getByText('5. Hospital 5'));
+    assert.equal(rankAndName('Hospital 5'), '5. Hospital 5');
     assert.ok(screen.getByText('Showing 5–8 of 9 facilities'));
     await user.click(screen.getByRole('button', { name: 'Next →' }));
     assert.equal(screen.getAllByRole('button', { name: /trust score/ }).length, 1);
     assert.ok(screen.getByRole('button', { name: 'Next →' }).disabled);
     await user.selectOptions(screen.getByLabelText('Sort by'), 'distance');
-    assert.ok(screen.getByText('1. Hospital 9'));
+    assert.equal(rankAndName('Hospital 9'), '1. Hospital 9');
     fireEvent.scroll(dom.window);
     assert.ok(screen.getByText('Showing 1–4 of 9 facilities'));
     await user.click(screen.getByRole('button', { name: 'Open Hospital 1' }));
     assert.ok(screen.getByRole('dialog', { name: 'Hospital 1' }));
     await user.click(screen.getByRole('button', { name: 'Close facility details' }));
-    assert.ok(screen.getByText('9. Hospital 1'));
+    assert.equal(rankAndName('Hospital 1'), '9. Hospital 1');
     view.rerender(React.createElement(ResultsPage, { ...props, facilities: facilities.slice(0, 2) }));
     fireEvent.scroll(dom.window);
     assert.ok(screen.getByText('Showing 1–2 of 2 facilities'));

@@ -78,17 +78,29 @@ test('live search ranks Fit Scores and shows the scoring breakdown', async () =>
   globalThis.IS_REACT_ACT_ENVIRONMENT = true;
   globalThis.ResizeObserver = class { observe() {} disconnect() {} };
   const previousFetch = globalThis.fetch;
-  globalThis.fetch = async (_url, options) => {
+  const websiteCalls = [];
+  globalThis.fetch = async (url, options) => {
+    if (url === '/api/nabh/verify') return {ok: true, json: async () => ({status: 'unverified'})};
+    if (url === '/api/website/verify') {
+      const { facilityId, websiteIndex } = JSON.parse(options.body);
+      assert.equal(facilityId, 'best');
+      assert.ok([0, 1].includes(websiteIndex));
+      websiteCalls.push(websiteIndex);
+      return {ok: true, json: async () => websiteIndex === 0
+        ? {status: 'verified', reason: 'The link opens successfully.', evidenceUrl: 'https://hospital.example.com/contact', urlDomainVerifiedRatio: null}
+        : {status: 'unavailable', reason: 'The page could not be reached.', evidenceUrl: null, urlDomainVerifiedRatio: 0.5}};
+    }
     assert.equal(JSON.parse(options.body).query, 'dialysis in Lucknow');
     return {ok: true, json: async () => ({facilities: [
       {id: 'near', name: 'Nearby Hospital', fitScore: 10, distanceKm: 1},
       {id: 'best', name: 'Best Match Hospital', fitScore: 20, distanceKm: 5,
-       serviceMatch: 'text_match', scoreBreakdown: {authority: 0.2, addressPostcodeCoordinatesMismatch: true, urlDomainSuspicious: true, authoritySource: 'synthetic',
+       websiteUrls: ['https://hospital.example.com/', 'https://directory.example.org/listing'],
+       serviceMatch: 'text_match', scoreBreakdown: {authority: 0.2, addressPostcodeCoordinatesMismatch: true, urlDomainVerifiedRatio: null, authoritySource: 'synthetic',
        specialtyScore: 10, serviceScore: 6, rawScore: 16, maxRawScore: 16, matchScore100: 100,
        specialties: [{input: 'nephrology', matched: true}], services: [{input: 'dialysis', score: 6}]}}
     ]})};
   };
-  const { render, within, cleanup } = await import('@testing-library/react');
+  const { render, within, cleanup, waitFor } = await import('@testing-library/react');
   const screen = within(dom.window.document.body);
   const { default: userEvent } = await import('@testing-library/user-event');
   const server = await createServer({
@@ -107,10 +119,21 @@ test('live search ranks Fit Scores and shows the scoring breakdown', async () =>
     assert.ok(screen.getByText(/Authority: 0.20/));
     assert.ok(screen.getByText('dialysis: 6/6'));
     assert.ok(screen.getByText(/Address, postcode and coordinates mismatch/));
-    assert.ok(screen.getByText(/URL domain suspicious/));
-    assert.ok(screen.getByText('Flag-based score: 0.20'));
-    assert.equal(screen.queryByText(/Simulated data/), null);
-    await user.click(screen.getByRole('button', {name: 'Close facility details'}));
+    assert.ok(screen.getByText(/simulated flags/));
+    assert.ok(screen.getByRole('region', {name: 'Score calculation'}));
+    assert.ok(screen.getByRole('region', {name: 'Facility details'}));
+    assert.ok(screen.getByRole('region', {name: 'NABH accreditation'}));
+    const websites = within(screen.getByRole('region', {name: 'Website verification'}));
+    assert.ok(await websites.findByText('Verified'));
+    assert.equal(websites.getByRole('link', {name: /Open checked destination/}).getAttribute('href'), 'https://hospital.example.com/contact');
+    await waitFor(() => assert.deepEqual(websiteCalls, [0, 1]));
+    assert.ok(await screen.findByText('URL domain verification · 50%'));
+    assert.equal(websites.queryByRole('button'), null);
+    await user.click(websites.getByText('More dataset links (1)'));
+    assert.ok(await websites.findByText('Unable to verify'));
+    assert.equal(websites.getByRole('link', {name: /directory\.example\.org\/listing/}).getAttribute('href'), 'https://directory.example.org/listing');
+    await user.click(dom.window.document.querySelector('.drawer-backdrop'));
+    assert.equal(screen.queryByRole('dialog'), null);
     await user.selectOptions(screen.getByLabelText('Sort by'), 'distance');
     assert.match(screen.getAllByRole('button', {name: /fit score/})[0].textContent, /1\. Nearby Hospital/);
   } finally {
@@ -128,7 +151,8 @@ test('agent clarification preserves the query and lets the user refine and resub
   globalThis.ResizeObserver = class { observe() {} disconnect() {} };
   const previousFetch = globalThis.fetch;
   const queries = [];
-  globalThis.fetch = async (_url, options) => {
+  globalThis.fetch = async (url, options) => {
+    if (url === '/api/nabh/verify') return {ok: true, json: async () => ({status: 'unverified'})};
     queries.push(JSON.parse(options.body).query);
     return queries.length === 1
       ? {ok: false, status: 422, json: async () => ({error: {code: 'location_required',

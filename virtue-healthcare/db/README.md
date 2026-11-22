@@ -24,13 +24,16 @@ semantic search or independent service verification. No service catalog is requi
 - Postcode matches exactly; city matches exactly after case/whitespace normalization.
   When both are supplied, both filters must match.
 
-The two flags are synthetic test data, not actual quality assessments. They are
-independently shuffled using a fixed seed, allocating the nearest integer to 20%
-and 30% ones. In the supplied 9,989-row snapshot, this is 1,998 and 2,997 rows.
-`flags_origin` is `synthetic`. Authority is a normal writable NUMERIC(5,4) column
-constrained to [0, 1]. Its initial value is computed once on import. Search reads
-this stored value without recalculation. Changing either flag does not change the
-score automatically. The requested spelling `cordination` is retained.
+Authority is a writable NUMERIC(5,4) column constrained to [0, 1]. Its initial
+value is computed once on import using the original seeded inputs, with
+`flags_origin` set to `synthetic`. Search uses the stored Authority value.
+The requested spelling `cordination` is retained for the synthetic postcode flag.
+
+`url_domain_invalid` now stores the verified share of a facility's distinct
+dataset URLs, from 0 to 1. It is NULL until all listed URLs have been checked,
+and remains NULL when the facility has no usable URLs. The API records checks
+as they run in facility details. A higher ratio means more links opened.
+The ratio is available for future scoring changes.
 
 ## Start locally
 
@@ -81,15 +84,15 @@ FROM healthcare.facilities GROUP BY postcode_address_cordination_unmatch;
 
 ## Import and concurrency
 
-`init` can be repeated and upgrades the earlier partial schema: it adds all source
-columns and converts generated authority to a writable column without changing its
-current values. Run `load` afterwards to populate newly added source columns. Legacy
+`init` can be repeated and upgrades earlier schemas. It clears the old synthetic
+URL flags when converting the column to a ratio and preserves stored Authority.
+Run `load` when importing source columns or a new snapshot. Legacy
 `postcode` and `pincode_lookup` objects, if present, are retained but no longer used.
 `load` validates arrays, bulk copies into temporary tables and upserts in one
 transaction. Importers use an advisory lock to avoid interleaved imports. Readers
 see committed data; they never see partially loaded snapshots. Failed imports roll
-back. Re-importing preserves existing flags and authority, including manual changes. New IDs get
-seeded flags; after incremental imports, global proportions need not remain exact.
+back. Re-importing preserves existing Authority, including manual changes.
+Changing a facility's imported website fields clears its stored checks and ratio.
 Rows missing from a later input are retained; imports never silently delete hospitals.
 
 All 60 original facility columns exist independently in `healthcare.facilities`.
@@ -187,13 +190,6 @@ blank terms and postcode filtering, using fixtures rolled back after the test.
 ```sql
 UPDATE healthcare.facilities
 SET authority = 0.85, updated_at = now()
-WHERE unique_id = 'facility-id';
-
--- Explicitly reset one score to the flag-based formula, if desired.
-UPDATE healthcare.facilities
-SET authority = 1.00 - 0.30 * postcode_address_cordination_unmatch
-                     - 0.50 * url_domain_invalid,
-    updated_at = now()
 WHERE unique_id = 'facility-id';
 
 SELECT f.unique_id, f.name, f.authority
