@@ -29,6 +29,15 @@ export default function DetailDrawer({ facility, onClose, illustrative, scoreKin
       <section ref={panel} className="detail-drawer" role="dialog" aria-modal="true" aria-labelledby="detail-name">
         <div className="drawer-heading"><h2 id="detail-name">{facility.name}{facility.featured && <span className="featured-star"> ★</span>}</h2><button ref={closeButton} type="button" className="close-button" onClick={onClose} aria-label="Close facility details">×</button></div>
         <div className="trust-display"><h3>{score.label}</h3><strong className={score.missing ? 'score-unavailable' : ''}>{score.text}</strong></div>
+        {facility.scoreBreakdown && <div className="score-breakdown" aria-label="Fit Score breakdown">
+          <p>Authority: {facility.scoreBreakdown.authority.toFixed(2)}</p>
+          <p>Specialty match: {facility.scoreBreakdown.specialtyScore}/10</p>
+          <p>Services: {facility.scoreBreakdown.serviceScore} points</p>
+          <ul>{facility.scoreBreakdown.services.map(service => <li key={service.input}>{service.input}: {service.score}/6</li>)}</ul>
+          <p>Match: {facility.scoreBreakdown.rawScore}/{facility.scoreBreakdown.maxRawScore} = {facility.scoreBreakdown.matchScore100.toFixed(2)}%</p>
+          <p>Fit Score = authority × match percentage.</p>
+          <p>Text matching does not verify current service availability.</p>
+        </div>}
         <div className="hospital-information">
           {facility.address && <p>{facility.address}</p>}
           <p>{facility.area}{facility.postalCode && ` · ${facility.postalCode}`}</p>

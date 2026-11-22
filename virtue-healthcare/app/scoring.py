@@ -42,7 +42,8 @@ def calculate_service_score(hospital, service):
     return 2 * sum(matches.values()), matches
 
 
-def search_facilities(conn, postcode=None, specialty=None, services=(), limit=20, offset=0, city=None):
+def search_facilities(conn, postcode=None, specialty=None, services=(), limit=20, offset=0, city=None,
+                      candidate_ids=None):
     specialty, terms = normalize_query(specialty, services)
     postcode = (postcode or '').strip() or None
     city = normalize(city) or None
@@ -56,7 +57,11 @@ def search_facilities(conn, postcode=None, specialty=None, services=(), limit=20
             FROM healthcare.facilities
             WHERE (%s::text IS NULL OR "address_zipOrPostcode" = %s)
               AND (%s::text IS NULL OR healthcare.normalize_text(address_city) = %s)
-            ORDER BY unique_id FOR SHARE''', (postcode, postcode, city, city)).fetchall()
+              AND (%s::text[] IS NULL OR unique_id = ANY(%s::text[]))
+            ORDER BY unique_id FOR SHARE''',
+            (postcode, postcode, city, city, candidate_ids, candidate_ids)).fetchall()
+        if candidate_ids is not None and set(candidate_ids) - {h['unique_id'] for h in hospitals}:
+            raise ValueError('Scoring database is missing candidate hospitals. Reload the snapshot.')
         if not hospitals:
             return []
         ids = [h['unique_id'] for h in hospitals]
@@ -112,7 +117,7 @@ def search_facilities(conn, postcode=None, specialty=None, services=(), limit=20
     # Rank before rounding to avoid changing the order of near-equal scores.
     results.sort(key=lambda r: (-r['final_score'], -r['raw_score'], r['unique_id']))
     offset = max(0, offset)
-    page = results[offset:offset + max(1, min(limit, 100))]
+    page = results[offset:] if limit is None else results[offset:offset + max(1, min(limit, 100))]
     for result in page:
         for key in ('match_score_100', 'final_score'):
             result[key] = result[key].quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)

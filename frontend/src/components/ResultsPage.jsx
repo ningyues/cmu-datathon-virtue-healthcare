@@ -50,7 +50,7 @@ export default function ResultsPage({ facilities, illustrative, queryLocation, r
                 {status === 'success' && sorted.map((facility, index) => <FacilityCard key={facility.id} facility={facility} rank={index + 1} selected={selectedId === facility.id} onSelect={selectFacility} scoreKind={scoreKind} />)}
               </div>
             </section>
-            <div className="map-column"><FacilityMap facilities={facilities} queryLocation={queryLocation} radiusKm={radiusKm} selectedId={selectedId} onSelect={selectFacility} illustrative={illustrative} hasDetail={Boolean(detail)} /></div>
+            <div className="map-column"><FacilityMap facilities={sorted} queryLocation={queryLocation} radiusKm={radiusKm} selectedId={selectedId} onSelect={selectFacility} illustrative={illustrative} hasDetail={Boolean(detail)} /></div>
           </div>
           {detail && <DetailDrawer key={detail.id} facility={detail} onClose={closeDetail} illustrative={illustrative} scoreKind={scoreKind} />}
         </main>

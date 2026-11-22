@@ -12,6 +12,7 @@ The backend preserves the existing cleaning pipeline and source snapshots.
 
 | Path | Contents |
 | --- | --- |
+| `agents/` | NABH verification and hospital-search intent agents; see [setup and tests](agents/README.md) |
 | `app/` | Application workspace and data loading notes |
 | `pipeline/` | Python cleaning pipeline and source-backed correction rules |
 | `data/processed/` | Cleaned facility and postal snapshots, plus a one-row-per-PIN lookup |
