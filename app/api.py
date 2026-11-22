@@ -10,32 +10,61 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from app.facility_data import read_facilities
 from app.location_matching import LocationMatcher, rank_by_distance
 from app.search_output import fit_score_value
+from app.scoring_backend import PostgresScorer, ScoringUnavailable
 from app.service_search import (
-    match_search_intent, match_service, parse_query, parse_query_with_agent, parse_search_intent,
+    SERVICES, SearchIntent, match_search_intent, parse_query, parse_query_with_agent, parse_search_intent,
 )
 
 
-def search_facilities(payload, *, facilities, matcher, parse):
+def intent_agent_parser():
+    from agents.intent_agent import IntentError, SpecialityCatalog, parse_intent
+    catalog = SpecialityCatalog()
+
+    def parse(text):
+        try:
+            return parse_search_intent(parse_intent(text, catalog=catalog))
+        except IntentError as error:
+            raise ValueError(error.clarification_question or str(error)) from error
+    return parse
+
+
+def search_facilities(payload, *, facilities, matcher, parse, score):
     if not isinstance(payload, dict) or ("query" in payload) == ("intent" in payload):
         raise ValueError("Send one query string or one search intent object.")
 
     if "intent" in payload:
         request = parse_search_intent(payload["intent"])
-        matches = match_search_intent(facilities, request)
     else:
         query = payload["query"]
         if not isinstance(query, str) or not query.strip():
             raise ValueError("Enter the care you need and your location.")
         request = parse(query.strip())
-        matches = match_service(facilities, request.service_id)
+        if not isinstance(request, SearchIntent):
+            request = SearchIntent(request.city, request.pincode,
+                                   SERVICES[request.service_id].specialties,
+                                   (request.service_id.replace('_', ' '),))
 
     address = ", ".join(part for part in (request.city, request.pincode) if part)
     location = matcher.resolve(address)
     if location.status != "resolved":
         raise ValueError(f"Could not resolve the location ({location.status}). Check the city, state, and PIN.")
-    result = matcher.match(matches, latitude=location.latitude, longitude=location.longitude)
-    nearby = rank_by_distance(result["candidates"])
-    nearby.sort(key=lambda row: row["service_match"] != "listed_in_dataset")
+    result = matcher.match(facilities, latitude=location.latitude, longitude=location.longitude)
+    candidates = list(result['candidates'])
+    scores = {row['unique_id']: row for row in score(candidates, request)}
+    evidence = {row['unique_id']: row for row in match_search_intent(candidates, request)}
+    nearby = []
+    for row in candidates:
+        details = scores.get(row['unique_id'])
+        if details is None:
+            continue
+        proof = evidence.get(row['unique_id'], {})
+        nearby.append({**row, 'fit_score': float(details['final_score']),
+                       'score_details': details,
+                       'service_match': 'listed_in_dataset' if proof.get('service_evidence') else (
+                           'text_match' if details['service_score'] else 'related_specialty_only'),
+                       'service_evidence': proof.get('service_evidence')})
+    nearby = rank_by_distance(nearby)
+    nearby.sort(key=lambda row: -row['fit_score'])
 
     return {
         "queryLocation": asdict(location),
@@ -57,6 +86,17 @@ def search_facilities(payload, *, facilities, matcher, parse):
                 "longitude": float(row["longitude"]),
                 "distanceKm": row["distance_km"],
                 "fitScore": fit_score_value(row.get("fit_score")),
+                "scoreBreakdown": {
+                    "authority": float(row['score_details']['authority']),
+                    "authoritySource": row['score_details']['flags_origin'],
+                    "specialtyScore": row['score_details']['specialty_score'],
+                    "serviceScore": row['score_details']['service_score'],
+                    "rawScore": row['score_details']['raw_score'],
+                    "maxRawScore": row['score_details']['max_raw_score'],
+                    "matchScore100": float(row['score_details']['match_score_100']),
+                    "specialties": row['score_details']['specialty_details'],
+                    "services": row['score_details']['service_details'],
+                },
                 "trustScore": None,
                 "serviceMatch": row["service_match"],
                 "serviceEvidence": row["service_evidence"],
@@ -88,6 +128,9 @@ class SearchHandler(BaseHTTPRequestHandler):
         except ValueError as error:
             self.respond(HTTPStatus.BAD_REQUEST, {"error": str(error)})
             return
+        except ScoringUnavailable as error:
+            self.respond(HTTPStatus.SERVICE_UNAVAILABLE, {"error": str(error)})
+            return
         self.respond(HTTPStatus.OK, result)
 
     def respond(self, status, payload):
@@ -106,10 +149,13 @@ class SearchHandler(BaseHTTPRequestHandler):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--port", type=int, default=8000)
-    parser.add_argument("--agent", action="store_true", help="Use the OpenAI API to parse free-text queries")
+    parsers = parser.add_mutually_exclusive_group()
+    parsers.add_argument("--agent", action="store_true", help="Use the OpenAI API to parse free-text queries")
+    parsers.add_argument("--intent-agent", action="store_true", help="Use the project's expanded specialty intent agent")
     args = parser.parse_args()
-    parse = parse_query_with_agent if args.agent else parse_query
-    search = partial(search_facilities, facilities=tuple(read_facilities()), matcher=LocationMatcher(), parse=parse)
+    parse = intent_agent_parser() if args.intent_agent else parse_query_with_agent if args.agent else parse_query
+    search = partial(search_facilities, facilities=tuple(read_facilities()), matcher=LocationMatcher(),
+                     parse=parse, score=PostgresScorer())
     with ThreadingHTTPServer(("127.0.0.1", args.port), partial(SearchHandler, search)) as server:
         print(f"Facility search API listening on http://127.0.0.1:{server.server_port}/api/search", flush=True)
         try:

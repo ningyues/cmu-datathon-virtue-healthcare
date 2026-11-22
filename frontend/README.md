@@ -133,3 +133,17 @@ Primary desktop frames: landing `33:689`, results `33:742`, and detail instances
 The design shows four cards with a count of three and omits the fourth card from some alternate states. This implementation consistently uses all four records in both sorting modes and calculates the count. The duplicate sort-control layer is rendered as one functional select. The supplied names, scores, addresses, and distances are retained. Results are labelled illustrative so the prototype does not present sample values as verified healthcare data.
 
 Production build and automated data/component tests were run. Tests cover ranking, missing values, malformed API records, form validation, sorting, card/marker selection, drawer dismissal, and returning to search. Browser rendering could not be visually verified because this execution environment blocked the local browser launch; check the layout in your browser before treating it as a pixel-perfect handoff.
+
+## Integrated scoring
+
+Start the repository-root API with `DATABASE_URL` configured (see `app/README.md`),
+then run `npm ci` and `npm run dev` here. Vite proxies `/api/search` to port 8000.
+Use `python -m app.api --intent-agent` for the project's expanded specialty parser.
+The default local parser supports its small service catalog only.
+
+Live results default to highest Fit Score, with nearest distance breaking ties.
+Scores display on a 0–100 scale. The map uses the same ordering as the list, and
+facility details show authority, specialty points and each service's contribution.
+Missing services and API failures
+never fall back to illustrative hospital records. `searchFacilities(intent)` can
+also send a structured intent object instead of free text.

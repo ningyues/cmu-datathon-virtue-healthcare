@@ -40,7 +40,21 @@ export function validateFacilities(data) {
     const distance = item.distanceKm;
     const evidence = item.serviceEvidence;
     if (score != null && (!Number.isFinite(score) || score < 0 || score > 100)) throw new Error('Invalid trust score.');
-    if (fit != null && !Number.isFinite(fit)) throw new Error('Invalid Fit Score.');
+    if (fit != null && (!Number.isFinite(fit) || fit < 0 || fit > 100)) throw new Error('Invalid Fit Score.');
+    const breakdown = item.scoreBreakdown;
+    if (breakdown != null) {
+      const values = ['authority', 'specialtyScore', 'serviceScore', 'rawScore', 'maxRawScore', 'matchScore100'];
+      if (values.some(key => !Number.isFinite(breakdown[key])) ||
+          breakdown.authority < 0 || breakdown.authority > 1 ||
+          ![0, 10].includes(breakdown.specialtyScore) || breakdown.serviceScore < 0 ||
+          breakdown.maxRawScore <= 0 || breakdown.rawScore < 0 || breakdown.rawScore > breakdown.maxRawScore ||
+          breakdown.matchScore100 < 0 || breakdown.matchScore100 > 100 ||
+          !Array.isArray(breakdown.services) || !Array.isArray(breakdown.specialties) ||
+          breakdown.services.some(s => typeof s.input !== 'string' || !Number.isFinite(s.score) || s.score < 0 || s.score > 6) ||
+          breakdown.specialties.some(s => typeof s.input !== 'string' || typeof s.matched !== 'boolean')) {
+        throw new Error('Invalid score breakdown.');
+      }
+    }
     if (distance != null && (!Number.isFinite(distance) || distance < 0)) throw new Error('Invalid distance.');
     if (evidence != null && (typeof evidence.field !== 'string' || typeof evidence.text !== 'string')) {
       throw new Error('Invalid service evidence.');
@@ -51,8 +65,9 @@ export function validateFacilities(data) {
       operatorType: item.operatorType ?? null, address: item.address ?? null,
       website: websiteUrl(item.website), coordinates: coordinates(item),
       distanceKm: distance ?? null, trustScore: score ?? null, fitScore: fit ?? null,
+      scoreBreakdown: breakdown ?? null,
       featured: item.featured === true, serviceEvidence: evidence ?? null,
-      serviceMatch: ['listed_in_dataset', 'related_specialty_only'].includes(item.serviceMatch) ? item.serviceMatch : null,
+      serviceMatch: ['listed_in_dataset', 'related_specialty_only', 'text_match'].includes(item.serviceMatch) ? item.serviceMatch : null,
     };
   });
 }
@@ -62,7 +77,7 @@ export async function searchFacilities(query, { signal } = {}) {
   const response = await fetch(endpoint, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query }),
+    body: JSON.stringify(typeof query === 'string' ? { query } : { intent: query }),
     signal,
   });
   const data = await response.json().catch(() => null);
