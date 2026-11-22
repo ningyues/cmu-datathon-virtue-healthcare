@@ -33,9 +33,19 @@ python3 -m app.demo_location_search --intent search-intent.json
 {
   "location": {"postcode": null, "city": "Lucknow"},
   "specialities": ["dentistry", "General Dentistry"],
-  "service": ["toothache consultation", "dental care"]
+  "service": ["toothache consultation", "dental care"],
+  "range": 30
 }
 ```
+
+`range` is the search radius in kilometers, defaults to 30 when omitted, and accepts
+finite positive numbers including decimals. The API and `--intent` demo both pass
+this value to geographic filtering before ranking. For example, `"range": 5`
+limits results to 5 km; invalid values are rejected. API responses report the
+applied radius in `radiusKm`, which the frontend uses in its summary and map.
+The API also returns the normalized `intent` (`location`, `specialities`, `service`,
+`range`). The results-page radius slider resubmits this intent with the selected
+`range`; it does not parse the original query again or make another model call.
 
 With a null postcode, the demo uses the city as the approximate origin. It matches `specialities` against dataset specialty labels and `service` against exact normalized claim text. Use `--intent -` to read JSON from stdin.
 
@@ -73,8 +83,8 @@ The default flow is now:
 ```text
 Frontend query box → POST /api/search {query}
 → agents.intent_agent.parse_intent (Ark)
-→ {location, specialities, service}
-→ parse_search_intent → LocationMatcher (30 km)
+→ {location, specialities, service, range}
+→ parse_search_intent → LocationMatcher (range km, default 30)
 → PostgreSQL scoring → facility cards and map
 ```
 

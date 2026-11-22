@@ -1,11 +1,12 @@
 import { useCallback, useMemo, useRef, useEffect, useState } from 'react';
+import RangeControl from './RangeControl.jsx';
 import Navigation from './Navigation.jsx';
 import FacilityCard from './FacilityCard.jsx';
 import FacilityMap from './FacilityMap.jsx';
 import DetailDrawer from './DetailDrawer.jsx';
 import { sortFacilities } from '../data/facilities.js';
 
-export default function ResultsPage({ facilities, illustrative, queryLocation, radiusKm, status, error, onHome, onRetry }) {
+export default function ResultsPage({ facilities, illustrative, queryLocation, radiusKm, intent, status, error, onHome, onRetry, onRangeChange }) {
   const [showPagination, setShowPagination] = useState(false);
   const resultsGrid = useRef(null);
   const [page, setPage] = useState(1);
@@ -59,7 +60,7 @@ export default function ResultsPage({ facilities, illustrative, queryLocation, r
                 <div>
                   <h1 ref={heading} tabIndex={-1}>Search results</h1>
                   <p className="result-count" aria-live="polite">{status === 'loading' ? 'Finding facilities…' : `${facilities.length} ${facilities.length === 1 ? 'facility' : 'facilities'}${illustrative ? ' · Illustrative data' : ''}`}</p>
-                  {queryLocation?.label && <p className="result-count">{radiusKm ? `Within ${radiusKm} km of ` : ''}{queryLocation.label}</p>}
+                  {queryLocation?.label && <p className="result-count">{radiusKm ? `Within ${radiusKm.toFixed(1)} km of ` : ''}{queryLocation.label}</p>}
                 </div>
                 <label className="sort-control">Sort by<select value={sortBy} onChange={(event) => setSortChoice(event.target.value)} disabled={status !== 'success' || facilities.length === 0}>
                   {!illustrative && <option value="fit">{hasFitScores ? 'Highest Fit Score' : 'Best match'}</option>}
@@ -67,6 +68,7 @@ export default function ResultsPage({ facilities, illustrative, queryLocation, r
                   <option value="distance">Nearest distance</option>
                 </select></label>
               </div>
+              {!illustrative && intent && <RangeControl radiusKm={radiusKm ?? intent.range} onRangeChange={onRangeChange} />}
               <div className="facility-list" aria-busy={status === 'loading'}>
                 {status === 'loading' && <div className="state-card" role="status"><h2>Finding facilities…</h2><p>Please wait while information is retrieved.</p><div className="loading-line" /></div>}
                 {status === 'error' && <div className="state-card" role="alert"><h2>Unable to load results</h2><p>{error || 'Try another service or enter your location manually.'}</p><button className="primary-button" type="button" onClick={onRetry}>Try again</button></div>}

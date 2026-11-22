@@ -6,7 +6,7 @@ import sys
 from pathlib import Path
 
 from app.facility_data import FACILITIES, read_facilities
-from app.location_matching import LocationMatcher, PIN_PATTERN
+from app.location_matching import DEFAULT_RADIUS_KM, LocationMatcher, PIN_PATTERN
 from app.search_output import print_nearby_results
 from app.service_search import (
     match_search_intent, match_service, parse_query, parse_query_with_agent, parse_search_intent,
@@ -79,7 +79,8 @@ def main() -> int:
             if any(item.casefold() == specialty for item in json.loads(row["specialties"] or "[]"))
         ]
 
-    result = LocationMatcher().match(candidates, address)
+    result = LocationMatcher().match(candidates, address,
+                                     radius_km=intent.range if intent is not None else DEFAULT_RADIUS_KM)
     location = result["query_location"]
     status = location["status"]
     if status == "location_conflict":

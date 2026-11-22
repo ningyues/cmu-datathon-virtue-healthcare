@@ -239,3 +239,12 @@ button, a, textarea, select { -webkit-tap-highlight-color: transparent; }
   background-position: right 16px center;
   background-size: 16px;
 }
+
+.range-control { margin: 18px 0 24px; padding: 16px 18px; border: 1px solid #dce5e0; border-radius: 16px; background: rgba(255,255,255,.7); }
+.range-heading, .range-limits { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.range-heading { font-size: 14px; font-weight: 600; }
+.range-heading output { color: #176146; font-variant-numeric: tabular-nums; }
+.range-control input { display: block; width: 100%; margin: 16px 0 8px; accent-color: #176146; cursor: pointer; }
+.range-control input:focus-visible { outline: 2px solid #176146; outline-offset: 5px; }
+.range-limits, .range-control p { font-size: 12px; color: #5c6d64; }
+.range-control p { margin: 10px 0 0; }
