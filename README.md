@@ -12,7 +12,7 @@ CareLens is a healthcare facility search and comparison tool for India. It helps
 
 [Watch the CareLens presentation on Google Drive](https://drive.google.com/file/d/1YRKJs_y5BEh4WebLYI3Ig7qO5PefJuCi/view?usp=drive_link)
 
-[Browse the presentation figures](#presentation-figures)
+[Browse our main figures](#presentation-figures)
 
 ## Why we built it
 
