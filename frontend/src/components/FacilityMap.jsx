@@ -23,6 +23,7 @@ function IllustrativeMap({ facilities, queryLocation, radiusKm, selectedId, onSe
         {facilities.filter((facility) => facility.marker).map((facility) => (
           <button type="button" key={facility.id} className={`map-marker ${selectedId === facility.id ? 'is-selected' : ''}`} style={{ left: facility.marker.x, top: facility.marker.y }} onClick={() => onSelect(facility)} aria-label={`Open ${facility.name}`}>
             {facility.marker.label}
+            <span className="facility-tooltip map-marker-tooltip" aria-hidden="true">{facility.name}</span>
           </button>
         ))}
       </div> : null}

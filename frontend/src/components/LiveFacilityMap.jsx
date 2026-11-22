@@ -53,7 +53,11 @@ export default function LiveFacilityMap({ facilities, selectedId, onSelect, quer
       const point = [facility.coordinates?.latitude, facility.coordinates?.longitude];
       bounds.push(point);
       const icon = L.divIcon({ className: 'facility-pin', html: `<span>${index + 1}</span>`, iconSize: [38, 38], iconAnchor: [19, 19] });
-      const marker = L.marker(point, { icon, title: `Open ${facility.name}`, keyboard: true }).addTo(group);
+      const label = document.createElement('span');
+      label.textContent = facility.name;
+      const marker = L.marker(point, { icon, keyboard: true })
+        .bindTooltip(label, { offset: [19, 0], opacity: 1, className: 'facility-tooltip' })
+        .addTo(group);
       marker.getElement().setAttribute('aria-label', `Open ${facility.name}`);
       marker.on('click', () => select.current(facility));
       markers.current.set(facility.id, marker);

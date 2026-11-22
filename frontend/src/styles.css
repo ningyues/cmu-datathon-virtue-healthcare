@@ -113,6 +113,10 @@ button, a, textarea, select { -webkit-tap-highlight-color: transparent; }
 .map-artwork { display: block; }
 .map-marker { position: absolute; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--periwinkle); border-radius: 99px; background: white; color: var(--indigo); font-size: 18px; font-weight: 700; transition: background .16s, box-shadow .16s; }
 .map-marker:hover, .map-marker.is-selected { background: var(--indigo); color: white; box-shadow: var(--glass-shadow); }
+.map-marker:hover, .map-marker:focus-visible { z-index: 1; }
+.map-marker-tooltip { display: none; position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); pointer-events: none; }
+.map-marker:hover .map-marker-tooltip, .map-marker:focus-visible .map-marker-tooltip { display: block; }
+.facility-map .facility-tooltip { width: max-content; max-width: 240px; padding: 6px 10px; background: white; border: 1px solid var(--ice); border-radius: 8px; color: var(--navy); font: 600 13px/1.4 'Inter', sans-serif; white-space: normal; overflow-wrap: anywhere; box-shadow: var(--glass-shadow); }
 .map-caption-top, .map-caption-bottom { position: absolute; left: 24px; color: var(--muted); line-height: 1.4; }
 .map-caption-top { top: 24px; font-size: 16px; }
 .map-caption-bottom { bottom: 24px; font-size: 14px; }
@@ -260,7 +264,8 @@ button, a, textarea, select { -webkit-tap-highlight-color: transparent; }
 
 /* Isolate Leaflet's internal pane stacking below the details dialog. */
 .facility-map { isolation: isolate; min-height: 350px; }
-.live-map { position: absolute; inset: 0; font-family: inherit; }
+.live-map { position: absolute; inset: 0; font-family: inherit; container-type: inline-size; }
+.live-map .facility-tooltip { max-width: min(240px, 42cqw); }
 .leaflet-marker-icon.facility-pin { display: flex; align-items: center; justify-content: center; text-align: center; line-height: 1; border: 2px solid var(--periwinkle); border-radius: 50%; background: white; color: var(--indigo); font-weight: 700; box-shadow: 0 2px 8px #0003; }
 .facility-pin:hover, .facility-pin.is-selected { background: var(--indigo); color: white; }
 .facility-pin:focus-visible { outline: 3px solid #171f66; outline-offset: 3px; }

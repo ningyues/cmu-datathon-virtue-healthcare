@@ -13,7 +13,7 @@ test('search validation, results, distance sorting, drawer keyboard controls, an
   globalThis.getComputedStyle = dom.window.getComputedStyle;
   globalThis.IS_REACT_ACT_ENVIRONMENT = true;
   globalThis.ResizeObserver = class { observe() {} disconnect() {} };
-  const { render, screen, cleanup } = await import('@testing-library/react');
+  const { render, screen, cleanup, fireEvent } = await import('@testing-library/react');
   const { default: userEvent } = await import('@testing-library/user-event');
   const server = await createServer({
     define: { 'import.meta.env.VITE_FACILITIES_API_URL': JSON.stringify('') },
@@ -55,13 +55,22 @@ test('search validation, results, distance sorting, drawer keyboard controls, an
     const { default: FacilityMap } = await server.ssrLoadModule('/src/components/FacilityMap.jsx');
     let selected = null;
     const facility = { id: 'live', name: 'Hyderabad Clinic', coordinates: { latitude: 17.44, longitude: 78.49 } };
-    const props = { facilities: [facility], queryLocation: { latitude: 17.43, longitude: 78.48, label: 'Hyderabad' }, selectedId: 'live', onSelect: f => { selected = f; }, illustrative: false, status: 'success' };
+    const other = { id: 'other', name: 'Second Hospital', coordinates: { latitude: 17.45, longitude: 78.51 } };
+    const props = { facilities: [facility, other], queryLocation: { latitude: 17.43, longitude: 78.48, label: 'Hyderabad' }, selectedId: 'live', onSelect: f => { selected = f; }, illustrative: false, status: 'success' };
     const live = render(React.createElement(FacilityMap, props));
     assert.ok(screen.getByRole('region', { name: 'Healthcare facility map of India' }));
     assert.ok(document.querySelector('img.leaflet-tile').src.includes('tile.openstreetmap.org'));
     const marker = screen.getByRole('button', { name: 'Open Hyderabad Clinic' });
     assert.ok(marker.classList.contains('is-selected'));
-    await user.click(marker);
+    await user.hover(marker);
+    assert.equal(screen.getByRole('tooltip').textContent, facility.name);
+    assert.equal(selected, null);
+    await user.hover(screen.getByRole('button', { name: 'Open Second Hospital' }));
+    assert.equal(screen.getByRole('tooltip').textContent, other.name);
+    await user.unhover(screen.getByRole('button', { name: 'Open Second Hospital' }));
+    assert.equal(screen.queryByRole('tooltip'), null);
+    await user.hover(marker);
+    fireEvent.click(marker, { clientX: 100, clientY: 100 });
     assert.equal(selected.id, 'live');
     live.rerender(React.createElement(FacilityMap, { ...props, facilities: [{ id: 'missing', name: 'Unknown' }], queryLocation: null }));
     assert.equal(screen.queryByRole('button', { name: 'Open Hyderabad Clinic' }), null);
