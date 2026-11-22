@@ -18,7 +18,8 @@ function ScoreCalculation({ breakdown, websiteRatioLabel, hasWebsiteLinks }) {
         <div className="authority-reasons" aria-label="Authority score explanation">
           <p>URL domain verification · {urlRatioLabel}</p>
           {breakdown.addressPostcodeCoordinatesMismatch && <p className="authority-warning">Address, postcode and coordinates mismatch (−0.30)</p>}
-          {breakdown.authoritySource === 'synthetic' && <p className="detail-note">The address flag uses simulated data.</p>}
+          {['unknown', 'not_checked'].includes(breakdown.geographyCheckStatus) && <p className="detail-note">Location consistency: {breakdown.geographyCheckStatus === 'unknown' ? 'Insufficient evidence' : 'Not yet checked'} (no location deduction).</p>}
+          {breakdown.geographyCheckSource === 'geoapify' && <p className="detail-note">Location evidence: <a href="https://www.geoapify.com/" target="_blank" rel="noopener noreferrer">Geoapify</a> · <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a></p>}
         </div>
       </div>
       <div className="score-subsection">

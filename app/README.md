@@ -231,7 +231,7 @@ Search responses include `websiteUrls`, saved checks in
 `websiteVerificationResults`, and a `urlDomainVerifiedRatio` from 0 to 1.
 The ratio is `null` when checks are incomplete or there are no usable links.
 Facility details and the website endpoint read saved results. The address flag
-in the Authority formula uses simulated data. Run the database `init` command
+in the Authority formula uses persisted Geoapify checks. Run the database `init` command
 to migrate an older database before deploying this API.
 
 ## Practo rating during website verification
@@ -271,3 +271,10 @@ is required. Practo remains independent of Fit Score, website checks and NABH.
 ```sh
 agents/.venv/bin/python -m unittest agents.test_practo app.test_practo_rating -v
 ```
+
+## Actual geography checks
+
+See [geography checks](GEOGRAPHY_CHECKS.md) for Geoapify setup and batch SQL writeback.
+The geography flag is always 0 or 1. Only confirmed geographic conflicts use 1 and receive
+the location deduction. Unknown and unchecked records use 0; diagnostic status retains the reason.
+Website reachability is a separate persisted ratio used by the browser scorer.

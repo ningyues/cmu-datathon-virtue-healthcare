@@ -9,7 +9,7 @@ class ImportTests(unittest.TestCase):
     def test_flag_proportions_and_reproducibility(self):
         ids = [str(i) for i in range(1000)]
         flags = allocate_flags(ids)
-        self.assertEqual(sum(p for p, _ in flags.values()), 200)
+        self.assertTrue(all(p == 0 for p, _ in flags.values()))
         self.assertEqual(sum(u for _, u in flags.values()), 300)
         self.assertEqual(flags, allocate_flags(list(reversed(ids))))
         self.assertNotEqual(flags, allocate_flags(ids, 43))
@@ -32,7 +32,7 @@ class ImportTests(unittest.TestCase):
         path = facility_snapshot()
         rows = list(prepare_facilities(path))
         self.assertEqual(len(rows), 9989)
-        self.assertEqual(sum(r[60] for r in rows), 1998)
+        self.assertTrue(all(r[60] == 0 for r in rows))
         self.assertTrue(all(row[61] is None for row in rows))
         self.assertTrue(all(len(r) == 64 for r in rows))
 
