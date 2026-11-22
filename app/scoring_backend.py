@@ -34,7 +34,8 @@ class PostgresScorer:
                 conn.execute("SET statement_timeout = '30s'")
                 return scoring.search_facilities(
                     conn, specialty=intent.specialities, services=intent.service,
-                    candidate_ids=[row['unique_id'] for row in candidates], limit=None)
+                    candidate_ids=[row['unique_id'] for row in candidates], limit=None,
+                    require_website_verification=True)
         except Exception as error:
             raise ScoringUnavailable(
                 'Scoring is unavailable. Check the database connection and imported snapshot.'

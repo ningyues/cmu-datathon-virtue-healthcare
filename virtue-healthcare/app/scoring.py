@@ -29,7 +29,13 @@ def score_breakdown(authority, specialty_matched, specialty_count, service_score
     return dict(specialty_score=specialty_score, service_score=service_score,
                 raw_score=raw_score, max_raw_score=maximum,
                 match_score_100=match_score_100,
-                final_score=Decimal(str(authority)) * match_score_100)
+                final_score=Decimal(str(authority)) * match_score_100 if authority is not None else None)
+
+
+def website_authority(address_flag, verified_ratio):
+    if verified_ratio is None:
+        return None
+    return Decimal('1') - Decimal('0.3') * address_flag - Decimal('0.5') * (1 - Decimal(str(verified_ratio)))
 
 
 def matches_field(items, term):
@@ -43,7 +49,7 @@ def calculate_service_score(hospital, service):
 
 
 def search_facilities(conn, postcode=None, specialty=None, services=(), limit=20, offset=0, city=None,
-                      candidate_ids=None):
+                      candidate_ids=None, require_website_verification=False):
     specialty, terms = normalize_query(specialty, services)
     postcode = (postcode or '').strip() or None
     city = normalize(city) or None
@@ -53,7 +59,7 @@ def search_facilities(conn, postcode=None, specialty=None, services=(), limit=20
         hospitals = conn.execute('''SELECT unique_id, name,
             "address_zipOrPostcode" AS postcode, address_city AS city, specialties, capability, equipment,
             procedure, authority, postcode_address_cordination_unmatch,
-            url_domain_invalid, flags_origin
+            url_domain_invalid, website_verification_results, flags_origin
             FROM healthcare.facilities
             WHERE (%s::text IS NULL OR "address_zipOrPostcode" = %s)
               AND (%s::text IS NULL OR healthcare.normalize_text(address_city) = %s)
@@ -97,12 +103,16 @@ def search_facilities(conn, postcode=None, specialty=None, services=(), limit=20
             specialty_details = [dict(input=term,
                 matched=matches_field(hospital['specialties'], term)) for term in specialty]
             specialty_match = any(item['matched'] for item in specialty_details)
-            scores = score_breakdown(hospital['authority'], specialty_match, len(specialty),
+            authority = hospital['authority']
+            if require_website_verification:
+                authority = website_authority(hospital['postcode_address_cordination_unmatch'],
+                                              hospital['url_domain_invalid'])
+            scores = score_breakdown(authority, specialty_match, len(specialty),
                                      [item['score'] for item in service_details])
             if scores['raw_score'] > 0:
                 result = {k: v for k, v in hospital.items()
                           if k not in SERVICE_FIELDS and k != 'specialties'}
-                result.update(**scores, specialty_matched=specialty_match,
+                result.update(**scores, authority=authority, specialty_matched=specialty_match,
                               specialty_details=specialty_details, service_details=service_details,
                               cache_hit=(hits == len(terms)) if terms else None,
                               cached_service_count=hits, requested_service_count=len(terms))
@@ -115,10 +125,12 @@ def search_facilities(conn, postcode=None, specialty=None, services=(), limit=20
                     VALUES (%s, %s, %s, %s, %s)
                     ON CONFLICT (facility_id, service) DO NOTHING''', missing)
     # Rank before rounding to avoid changing the order of near-equal scores.
-    results.sort(key=lambda r: (-r['final_score'], -r['raw_score'], r['unique_id']))
+    results.sort(key=lambda r: (-r['final_score'] if r['final_score'] is not None else Decimal('Infinity'),
+                                -r['raw_score'], r['unique_id']))
     offset = max(0, offset)
     page = results[offset:] if limit is None else results[offset:offset + max(1, min(limit, 100))]
     for result in page:
         for key in ('match_score_100', 'final_score'):
-            result[key] = result[key].quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+            if result[key] is not None:
+                result[key] = result[key].quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
     return page

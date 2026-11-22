@@ -38,7 +38,7 @@ def parse_array(value):
 
 
 def allocate_flags(ids, seed=42):
-    """Allocate independently shuffled flags with nearest-integer proportions."""
+    """Reproduce the original seed inputs for new records' initial authority."""
     ordered = sorted(ids)
     if len(set(ordered)) != len(ordered):
         raise ValueError('Duplicate facility IDs')
@@ -70,7 +70,7 @@ def prepare_facilities(path, seed=42):
         pflag, uflag = flags[row['unique_id']]
         authority = Decimal('1') - Decimal('0.3') * pflag - Decimal('0.5') * uflag
         yield tuple(typed_value(c, row[c], True) for c in FACILITY_COLUMNS) + (
-            pflag, uflag, authority, json.dumps(row, ensure_ascii=True))
+            pflag, None, authority, json.dumps(row, ensure_ascii=True))
 
 
 def prepare_postal(path):
@@ -93,6 +93,13 @@ def upsert_rows(conn, table, columns, rows, key, preserve=()):
     updates = [sql.SQL('{} = excluded.{}').format(sql.Identifier(c), sql.Identifier(c))
                for c in columns if c != key and c not in preserve]
     if table == 'facilities':
+        website_changes = ('(facilities."officialWebsite", facilities."websites") '
+                           'IS DISTINCT FROM (excluded."officialWebsite", excluded."websites")')
+        updates.extend([
+            sql.SQL(f'url_domain_invalid = CASE WHEN {website_changes} THEN NULL ELSE facilities.url_domain_invalid END'),
+            sql.SQL(f'website_verification_results = CASE WHEN {website_changes} THEN \'{{}}\'::jsonb '
+                    'ELSE facilities.website_verification_results END'),
+        ])
         updates.append(sql.SQL('updated_at = now()'))
     conn.execute(sql.SQL('INSERT INTO {} ({}) SELECT {} FROM {} ORDER BY {} '
                          'ON CONFLICT ({}) DO UPDATE SET {}').format(
@@ -103,7 +110,7 @@ def load_snapshot(conn, data_dir, seed):
     rows = list(prepare_facilities(facility_snapshot(data_dir), seed))
     postal = list(prepare_postal(data_dir / 'pincode_offices_clean.csv.gz'))
     with conn.transaction():
-        # Serialize importers; existing authority overrides remain untouched.
+        # Serialize importers and preserve existing authority overrides.
         conn.execute('SELECT pg_advisory_xact_lock(72610419)')
         upsert_rows(conn, 'facilities', FACILITY_COLUMNS + FLAG_COLUMNS + ['raw_record'],
                     rows, 'unique_id', preserve=FLAG_COLUMNS)

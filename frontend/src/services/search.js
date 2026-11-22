@@ -1,4 +1,5 @@
 import { sampleFacilities } from '../data/facilities.js';
+import { parseWebsiteVerification } from './verification.js';
 
 const endpoint = import.meta.env?.VITE_FACILITIES_API_URL ?? '/api/search';
 export const usesIllustrativeData = !endpoint;
@@ -32,6 +33,7 @@ export function validateFacilities(data) {
       throw new Error('The server returned an invalid facility record.');
     }
     ids.add(item.id);
+    if (item.hasPractoLink != null && typeof item.hasPractoLink !== 'boolean') throw new Error('Invalid Practo link flag.');
     for (const key of ['area', 'postalCode', 'type', 'operatorType', 'address']) {
       if (item[key] != null && typeof item[key] !== 'string') throw new Error(`Invalid ${key} in facility data.`);
     }
@@ -43,12 +45,17 @@ export function validateFacilities(data) {
     if (fit != null && (!Number.isFinite(fit) || fit < 0 || fit > 100)) throw new Error('Invalid Fit Score.');
     const breakdown = item.scoreBreakdown;
     if (breakdown != null) {
-      for (const key of ['addressPostcodeCoordinatesMismatch', 'urlDomainSuspicious']) {
-        if (breakdown[key] != null && typeof breakdown[key] !== 'boolean') throw new Error('Invalid authority flag.');
+      if (breakdown.addressPostcodeCoordinatesMismatch != null &&
+          typeof breakdown.addressPostcodeCoordinatesMismatch !== 'boolean') {
+        throw new Error('Invalid authority flag.');
       }
-      const values = ['authority', 'specialtyScore', 'serviceScore', 'rawScore', 'maxRawScore', 'matchScore100'];
+      const ratio = breakdown.urlDomainVerifiedRatio;
+      if (ratio != null && (!Number.isFinite(ratio) || ratio < 0 || ratio > 1)) {
+        throw new Error('Invalid URL verification ratio.');
+      }
+      const values = ['specialtyScore', 'serviceScore', 'rawScore', 'maxRawScore', 'matchScore100'];
       if (values.some(key => !Number.isFinite(breakdown[key])) ||
-          breakdown.authority < 0 || breakdown.authority > 1 ||
+          (breakdown.authority !== null && (!Number.isFinite(breakdown.authority) || breakdown.authority < 0 || breakdown.authority > 1)) ||
           ![0, 10].includes(breakdown.specialtyScore) || breakdown.serviceScore < 0 ||
           breakdown.maxRawScore <= 0 || breakdown.rawScore < 0 || breakdown.rawScore > breakdown.maxRawScore ||
           breakdown.matchScore100 < 0 || breakdown.matchScore100 > 100 ||
@@ -67,6 +74,11 @@ export function validateFacilities(data) {
       area: item.area ?? 'Address unavailable', postalCode: item.postalCode ?? '',
       operatorType: item.operatorType ?? null, address: item.address ?? null,
       website: websiteUrl(item.website), coordinates: coordinates(item),
+      hasPractoLink: item.hasPractoLink === true,
+      websiteLinks: Array.isArray(item.websiteUrls) ? item.websiteUrls.flatMap((value, index) => {
+        const url = websiteUrl(value);
+        return url ? [{ url, index, verification: parseWebsiteVerification(item.websiteVerificationResults?.[value]) }] : [];
+      }) : [],
       distanceKm: distance ?? null, trustScore: score ?? null, fitScore: fit ?? null,
       scoreBreakdown: breakdown ?? null,
       featured: item.featured === true, serviceEvidence: evidence ?? null,

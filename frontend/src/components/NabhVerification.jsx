@@ -1,42 +1,19 @@
-import { useEffect, useRef, useState } from 'react';
-import { verifyCertification } from '../services/verification.js';
+import CertificatePreview from './CertificatePreview.jsx';
 
-export default function NabhVerification({ facility, illustrative }) {
-  const [result, setResult] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const request = useRef(null);
-  useEffect(() => () => request.current?.abort(), []);
-
-  async function verify() {
-    if (request.current && !request.current.signal.aborted && loading) return;
-    const controller = new AbortController();
-    request.current = controller;
-    setLoading(true);
-    setResult(null);
-    try {
-      const data = await verifyCertification(facility.id, { signal: controller.signal });
-      if (!controller.signal.aborted) setResult(data);
-    } catch (error) {
-      if (!controller.signal.aborted) setResult({ status: 'unavailable', certificateUrls: [], reason: error.message });
-    } finally {
-      if (!controller.signal.aborted) setLoading(false);
-    }
-  }
+export default function NabhVerification({ illustrative, result }) {
+  if (illustrative) return <p className="detail-note">Verification is available for live facility results.</p>;
+  const verified = result?.status === 'verified';
 
   return <div className="nabh-verification">
-    <button type="button" className="primary-button" onClick={verify} disabled={loading || illustrative}>
-      {loading ? 'Verifying NABH certification…' : 'NABH certification verify'}
-    </button>
-    {illustrative && <p>Verification is available for live facility results.</p>}
-    <div role="status" aria-live="polite" aria-atomic="true">
-      {loading && <p>Checking official records and certificate evidence. This may take a few minutes.</p>}
-      {result && <>
-        <p className={result.status === 'verified' ? 'nabh-success' : 'nabh-unverified'}>
-          {result.status === 'verified' ? 'successfully verified!' : "can't be verified"}
-        </p>
-        <p>{result.reason}</p>
-        {result.certificateUrls.map((url, index) => <p key={url}><a href={url} target="_blank" rel="noopener noreferrer">View certificate PDF{result.certificateUrls.length > 1 ? ` ${index + 1}` : ''} ↗</a></p>)}
-      </>}
-    </div>
+    {result ? <div className={`verification-feedback ${verified ? 'verified' : 'unverified'}`}>
+      <div role="status" aria-atomic="true">
+        <strong>{verified ? 'Verified' : 'Unable to verify'}</strong>
+        {result.reason && <p>{result.reason}</p>}
+      </div>
+      {verified && result.certificateUrls.map((url, index) => <div className="certificate-evidence" key={url}>
+        <p><a href={url} target="_blank" rel="noopener noreferrer">View certificate PDF{result.certificateUrls.length > 1 ? ` ${index + 1}` : ''} ↗</a></p>
+        <CertificatePreview url={url} />
+      </div>)}
+    </div> : <p className="verification-feedback pending" role="status">Checking official NABH records and certificate evidence…</p>}
   </div>;
 }

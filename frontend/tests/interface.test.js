@@ -13,7 +13,7 @@ test('search validation, results, distance sorting, drawer keyboard controls, an
   globalThis.getComputedStyle = dom.window.getComputedStyle;
   globalThis.IS_REACT_ACT_ENVIRONMENT = true;
   globalThis.ResizeObserver = class { observe() {} disconnect() {} };
-  const { render, screen, cleanup } = await import('@testing-library/react');
+  const { render, screen, cleanup, fireEvent } = await import('@testing-library/react');
   const { default: userEvent } = await import('@testing-library/user-event');
   const server = await createServer({
     define: { 'import.meta.env.VITE_FACILITIES_API_URL': JSON.stringify('') },
@@ -55,13 +55,22 @@ test('search validation, results, distance sorting, drawer keyboard controls, an
     const { default: FacilityMap } = await server.ssrLoadModule('/src/components/FacilityMap.jsx');
     let selected = null;
     const facility = { id: 'live', name: 'Hyderabad Clinic', coordinates: { latitude: 17.44, longitude: 78.49 } };
-    const props = { facilities: [facility], queryLocation: { latitude: 17.43, longitude: 78.48, label: 'Hyderabad' }, selectedId: 'live', onSelect: f => { selected = f; }, illustrative: false, status: 'success' };
+    const other = { id: 'other', name: 'Second Hospital', coordinates: { latitude: 17.45, longitude: 78.51 } };
+    const props = { facilities: [facility, other], queryLocation: { latitude: 17.43, longitude: 78.48, label: 'Hyderabad' }, selectedId: 'live', onSelect: f => { selected = f; }, illustrative: false, status: 'success' };
     const live = render(React.createElement(FacilityMap, props));
     assert.ok(screen.getByRole('region', { name: 'Healthcare facility map of India' }));
     assert.ok(document.querySelector('img.leaflet-tile').src.includes('tile.openstreetmap.org'));
     const marker = screen.getByRole('button', { name: 'Open Hyderabad Clinic' });
     assert.ok(marker.classList.contains('is-selected'));
-    await user.click(marker);
+    await user.hover(marker);
+    assert.equal(screen.getByRole('tooltip').textContent, facility.name);
+    assert.equal(selected, null);
+    await user.hover(screen.getByRole('button', { name: 'Open Second Hospital' }));
+    assert.equal(screen.getByRole('tooltip').textContent, other.name);
+    await user.unhover(screen.getByRole('button', { name: 'Open Second Hospital' }));
+    assert.equal(screen.queryByRole('tooltip'), null);
+    await user.hover(marker);
+    fireEvent.click(marker, { clientX: 100, clientY: 100 });
     assert.equal(selected.id, 'live');
     live.rerender(React.createElement(FacilityMap, { ...props, facilities: [{ id: 'missing', name: 'Unknown' }], queryLocation: null }));
     assert.equal(screen.queryByRole('button', { name: 'Open Hyderabad Clinic' }), null);
@@ -78,12 +87,28 @@ test('live search ranks Fit Scores and shows the scoring breakdown', async () =>
   globalThis.IS_REACT_ACT_ENVIRONMENT = true;
   globalThis.ResizeObserver = class { observe() {} disconnect() {} };
   const previousFetch = globalThis.fetch;
-  globalThis.fetch = async (_url, options) => {
+  const websiteCalls = [];
+  globalThis.fetch = async (url, options) => {
+    if (url === '/api/nabh/verify') return {ok: true, json: async () => ({status: 'unverified'})};
+    if (url === '/api/website/verify') {
+      websiteCalls.push(JSON.parse(options.body));
+      throw new Error('The result drawer must not verify websites');
+    }
     assert.equal(JSON.parse(options.body).query, 'dialysis in Lucknow');
     return {ok: true, json: async () => ({facilities: [
-      {id: 'near', name: 'Nearby Hospital', fitScore: 10, distanceKm: 1},
-      {id: 'best', name: 'Best Match Hospital', fitScore: 20, distanceKm: 5,
-       serviceMatch: 'text_match', scoreBreakdown: {authority: 0.2, addressPostcodeCoordinatesMismatch: true, urlDomainSuspicious: true, authoritySource: 'synthetic',
+      {id: 'near', name: 'Nearby Hospital', fitScore: null, distanceKm: 1,
+       websiteUrls: ['https://near.example.org/'],
+       scoreBreakdown: {authority: null, urlDomainVerifiedRatio: null, specialtyScore: 10, serviceScore: 0,
+         rawScore: 10, maxRawScore: 16, matchScore100: 62.5, specialties: [], services: []}},
+      {id: 'best', name: 'Best Match Hospital', fitScore: 45, distanceKm: 5,
+       websiteUrls: ['https://hospital.example.com/', 'https://directory.example.org/listing'],
+       websiteVerificationResults: {
+         'https://hospital.example.com/': {
+           status: 'verified', reason: 'The link opens successfully.', evidenceUrl: 'https://hospital.example.com/contact',
+         },
+         'https://directory.example.org/listing': {status: 'unavailable', reason: 'The page could not be reached.'},
+       },
+       serviceMatch: 'text_match', scoreBreakdown: {authority: 0.45, addressPostcodeCoordinatesMismatch: true, urlDomainVerifiedRatio: 0.5, authoritySource: 'synthetic',
        specialtyScore: 10, serviceScore: 6, rawScore: 16, maxRawScore: 16, matchScore100: 100,
        specialties: [{input: 'nephrology', matched: true}], services: [{input: 'dialysis', score: 6}]}}
     ]})};
@@ -104,15 +129,34 @@ test('live search ranks Fit Scores and shows the scoring breakdown', async () =>
     await screen.findByText('2 facilities');
     assert.match(screen.getAllByRole('button', {name: /fit score/})[0].textContent, /1\. Best Match/);
     await user.click(screen.getByRole('button', {name: /Best Match Hospital, fit score/}));
-    assert.ok(screen.getByText(/Authority: 0.20/));
+    assert.ok(screen.getByText(/Authority: 0.45/));
     assert.ok(screen.getByText('dialysis: 6/6'));
     assert.ok(screen.getByText(/Address, postcode and coordinates mismatch/));
-    assert.ok(screen.getByText(/URL domain suspicious/));
-    assert.ok(screen.getByText('Flag-based score: 0.20'));
-    assert.equal(screen.queryByText(/Simulated data/), null);
+    assert.ok(screen.getByText(/simulated data/));
+    assert.ok(screen.getByRole('region', {name: 'Score calculation'}));
+    assert.ok(screen.getByRole('region', {name: 'Facility details'}));
+    assert.ok(screen.getByRole('region', {name: 'NABH accreditation'}));
+    const websites = within(screen.getByRole('region', {name: 'Website verification'}));
+    assert.ok(websites.getByText('Verified'));
+    assert.equal(websites.getByRole('link', {name: /Open checked destination/}).getAttribute('href'), 'https://hospital.example.com/contact');
+    assert.ok(screen.getByText('URL domain verification · 50%'));
+    assert.ok(websites.getByText('1/2 verified · 50%'));
+    assert.equal(websites.queryByRole('button'), null);
+    await user.click(websites.getByText('More dataset links (1)'));
+    assert.ok(await websites.findByText('Unable to verify'));
+    assert.equal(websites.getByRole('link', {name: /directory\.example\.org\/listing/}).getAttribute('href'), 'https://directory.example.org/listing');
+    await user.click(dom.window.document.querySelector('.drawer-backdrop'));
+    assert.equal(screen.queryByRole('dialog'), null);
+    await user.click(screen.getByRole('button', {name: /Best Match Hospital, fit score/}));
+    assert.ok(screen.getByText('1/2 verified · 50%'));
+    assert.deepEqual(websiteCalls, []);
     await user.click(screen.getByRole('button', {name: 'Close facility details'}));
     await user.selectOptions(screen.getByLabelText('Sort by'), 'distance');
     assert.match(screen.getAllByRole('button', {name: /fit score/})[0].textContent, /1\. Nearby Hospital/);
+    await user.click(screen.getByRole('button', {name: /Nearby Hospital, fit score Pending/}));
+    assert.ok(screen.getByText('Authority: Pending'));
+    assert.ok(within(screen.getByRole('region', {name: 'Website verification'})).getByText('Pending'));
+    assert.deepEqual(websiteCalls, []);
   } finally {
     cleanup(); await server.close(); globalThis.fetch = previousFetch; dom.window.close();
   }
@@ -128,7 +172,8 @@ test('agent clarification preserves the query and lets the user refine and resub
   globalThis.ResizeObserver = class { observe() {} disconnect() {} };
   const previousFetch = globalThis.fetch;
   const queries = [];
-  globalThis.fetch = async (_url, options) => {
+  globalThis.fetch = async (url, options) => {
+    if (url === '/api/nabh/verify') return {ok: true, json: async () => ({status: 'unverified'})};
     queries.push(JSON.parse(options.body).query);
     return queries.length === 1
       ? {ok: false, status: 422, json: async () => ({error: {code: 'location_required',
