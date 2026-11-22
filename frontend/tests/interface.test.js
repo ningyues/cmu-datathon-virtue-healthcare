@@ -99,3 +99,48 @@ test('live search ranks Fit Scores and shows the scoring breakdown', async () =>
     cleanup(); await server.close(); globalThis.fetch = previousFetch; dom.window.close();
   }
 });
+
+test('agent clarification preserves the query and lets the user refine and resubmit', async () => {
+  const dom = new JSDOM('<!doctype html><html><body></body></html>', { url: 'http://localhost', pretendToBeVisual: true });
+  for (const key of ['window', 'document', 'navigator', 'HTMLElement', 'Element', 'Node', 'MutationObserver']) {
+    Object.defineProperty(globalThis, key, { configurable: true, value: dom.window[key] });
+  }
+  globalThis.getComputedStyle = dom.window.getComputedStyle;
+  globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+  globalThis.ResizeObserver = class { observe() {} disconnect() {} };
+  const previousFetch = globalThis.fetch;
+  const queries = [];
+  globalThis.fetch = async (_url, options) => {
+    queries.push(JSON.parse(options.body).query);
+    return queries.length === 1
+      ? {ok: false, status: 422, json: async () => ({error: {code: 'location_required',
+          message: 'A city or explicit postcode is required.',
+          clarification_question: 'Which city or postcode should I search in?'}})}
+      : {ok: true, json: async () => ({facilities: [{id: 'match', name: 'Lucknow Hospital', fitScore: 70}]})};
+  };
+  const { render, within, cleanup } = await import('@testing-library/react');
+  const screen = within(dom.window.document.body);
+  const { default: userEvent } = await import('@testing-library/user-event');
+  const server = await createServer({
+    define: { 'import.meta.env.VITE_FACILITIES_API_URL': JSON.stringify('/api/search') },
+    server: { middlewareMode: true, ws: false }, appType: 'custom',
+  });
+  try {
+    const { default: App } = await server.ssrLoadModule('/src/App.jsx');
+    const user = userEvent.setup({ document: dom.window.document });
+    render(React.createElement(App));
+    await user.type(screen.getByLabelText('How can I help you?'), 'I need dialysis near me');
+    await user.click(screen.getByRole('button', {name: 'Send ↑'}));
+    await screen.findByText('Which city or postcode should I search in?');
+    assert.equal(screen.getByLabelText('How can I help you?').value, 'I need dialysis near me');
+    assert.equal(screen.queryByText('No matching facilities'), null);
+    await user.clear(screen.getByLabelText('How can I help you?'));
+    await user.type(screen.getByLabelText('How can I help you?'), 'I need dialysis in Lucknow');
+    await user.click(screen.getByRole('button', {name: 'Send ↑'}));
+    await screen.findByText('1 facility');
+    assert.deepEqual(queries, ['I need dialysis near me', 'I need dialysis in Lucknow']);
+    assert.ok(screen.getByRole('button', {name: /Lucknow Hospital, fit score/}));
+  } finally {
+    cleanup(); await server.close(); globalThis.fetch = previousFetch; dom.window.close();
+  }
+});
