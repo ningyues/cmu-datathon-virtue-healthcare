@@ -23,4 +23,4 @@ COPY --from=frontend-build /build/frontend/dist frontend/dist/
 RUN useradd --system --uid 10001 carelens
 USER carelens
 EXPOSE 8000
-CMD ["python", "-m", "app.api", "--host", "0.0.0.0"]
+CMD ["python", "-m", "app.public_gateway"]

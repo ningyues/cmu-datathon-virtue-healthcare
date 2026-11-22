@@ -42,3 +42,16 @@ To inspect logs:
 ```sh
 .deployment-tools/databricks apps logs carelens --profile carelens --tail-lines 50
 ```
+
+## Public gateway
+
+The public Render URL runs `app.public_gateway`, forwarding the frontend assets
+and four allowlisted API routes to the CareLens Databricks App. Search, scoring,
+verification and Lakebase connections run inside Databricks. `app.yaml` continues
+to start `app.api` there. Visitors do not need a Databricks account.
+
+The gateway uses server-side OAuth M2M credentials and its service principal needs
+CAN_USE on the CareLens app. It does not forward browser credentials or cookies,
+follow upstream redirects, or accept arbitrary upstream URLs. Only DATABRICKS_HOST,
+DATABRICKS_AUTH_TYPE, DATABRICKS_CLIENT_ID and DATABRICKS_CLIENT_SECRET are needed
+on Render. The direct Databricks URL still requires authentication.
