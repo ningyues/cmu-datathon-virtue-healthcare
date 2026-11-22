@@ -85,8 +85,13 @@ export async function searchFacilities(query, { signal } = {}) {
   });
   const data = await response.json().catch(() => null);
   if (!response.ok) {
-    const message = typeof data?.error === 'string' ? data.error : `Search failed (${response.status}). Please try again.`;
-    throw new Error(message);
+    const details = data?.error;
+    const message = typeof details === 'string' ? details
+      : details?.clarification_question || details?.message || `Search failed (${response.status}). Please try again.`;
+    const error = new Error(message);
+    error.code = details?.code;
+    error.clarification = typeof details?.clarification_question === 'string' ? details.clarification_question : null;
+    throw error;
   }
   const location = coordinates(data?.queryLocation);
   return {

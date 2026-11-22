@@ -29,10 +29,11 @@ export default function App() {
       if (controller.signal.aborted) return;
       setError(cause.message || 'Unable to load results.');
       setStatus('error');
+      if (cause.clarification) setPage('landing');
     }
   }
   function goHome() { request.current?.abort(); setPage('landing'); }
   return page === 'landing'
-    ? <LandingPage query={query} setQuery={setQuery} onSearch={handleSearch} />
+    ? <LandingPage query={query} setQuery={(value) => { setQuery(value); setError(''); }} onSearch={handleSearch} feedback={error} />
     : <ResultsPage {...result} status={status} error={error} onHome={goHome} onRetry={() => handleSearch(query.trim())} />;
 }
