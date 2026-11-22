@@ -13,11 +13,15 @@ import logging
 import os
 from pathlib import Path
 import re
-import shlex
 import sys
 from typing import Callable
 from urllib.error import HTTPError, URLError
 from urllib.request import HTTPRedirectHandler, Request, build_opener
+
+if __package__:
+    from .env_config import DEFAULT_ENV_FILE, EnvConfigError, load_env_file as _load_env_file
+else:
+    from env_config import DEFAULT_ENV_FILE, EnvConfigError, load_env_file as _load_env_file
 
 ARK_URL = "https://ark.cn-beijing.volces.com/api/v3/responses"
 BASE_DIR = Path(__file__).resolve().parent
@@ -280,7 +284,7 @@ def validate_and_expand(text: str, proposal: dict, catalog: SpecialityCatalog) -
 
 def parse_intent(text: str, *, catalog: SpecialityCatalog | None = None,
                  model_call: Callable[[str, list[dict]], dict] | None = None,
-                 env_file: Path = BASE_DIR / ".env") -> dict:
+                 env_file: Path = DEFAULT_ENV_FILE) -> dict:
     """Return the three-field public result or raise IntentError for clarification/failure.
 
     Reuse a SpecialityCatalog instance across requests in a backend. model_call is
@@ -292,44 +296,25 @@ def parse_intent(text: str, *, catalog: SpecialityCatalog | None = None,
     if len(text) > MAX_INPUT_CHARS:
         raise IntentError("invalid_input", f"Request must not exceed {MAX_INPUT_CHARS} characters.")
     if model_call is None:
-        env_file = Path(env_file)
-        if env_file.exists() or env_file != BASE_DIR / ".env":
-            load_env_file(env_file)
+        load_env_file(env_file)
     catalog = catalog if catalog is not None else SpecialityCatalog()
     proposal = (model_call or ark_extract)(text, catalog.model_catalog())
     return validate_and_expand(text, proposal, catalog)
 
 
 def load_env_file(path: Path) -> None:
-    """Read KEY=VALUE entries without shell execution; file values take priority."""
+    """Load shared configuration and expose intent-agent structured errors."""
     try:
-        lines = path.read_text(encoding="utf-8-sig").splitlines()
-        pending = {}
-        for number, line in enumerate(lines, 1):
-            line = line.strip()
-            if not line or line.startswith("#"):
-                continue
-            match = re.fullmatch(r"(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)", line)
-            if not match:
-                raise ValueError(f"Invalid env entry on line {number}")
-            lexer = shlex.shlex(match[2], posix=True)
-            lexer.whitespace_split = True
-            lexer.commenters = "#"
-            parts = list(lexer)
-            if len(parts) > 1:
-                raise ValueError(f"Quote env values containing spaces on line {number}")
-            pending[match[1]] = parts[0] if parts else ""
-        for name, value in pending.items():
-            os.environ[name] = value
-    except (OSError, ValueError) as exc:
-        raise IntentError("configuration_error", "Cannot read env file; use one KEY=VALUE entry per line.") from exc
+        _load_env_file(path)
+    except EnvConfigError as exc:
+        raise IntentError("configuration_error", str(exc)) from exc
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--text", help="English hospital-search request; if omitted, read stdin")
-    parser.add_argument("--env-file", type=Path, default=BASE_DIR / ".env",
-                        help="Env file to load (default: project .env); file values take priority")
+    parser.add_argument("--env-file", type=Path, default=DEFAULT_ENV_FILE,
+                        help="Env file to load (default: agents/.env); file values take priority")
     parser.add_argument("--verbose", action="store_true", help="Write brief model-call logs to stderr")
     args = parser.parse_args(argv)
     logging.basicConfig(level=logging.INFO if args.verbose else logging.WARNING, stream=sys.stderr)

@@ -1,6 +1,9 @@
 """Offline safety/decision tests: python -m unittest -v test_verify."""
 import unittest
 import json
+import os
+from pathlib import Path
+import tempfile
 from datetime import date
 from unittest.mock import MagicMock, patch
 from urllib.error import URLError
@@ -117,6 +120,30 @@ class VerificationTests(unittest.TestCase):
                     "https://127.0.0.1/a.pdf", "https://nabh.co:8443/a.pdf"):
             with self.assertRaises(verify.SourceError):
                 verify.source_url(url)
+
+    def test_env_file_overrides_shell_before_verification(self):
+        with tempfile.TemporaryDirectory() as directory, patch.dict(os.environ, {"ARK_MODEL": "shell-model"}, clear=True):
+            path = Path(directory) / "custom.env"
+            path.write_text("ARK_MODEL=file-model\nARK_API_KEY=file-key\n")
+            def search(name):
+                self.assertEqual(os.environ["ARK_MODEL"], "file-model")
+                self.assertEqual(os.environ["ARK_API_KEY"], "file-key")
+                return [], False
+            with patch.object(verify, "search_directory", side_effect=search):
+                result = verify.verify_facility("Example Hospital", "Pune 412105", env_file=path)
+            self.assertEqual(result["status"], "no_match")
+
+    def test_invalid_env_fails_before_network_and_does_not_expose_values(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "custom.env"
+            for content in (None, "ARK_API_KEY=secret-value\ninvalid entry\n"):
+                if content is not None:
+                    path.write_text(content)
+                with patch.object(verify, "search_directory") as search:
+                    result = verify.verify_facility("Example Hospital", "Pune 412105", env_file=path)
+                self.assertEqual(result["status"], "configuration_error")
+                self.assertNotIn("secret-value", json.dumps(result))
+                search.assert_not_called()
 
     def test_markup_change_is_not_no_match(self):
         with self.assertRaises(verify.SourceError):
