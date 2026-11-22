@@ -27,7 +27,7 @@ semantic search or independent service verification. No service catalog is requi
 Authority is a writable NUMERIC(5,4) column constrained to [0, 1]. Its initial
 value is computed once on import using the original seeded inputs, with
 `flags_origin` set to `synthetic`. Search uses the stored Authority value.
-The requested spelling `cordination` is retained for the synthetic postcode flag.
+The requested spelling `cordination` is retained for the geographic conflict flag.
 
 `url_domain_invalid` now stores the verified share of a facility's distinct
 dataset URLs, from 0 to 1. It is NULL until all listed URLs have been checked,
@@ -35,6 +35,12 @@ and remains NULL when the facility has no usable URLs. The website preparation
 batch saves the checks and the browser search API uses the ratio for scoring.
 A higher ratio means more links opened. The database CLI uses the stored
 Authority value.
+
+Geographic flags start as 0 (no confirmed conflict) and use real Geoapify checks.
+See [geography checks](../../app/GEOGRAPHY_CHECKS.md) for configuration and audit behavior.
+Geography updates adjust only the stored address penalty, preserving other score
+components and manual overrides. The browser scorer uses the current URL reachability
+ratio independently; `url_domain_invalid` is no longer a binary suspicious-domain flag.
 
 ## Start locally
 
@@ -116,6 +122,10 @@ transaction. Importers use an advisory lock to avoid interleaved imports. Reader
 see committed data; they never see partially loaded snapshots. Failed imports roll
 back. Re-importing preserves existing Authority, including manual changes.
 Changing a facility's imported website fields clears its stored checks and ratio.
+
+Source location changes invalidate old geography checks. New IDs start with unknown
+geography and no geographic penalty. Legacy URL seed inputs initialize stored authority
+only; the URL ratio itself starts NULL until website results are loaded.
 Rows missing from a later input are retained; imports never silently delete hospitals.
 
 All 60 original facility columns exist independently in `healthcare.facilities`.

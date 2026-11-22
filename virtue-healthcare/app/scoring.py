@@ -59,7 +59,10 @@ def search_facilities(conn, postcode=None, specialty=None, services=(), limit=20
         hospitals = conn.execute('''SELECT unique_id, name,
             "address_zipOrPostcode" AS postcode, address_city AS city, specialties, capability, equipment,
             procedure, authority, postcode_address_cordination_unmatch,
-            url_domain_invalid, website_verification_results, flags_origin
+            url_domain_invalid, website_verification_results, flags_origin,
+            to_jsonb(facilities)->>'geography_check_status' AS geography_check_status,
+            to_jsonb(facilities)->>'geography_check_source' AS geography_check_source,
+            to_jsonb(facilities)->'geography_check_reasons' AS geography_check_reasons
             FROM healthcare.facilities
             WHERE (%s::text IS NULL OR "address_zipOrPostcode" = %s)
               AND (%s::text IS NULL OR healthcare.normalize_text(address_city) = %s)
