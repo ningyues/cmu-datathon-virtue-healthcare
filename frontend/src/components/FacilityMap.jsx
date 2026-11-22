@@ -1,31 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
+import LiveFacilityMap from './LiveFacilityMap.jsx';
 
-function LocationPlot({ facilities, origin, radiusKm, selectedId, onSelect }) {
-  const kmPerDegree = 111.2;
-  const kmPerLongitude = kmPerDegree * Math.cos(origin.latitude * Math.PI / 180);
-  const points = facilities.filter((facility) => facility.coordinates).map((facility) => ({
-    facility,
-    east: (facility.coordinates.longitude - origin.longitude) * kmPerLongitude,
-    north: (facility.coordinates.latitude - origin.latitude) * kmPerDegree,
-  }));
-  const extent = Math.max(radiusKm ?? 0, 1, ...points.map(({ east, north }) => Math.max(Math.abs(east), Math.abs(north))));
-
-  return <>
-    <h2 className="map-caption-top">Facility locations</h2>
-    <div className="location-plot">
-      <span className="plot-origin" role="img" aria-label="Search origin" title={origin.label ?? 'Search origin'} />
-      {points.map(({ facility, east, north }) => (
-        <button key={facility.id} type="button" className={`plot-marker ${selectedId === facility.id ? 'is-selected' : ''}`}
-          style={{ left: `${50 + east / extent * 44}%`, top: `${50 - north / extent * 44}%` }}
-          onClick={() => onSelect(facility)} aria-label={`Open ${facility.name}`} title={facility.name}
-          tabIndex={selectedId === facility.id ? 0 : -1} />
-      ))}
-    </div>
-    <p className="map-caption-bottom">Gold dot marks the search origin · Coordinates only</p>
-  </>;
-}
-
-export default function FacilityMap({ facilities, queryLocation, radiusKm, selectedId, onSelect, illustrative, hasDetail }) {
+function IllustrativeMap({ facilities, queryLocation, radiusKm, selectedId, onSelect, illustrative, hasDetail }) {
   const container = useRef(null);
   const [scale, setScale] = useState(1);
   useEffect(() => {
@@ -46,9 +22,11 @@ export default function FacilityMap({ facilities, queryLocation, radiusKm, selec
             {facility.marker.label}
           </button>
         ))}
-      </div> : queryLocation
-        ? <LocationPlot facilities={facilities} origin={queryLocation} radiusKm={radiusKm} selectedId={selectedId} onSelect={onSelect} />
-        : <div className="map-unavailable"><h2>Map unavailable</h2><p>Search location will appear here.</p></div>}
+      </div> : null}
     </section>
   );
+}
+
+export default function FacilityMap(props) {
+  return props.illustrative ? <IllustrativeMap {...props} /> : <LiveFacilityMap {...props} />;
 }
