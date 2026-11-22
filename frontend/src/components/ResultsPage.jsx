@@ -28,6 +28,9 @@ export default function ResultsPage({ facilities, illustrative, queryLocation, r
         <main className="results-main">
           <div className="results-grid" inert={detail ? true : undefined}>
             <section className="results-list-panel" aria-label="Healthcare facilities">
+              <button className="back-to-search" type="button" onClick={onHome}>
+                <span aria-hidden="true">←</span> Back to search
+              </button>
               <div className="results-toolbar">
                 <div>
                   <h1 ref={heading} tabIndex={-1}>Search results</h1>

@@ -44,6 +44,11 @@ test('search validation, results, distance sorting, drawer keyboard controls, an
     await user.click(screen.getByRole('button', { name: 'Open Asha Multispeciality Centre' }));
     assert.ok(screen.getByRole('dialog', { name: 'Asha Multispeciality Centre' }));
     await user.click(screen.getByRole('button', { name: 'Close facility details' }));
+    await user.click(screen.getByRole('button', { name: 'Back to search' }));
+    assert.equal(screen.getByLabelText('How can I help you?').value, 'I need to find a nursing service in 800001');
+    assert.equal(screen.queryByRole('heading', { name: 'Search results' }), null);
+    await user.click(screen.getByRole('button', { name: 'Send ↑' }));
+    await screen.findByRole('heading', { name: 'Search results' });
     await user.click(screen.getByRole('button', { name: 'CareLens — start a new search' }));
     assert.equal(screen.getByLabelText('How can I help you?').value, 'I need to find a nursing service in 800001');
   } finally { cleanup(); await server.close(); dom.window.close(); }

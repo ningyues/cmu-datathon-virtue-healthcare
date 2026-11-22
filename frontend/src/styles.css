@@ -59,6 +59,8 @@ button, a, textarea, select { -webkit-tap-highlight-color: transparent; }
 .results-main { margin: 21px 48px 0; position: relative; min-height: 799px; }
 .results-grid { display: grid; grid-template-columns: minmax(0, 620fr) minmax(0, 708fr); gap: 16px; }
 .results-list-panel { min-width: 0; }
+.back-to-search { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; margin-bottom: 8px; padding: 0 14px; border: 1px solid var(--ice); border-radius: 99px; background: white; color: var(--indigo); font-size: 14px; font-weight: 700; }
+.back-to-search:hover { background: var(--frost); border-color: var(--periwinkle); }
 .results-toolbar { display: flex; gap: 16px; align-items: center; justify-content: space-between; min-height: 77px; }
 .results-toolbar h1 { font-size: 32px; line-height: 1.4; font-weight: 700; white-space: nowrap; }
 .results-toolbar h1:focus { outline: none; }
